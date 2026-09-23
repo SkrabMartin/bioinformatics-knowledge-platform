@@ -1,0 +1,70 @@
+{
+  "fixture_type": "development_demo",
+  "notice": "Development-only interface fixtures. These records are not live imports and must not be treated as authoritative scientific data.",
+  "organisms": [
+    {
+      "scientific_name": "Homo sapiens",
+      "common_name": "Human",
+      "taxonomy_id": "9606",
+      "source": "development_fixture",
+      "source_identifier": "demo-taxonomy-9606",
+      "source_url": null
+    }
+  ],
+  "genes": [
+    {
+      "symbol": "TP53",
+      "name": "Tumor protein p53",
+      "description": "Development fixture for validating the Phase 1 interface; not an authoritative biological record.",
+      "organism_taxonomy_id": "9606",
+      "chromosome": "17",
+      "start_position": null,
+      "end_position": null,
+      "strand": null,
+      "ncbi_gene_id": "demo-ncbi-7157",
+      "ensembl_gene_id": "demo-ensembl-TP53",
+      "source": "development_fixture",
+      "source_identifier": "demo-gene-TP53",
+      "source_url": null
+    },
+    {
+      "symbol": "BRCA1",
+      "name": "BRCA1 DNA repair associated",
+      "description": "Development fixture for validating pagination and entity presentation; not an authoritative biological record.",
+      "organism_taxonomy_id": "9606",
+      "chromosome": "17",
+      "start_position": null,
+      "end_position": null,
+      "strand": null,
+      "ncbi_gene_id": "demo-ncbi-672",
+      "ensembl_gene_id": "demo-ensembl-BRCA1",
+      "source": "development_fixture",
+      "source_identifier": "demo-gene-BRCA1",
+      "source_url": null
+    }
+  ],
+  "proteins": [
+    {
+      "accession": "DEMO-P04637",
+      "name": "Cellular tumor antigen p53 (demo record)",
+      "gene_symbol": "TP53",
+      "organism_taxonomy_id": "9606",
+      "function": "Development fixture text only; consult an authoritative provider for biological function.",
+      "sequence_length": null,
+      "source": "development_fixture",
+      "source_identifier": "demo-protein-P04637",
+      "source_url": null
+    },
+    {
+      "accession": "DEMO-P38398",
+      "name": "BRCA1 protein (demo record)",
+      "gene_symbol": "BRCA1",
+      "organism_taxonomy_id": "9606",
+      "function": "Development fixture text only; consult an authoritative provider for biological function.",
+      "sequence_length": null,
+      "source": "development_fixture",
+      "source_identifier": "demo-protein-P38398",
+      "source_url": null
+    }
+  ]
+}

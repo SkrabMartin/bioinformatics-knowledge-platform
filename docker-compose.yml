@@ -1,0 +1,80 @@
+name: bio-knowledge-platform
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bkp}
+      POSTGRES_USER: ${POSTGRES_USER:-bkp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bkp_development}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      BKP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bkp}:${POSTGRES_PASSWORD:-bkp_development}@db:5432/${POSTGRES_DB:-bkp}
+      BKP_ENVIRONMENT: development
+      BKP_LOG_LEVEL: INFO
+      BKP_LOG_JSON: "false"
+      BKP_CORS_ORIGINS: '["http://localhost:5173"]'
+      BKP_FIXTURE_PATH: /workspace/data/fixtures/phase1_demo.json
+      BKP_EXTERNAL_API_TIMEOUT_SECONDS: ${BKP_EXTERNAL_API_TIMEOUT_SECONDS:-15}
+      BKP_EXTERNAL_API_MAX_ATTEMPTS: ${BKP_EXTERNAL_API_MAX_ATTEMPTS:-3}
+      BKP_EXTERNAL_API_BACKOFF_SECONDS: ${BKP_EXTERNAL_API_BACKOFF_SECONDS:-0.5}
+      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.4.0}
+      BKP_NCBI_BASE_URL: ${BKP_NCBI_BASE_URL:-https://eutils.ncbi.nlm.nih.gov/entrez/eutils}
+      BKP_NCBI_TOOL: ${BKP_NCBI_TOOL:-bio_knowledge_platform}
+      BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
+      BKP_NCBI_API_KEY: ${BKP_NCBI_API_KEY:-}
+      BKP_UNIPROT_BASE_URL: ${BKP_UNIPROT_BASE_URL:-https://rest.uniprot.org}
+    command: >-
+      sh -c "alembic upgrade head &&
+      python -m app.cli load-fixtures &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    working_dir: /workspace/backend
+    volumes:
+      - ./backend:/workspace/backend
+      - ./data:/workspace/data:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+    command:
+      - sh
+      - -c
+      - pnpm install --frozen-lockfile && exec pnpm dev --host 0.0.0.0
+    volumes:
+      - ./frontend:/workspace/frontend
+      - frontend_node_modules:/workspace/frontend/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  frontend_node_modules:

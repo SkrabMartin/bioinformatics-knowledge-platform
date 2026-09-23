@@ -1,0 +1,1 @@
+"""Bioinformatics Knowledge Platform backend."""
