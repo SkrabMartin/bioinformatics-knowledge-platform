@@ -33,6 +33,7 @@ from app.schemas.search import (
     SearchSuggestion,
     SearchSuggestionsResponse,
 )
+from app.search.publications import publication_statement
 from app.services.errors import InvalidInputError
 
 MAX_QUERY_LENGTH = 200
@@ -41,6 +42,7 @@ ENTITY_ORDER = (
     SearchEntityType.GENE,
     SearchEntityType.PROTEIN,
     SearchEntityType.ORGANISM,
+    SearchEntityType.PUBLICATION,
 )
 SearchField = ColumnElement[Any] | InstrumentedAttribute[Any]
 
@@ -78,6 +80,7 @@ class SearchService:
             gene=category_counts[SearchEntityType.GENE],
             protein=category_counts[SearchEntityType.PROTEIN],
             organism=category_counts[SearchEntityType.ORGANISM],
+            publication=category_counts[SearchEntityType.PUBLICATION],
             total=sum(category_counts.values()),
         )
         return SearchResponse(
@@ -140,6 +143,9 @@ class SearchService:
             SearchEntityType.GENE: self._gene_statement(query, terms),
             SearchEntityType.PROTEIN: self._protein_statement(query, terms),
             SearchEntityType.ORGANISM: self._organism_statement(query, terms),
+            SearchEntityType.PUBLICATION: publication_statement(
+                query, postgresql=self.is_postgresql
+            ),
         }
 
     def _gene_statement(self, query: str, terms: Sequence[str]) -> Select[Any]:
@@ -427,7 +433,11 @@ def _result_from_row(row: RowMapping, query: str, terms: Sequence[str]) -> Searc
         description=description_text,
         organism=organism,
         source=str(row["source"]),
-        href=_entity_href(entity_type, primary_label, row["organism_taxonomy_id"]),
+        href=(
+            f"/publication/{row['entity_id']}"
+            if entity_type is SearchEntityType.PUBLICATION
+            else _entity_href(entity_type, primary_label, row["organism_taxonomy_id"])
+        ),
         score=int(row["score"]),
         matched_fields=matched_fields,
     )

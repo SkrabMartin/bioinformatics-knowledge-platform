@@ -8,6 +8,7 @@ import httpx2
 from app.core.config import get_settings
 from app.core.database import get_session_factory
 from app.fixtures import load_development_fixtures
+from app.ingestion.publications import PublicationIngestionService
 from app.ingestion.services import (
     GeneIngestionService,
     IngestionPersistenceError,
@@ -16,6 +17,7 @@ from app.ingestion.services import (
 from app.integrations.errors import IntegrationError
 from app.integrations.http import RetryingJsonClient
 from app.integrations.ncbi import NcbiGeneAdapter
+from app.integrations.ncbi.pubmed import PubMedAdapter
 from app.integrations.uniprot import UniProtAdapter
 
 
@@ -37,6 +39,11 @@ def build_parser() -> argparse.ArgumentParser:
         "import-protein", help="Import or refresh one protein from UniProtKB"
     )
     protein_parser.add_argument("accession", help="UniProtKB accession, for example P04637")
+    publication_parser = subparsers.add_parser(
+        "import-publication",
+        help="Import one PubMed citation and explicit links to already stored genes",
+    )
+    publication_parser.add_argument("pubmed_id", help="Numeric PubMed ID")
     return parser
 
 
@@ -79,6 +86,28 @@ def main() -> None:
                     result = GeneIngestionService(session, gene_provider).import_gene(
                         arguments.symbol, arguments.taxonomy_id
                     )
+            elif arguments.command == "import-publication":
+                transport = RetryingJsonClient(
+                    client,
+                    provider="NCBI PubMed",
+                    max_attempts=settings.external_api_max_attempts,
+                    backoff_seconds=settings.external_api_backoff_seconds,
+                )
+                publication_provider = PubMedAdapter(
+                    transport,
+                    base_url=settings.ncbi_base_url,
+                    tool=settings.ncbi_tool,
+                    email=settings.ncbi_email,
+                    api_key=settings.ncbi_api_key.get_secret_value()
+                    if settings.ncbi_api_key
+                    else None,
+                )
+                with get_session_factory()() as session:
+                    publication_result = PublicationIngestionService(
+                        session, publication_provider
+                    ).import_publication(arguments.pubmed_id)
+                print(publication_result.model_dump_json())
+                return
             else:
                 transport = RetryingJsonClient(
                     client,

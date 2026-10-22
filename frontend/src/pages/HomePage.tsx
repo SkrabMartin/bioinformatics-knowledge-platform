@@ -9,12 +9,12 @@ export function HomePage() {
           <span className="eyebrow eyebrow--light">Connected biological knowledge</span>
           <h1>Move from an identifier to its biological context.</h1>
           <p>
-            A traceable, open foundation for exploring genes, proteins, diseases, variants, and
-            sourced relationships among them.
+            A traceable, open foundation for exploring genes, proteins, diseases, variants,
+            publications, and sourced relationships among them.
           </p>
           <SearchBox />
           <p className="search-hint">
-            Search genes, proteins, and organisms already in the local database.
+            Search genes, proteins, organisms, and publications already in the local database.
           </p>
         </div>
         <div className="hero-visual" aria-hidden="true">
@@ -42,9 +42,8 @@ export function HomePage() {
             <h2 id="explore-heading">Explore the current knowledge model</h2>
           </div>
           <p>
-            The current release adds typed disease and variant records to a dependable core. Every
-            visible record carries source metadata; starter fixtures are labeled as development
-            data.
+            Explore biological records alongside imported scientific citations. Every visible record
+            carries source metadata; starter fixtures are labeled as development data.
           </p>
         </div>
         <div className="card-grid">
@@ -76,6 +75,13 @@ export function HomePage() {
             href="/variants"
             icon="V"
           />
+          <EntityCard
+            eyebrow="Scientific literature"
+            title="Publications"
+            description="Read imported citations, open source articles, and follow explicitly recorded entity links."
+            href="/publications"
+            icon="L"
+          />
           <article className="entity-card entity-card--static">
             <span className="entity-icon" aria-hidden="true">
               O
@@ -104,7 +110,7 @@ export function HomePage() {
           </li>
           <li>
             <strong>Expandable</strong>
-            <span>Typed relationships leave room for publications and graph traversal.</span>
+            <span>Typed literature links connect records to source publications.</span>
           </li>
         </ol>
       </section>

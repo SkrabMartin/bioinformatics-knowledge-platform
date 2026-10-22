@@ -36,7 +36,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
-        version="0.4.0",
+        version="0.5.0",
         description="Biological entity API with ingestion, search, and sourced relationships.",
         lifespan=lifespan,
     )
@@ -46,7 +46,7 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origins,
         allow_credentials=False,
         allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
-        allow_headers=["Content-Type", "X-Request-ID"],
+        allow_headers=["Content-Type", "X-Request-ID", "Authorization"],
     )
 
     @application.middleware("http")

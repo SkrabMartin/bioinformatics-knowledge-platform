@@ -9,6 +9,7 @@ class SearchEntityType(StrEnum):
     GENE = "gene"
     PROTEIN = "protein"
     ORGANISM = "organism"
+    PUBLICATION = "publication"
 
 
 class SearchMatchedField(ApiModel):
@@ -38,6 +39,7 @@ class SearchCounts(ApiModel):
     gene: int = Field(ge=0)
     protein: int = Field(ge=0)
     organism: int = Field(ge=0)
+    publication: int = Field(default=0, ge=0)
     total: int = Field(ge=0)
 
 

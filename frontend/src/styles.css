@@ -1406,3 +1406,54 @@ footer p {
     transition-duration: 0.01ms !important;
   }
 }
+/* Literature shares the existing entity layout and source presentation. */
+.publication-list {
+  display: grid;
+  gap: 1rem;
+}
+.publication-card {
+  padding: 1.4rem;
+  border: 1px solid var(--border, #dbe4e2);
+  border-radius: 12px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.publication-card h3 {
+  margin: 0.75rem 0;
+}
+.publication-card p {
+  line-height: 1.6;
+}
+.citation-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.publication-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.publication-controls label {
+  display: grid;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: min(100%, 220px);
+}
+.publication-controls input,
+.publication-controls select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #bdccca;
+  border-radius: 8px;
+  background: #fff;
+  color: #16352f;
+  font: inherit;
+}
+.publication-abstract {
+  white-space: pre-wrap;
+}

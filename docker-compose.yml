@@ -31,11 +31,12 @@ services:
       BKP_EXTERNAL_API_TIMEOUT_SECONDS: ${BKP_EXTERNAL_API_TIMEOUT_SECONDS:-15}
       BKP_EXTERNAL_API_MAX_ATTEMPTS: ${BKP_EXTERNAL_API_MAX_ATTEMPTS:-3}
       BKP_EXTERNAL_API_BACKOFF_SECONDS: ${BKP_EXTERNAL_API_BACKOFF_SECONDS:-0.5}
-      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.4.0}
+      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.5.0}
       BKP_NCBI_BASE_URL: ${BKP_NCBI_BASE_URL:-https://eutils.ncbi.nlm.nih.gov/entrez/eutils}
       BKP_NCBI_TOOL: ${BKP_NCBI_TOOL:-bio_knowledge_platform}
       BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
       BKP_NCBI_API_KEY: ${BKP_NCBI_API_KEY:-}
+      BKP_ADMIN_API_TOKEN: ${BKP_ADMIN_API_TOKEN:-}
       BKP_UNIPROT_BASE_URL: ${BKP_UNIPROT_BASE_URL:-https://rest.uniprot.org}
     command: >-
       sh -c "alembic upgrade head &&

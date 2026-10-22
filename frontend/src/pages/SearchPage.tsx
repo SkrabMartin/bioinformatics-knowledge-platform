@@ -16,6 +16,7 @@ const categories: {
   { value: "gene", label: "Genes", countKey: "gene" },
   { value: "protein", label: "Proteins", countKey: "protein" },
   { value: "organism", label: "Organisms", countKey: "organism" },
+  { value: "publication", label: "Publications", countKey: "publication" },
 ];
 
 export function SearchPage() {
@@ -23,7 +24,10 @@ export function SearchPage() {
   const query = params.get("q")?.trim() ?? "";
   const requestedType = params.get("type");
   const category: SearchEntityType | null =
-    requestedType === "gene" || requestedType === "protein" || requestedType === "organism"
+    requestedType === "gene" ||
+    requestedType === "protein" ||
+    requestedType === "organism" ||
+    requestedType === "publication"
       ? requestedType
       : null;
   const requestedPage = Number(params.get("page") ?? 1);
@@ -42,7 +46,7 @@ export function SearchPage() {
       <PageHeader
         eyebrow="Search workspace"
         title={query ? `Search: ${query}` : "Search biological knowledge"}
-        description="Find locally imported genes, proteins, and organisms by symbol, name, accession, or external identifier. Results retain their source context."
+        description="Find locally stored genes, proteins, organisms, and publications by name or identifier. Results retain their source context."
         searchValue={query}
       />
 
@@ -94,7 +98,7 @@ export function SearchPage() {
                       type="button"
                     >
                       <span>{item.label}</span>
-                      <strong>{data.counts[item.countKey]}</strong>
+                      <strong>{data.counts[item.countKey] ?? 0}</strong>
                     </button>
                   ))}
                 </aside>

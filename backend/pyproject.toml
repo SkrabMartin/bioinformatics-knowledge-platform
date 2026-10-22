@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bio-knowledge-platform-backend"
-version = "0.4.0"
+version = "0.5.0"
 description = "FastAPI backend for the Bioinformatics Knowledge Platform"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+  "defusedxml>=0.7.1,<1",
   "alembic>=1.16,<2",
   "fastapi>=0.141,<0.142",
   "httpx2>=2.13,<3",
@@ -50,5 +51,5 @@ plugins = ["pydantic.mypy"]
 exclude = ["migrations"]
 
 [[tool.mypy.overrides]]
-module = ["alembic.*"]
+module = ["alembic.*", "defusedxml.*"]
 ignore_missing_imports = true

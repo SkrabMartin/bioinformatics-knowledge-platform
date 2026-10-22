@@ -19,6 +19,7 @@ MANAGED_SEARCH_EXPRESSION_INDEXES = {
     "ix_genes_search_document",
     "ix_organisms_search_document",
     "ix_proteins_search_document",
+    "ix_publications_search_document",
 }
 
 

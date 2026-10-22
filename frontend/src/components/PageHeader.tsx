@@ -5,9 +5,16 @@ interface PageHeaderProps {
   title: string;
   description: string;
   searchValue?: string;
+  showSearch?: boolean;
 }
 
-export function PageHeader({ eyebrow, title, description, searchValue }: PageHeaderProps) {
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  searchValue,
+  showSearch = true,
+}: PageHeaderProps) {
   return (
     <header className="page-header">
       <div>
@@ -15,7 +22,7 @@ export function PageHeader({ eyebrow, title, description, searchValue }: PageHea
         <h1>{title}</h1>
         <p>{description}</p>
       </div>
-      <SearchBox compact initialValue={searchValue} />
+      {showSearch && <SearchBox compact initialValue={searchValue} />}
     </header>
   );
 }

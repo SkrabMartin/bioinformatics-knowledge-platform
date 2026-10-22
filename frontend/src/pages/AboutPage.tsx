@@ -22,8 +22,8 @@ export function AboutPage() {
           <h2>Current scope</h2>
           <p>
             Genes and proteins can be imported from NCBI and UniProt and searched alongside
-            organisms. Diseases, variants, and their explicitly sourced relationships are browsable
-            through the API and entity pages.
+            organisms. PubMed citations can be imported and searched with explicit provider links to
+            locally stored genes. Diseases, variants, and sourced relationships are browsable.
           </p>
         </section>
         <section>

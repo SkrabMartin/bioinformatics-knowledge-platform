@@ -38,3 +38,14 @@ data/processed/*
 
 # Docker overrides
 docker-compose.override.yml
+
+# Local planning, prompts and review artifacts (not part of application releases)
+/PROJECT_VISION_AND_ROADMAP.md
+/PROJECT_OVERVIEW.md
+/ROADMAP_REVIEW.md
+/*_PROMPT.md
+/*report*.md
+/*REPORT*.md
+/homepage.png
+# Accidental copies of environment assignments are local configuration, too.
+/BKP_*=*

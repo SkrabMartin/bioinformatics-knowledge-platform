@@ -12,14 +12,14 @@ export function DetailHeader({
   type: string;
   title: string;
   subtitle: string;
-  organism: string;
+  organism?: string;
 }) {
   return (
     <header className="detail-hero">
       <span className="eyebrow">{type}</span>
       <h1>{title}</h1>
       <p className="detail-subtitle">{subtitle}</p>
-      <p className="detail-organism">{organism}</p>
+      {organism && <p className="detail-organism">{organism}</p>}
     </header>
   );
 }

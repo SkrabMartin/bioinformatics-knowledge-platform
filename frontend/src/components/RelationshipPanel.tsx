@@ -13,6 +13,9 @@ const predicateLabels = {
   located_in: "located in",
   interacts_with: "interacts with",
   encodes: "encodes",
+  mentions: "mentions (source link)",
+  studies: "studies (source assertion)",
+  discusses: "discusses (source assertion)",
 };
 
 export function RelationshipPanel({
@@ -49,6 +52,13 @@ export function RelationshipPanel({
                   <div className="relationship-meta">
                     <ProvenanceBadge source={relationship.source} />
                     <span>Source ID: {relationship.source_identifier ?? "Not supplied"}</span>
+                    {relationship.evidence_kind && (
+                      <span>
+                        {relationship.evidence_kind === "curated"
+                          ? "Curated assertion"
+                          : "Structured provider metadata"}
+                      </span>
+                    )}
                     {relationship.provenance_basis === "protein_record" && (
                       <span>Link inherited from protein record</span>
                     )}

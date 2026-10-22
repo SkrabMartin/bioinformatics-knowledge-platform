@@ -25,6 +25,16 @@ class JsonHttpClient(Protocol):
     ) -> dict[str, Any]: ...
 
 
+class TextHttpClient(JsonHttpClient, Protocol):
+    def get_text(
+        self,
+        url: str,
+        *,
+        params: Mapping[str, str | int] | None = None,
+        not_found_message: str,
+    ) -> str: ...
+
+
 class RetryingJsonClient:
     """Synchronous JSON transport with bounded retries for read-only provider calls."""
 
@@ -50,9 +60,55 @@ class RetryingJsonClient:
         params: Mapping[str, str | int] | None = None,
         not_found_message: str,
     ) -> dict[str, Any]:
+        response = self._get_response(url, params=params, not_found_message=not_found_message)
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            raise UpstreamResponseError(
+                self.provider, f"{self.provider} returned malformed JSON."
+            ) from exc
+        if not isinstance(payload, dict):
+            raise UpstreamResponseError(
+                self.provider, f"{self.provider} returned an unexpected response shape."
+            )
+        return cast(dict[str, Any], payload)
+
+    def get_text(
+        self,
+        url: str,
+        *,
+        params: Mapping[str, str | int] | None = None,
+        not_found_message: str,
+    ) -> str:
+        return self._get_response(url, params=params, not_found_message=not_found_message).text
+
+    def _get_response(
+        self,
+        url: str,
+        *,
+        params: Mapping[str, str | int] | None,
+        not_found_message: str,
+    ) -> httpx2.Response:
         for attempt in range(1, self.max_attempts + 1):
             try:
-                response = self.client.get(url, params=params)
+                with self.client.stream("GET", url, params=params) as streamed:
+                    body = bytearray()
+                    for chunk in streamed.iter_bytes():
+                        body.extend(chunk)
+                        if len(body) > 2_000_000:
+                            raise UpstreamResponseError(
+                                self.provider, "Provider response exceeds the single-record limit."
+                            )
+                    response = httpx2.Response(
+                        streamed.status_code,
+                        headers={
+                            key: value
+                            for key, value in streamed.headers.items()
+                            if key not in {"content-encoding", "content-length"}
+                        },
+                        content=bytes(body),
+                        request=streamed.request,
+                    )
             except (httpx2.TimeoutException, httpx2.TransportError) as exc:
                 if attempt == self.max_attempts:
                     raise UpstreamUnavailableError(
@@ -91,17 +147,7 @@ class RetryingJsonClient:
                     f"{self.provider} rejected the request with HTTP {response.status_code}.",
                 )
 
-            try:
-                payload = response.json()
-            except ValueError as exc:
-                raise UpstreamResponseError(
-                    self.provider, f"{self.provider} returned malformed JSON."
-                ) from exc
-            if not isinstance(payload, dict):
-                raise UpstreamResponseError(
-                    self.provider, f"{self.provider} returned an unexpected response shape."
-                )
-            return cast(dict[str, Any], payload)
+            return response
 
         raise AssertionError("Retry loop exited without returning or raising.")
 

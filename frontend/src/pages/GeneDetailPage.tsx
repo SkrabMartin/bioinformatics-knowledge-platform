@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
 import { RelationshipPanel } from "../components/RelationshipPanel";
+import { PublicationPanel } from "../components/PublicationPanel";
 import { ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 import type { GeneDetail } from "../types/entities";
@@ -88,6 +89,7 @@ export function GeneDetailPage() {
           )}
         </DetailSection>
         <RelationshipPanel key={gene.id} entityType="gene" entityId={gene.id} />
+        <PublicationPanel key={`publications-${gene.id}`} geneId={gene.id} />
         <DetailSection title="Source provenance">
           <ProvenancePanel record={gene} />
         </DetailSection>

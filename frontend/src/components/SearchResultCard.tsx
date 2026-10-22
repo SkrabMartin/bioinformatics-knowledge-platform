@@ -9,6 +9,7 @@ const entityLabels = {
   gene: "Gene",
   protein: "Protein",
   organism: "Organism",
+  publication: "Publication",
 };
 
 const fieldLabels: Record<string, string> = {
@@ -23,6 +24,11 @@ const fieldLabels: Record<string, string> = {
   scientific_name: "Scientific name",
   symbol: "Symbol",
   taxonomy_id: "Taxonomy ID",
+  pubmed_id: "PMID",
+  doi: "DOI",
+  title: "Title",
+  journal: "Journal",
+  abstract: "Abstract",
 };
 
 export function SearchResultCard({ result, query }: { result: SearchResult; query: string }) {

@@ -76,7 +76,19 @@ export interface Variant extends ProvenanceFields {
   organism: OrganismSummary;
 }
 
-export type RelatedEntityType = "gene" | "protein" | "variant" | "disease";
+export type RelatedEntityType = "gene" | "protein" | "variant" | "disease" | "publication";
+
+export interface Publication extends ProvenanceFields {
+  id: number;
+  pubmed_id: string | null;
+  doi: string | null;
+  title: string;
+  abstract: string | null;
+  journal: string | null;
+  authors: string[];
+  publication_date: string | null;
+  publication_date_text: string | null;
+}
 
 export interface RelationshipNode {
   entity_type: RelatedEntityType;
@@ -87,9 +99,24 @@ export interface RelationshipNode {
 
 export interface EntityRelationship {
   relationship_type:
-    "gene_disease" | "variant_gene" | "variant_disease" | "protein_interaction" | "gene_protein";
+    | "gene_disease"
+    | "variant_gene"
+    | "variant_disease"
+    | "protein_interaction"
+    | "gene_protein"
+    | "publication_gene"
+    | "publication_protein"
+    | "publication_disease";
   relationship_id: number;
-  predicate: "associated_with" | "located_in" | "interacts_with" | "encodes";
+  predicate:
+    | "associated_with"
+    | "located_in"
+    | "interacts_with"
+    | "encodes"
+    | "mentions"
+    | "discusses"
+    | "studies";
+  evidence_kind?: "structured_metadata" | "curated" | null;
   subject: RelationshipNode;
   object: RelationshipNode;
   source: string;
@@ -110,7 +137,7 @@ export interface Page<T> {
   pages: number;
 }
 
-export type SearchEntityType = "gene" | "protein" | "organism";
+export type SearchEntityType = "gene" | "protein" | "organism" | "publication";
 
 export interface SearchMatchedField {
   field: string;
@@ -137,6 +164,7 @@ export interface SearchCounts {
   gene: number;
   protein: number;
   organism: number;
+  publication: number;
   total: number;
 }
 

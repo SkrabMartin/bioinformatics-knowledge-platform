@@ -1,6 +1,6 @@
 from collections import defaultdict
 from math import ceil
-from typing import Any
+from typing import Any, cast
 from urllib.parse import quote
 
 from sqlalchemy import func, literal, or_, select, union_all
@@ -13,6 +13,10 @@ from app.models import (
     GeneDiseaseAssociation,
     Protein,
     ProteinInteraction,
+    Publication,
+    PublicationDisease,
+    PublicationGene,
+    PublicationProtein,
     Variant,
     VariantDiseaseAssociation,
     VariantGeneLocation,
@@ -21,9 +25,11 @@ from app.schemas.common import Page
 from app.schemas.relationship import (
     EntityType,
     GeneDiseaseCreate,
+    Predicate,
     ProteinInteractionCreate,
     RelationshipNode,
     RelationshipRead,
+    RelationshipType,
     VariantDiseaseCreate,
     VariantGeneCreate,
 )
@@ -36,6 +42,15 @@ RelationshipRecord = (
     | VariantDiseaseAssociation
     | ProteinInteraction
     | Protein
+    | PublicationGene
+    | PublicationProtein
+    | PublicationDisease
+)
+
+PUBLICATION_RELATIONS: tuple[tuple[str, Any, Any], ...] = (
+    ("publication_gene", PublicationGene, PublicationGene.gene),
+    ("publication_protein", PublicationProtein, PublicationProtein.protein),
+    ("publication_disease", PublicationDisease, PublicationDisease.disease),
 )
 
 
@@ -50,6 +65,11 @@ class RelationshipService:
         self._require(Disease, data.disease_id)
         edge = GeneDiseaseAssociation(**model_values(data))
         return self._persist(edge, "gene_disease")
+
+    def create_publication_link(
+        self, edge: PublicationGene | PublicationProtein | PublicationDisease, kind: str
+    ) -> RelationshipRead:
+        return self._persist(edge, kind)
 
     def create_variant_gene(self, data: VariantGeneCreate) -> RelationshipRead:
         variant = self._require(Variant, data.variant_id)
@@ -78,11 +98,33 @@ class RelationshipService:
     def list_for(
         self, entity_type: EntityType, entity_id: int, *, page: int, page_size: int
     ) -> Page[RelationshipRead]:
-        model = {"gene": Gene, "protein": Protein, "variant": Variant, "disease": Disease}[
-            entity_type
-        ]
+        model = {
+            "gene": Gene,
+            "protein": Protein,
+            "variant": Variant,
+            "disease": Disease,
+            "publication": Publication,
+        }[entity_type]
         self._require(model, entity_id)
         statements = self._index_statements(entity_type, entity_id)
+        for kind, edge_model, foreign_key in (
+            ("publication_gene", PublicationGene, PublicationGene.gene_id),
+            ("publication_protein", PublicationProtein, PublicationProtein.protein_id),
+            ("publication_disease", PublicationDisease, PublicationDisease.disease_id),
+        ):
+            if entity_type == "publication" or entity_type == kind.removeprefix("publication_"):
+                condition = (
+                    edge_model.publication_id == entity_id
+                    if entity_type == "publication"
+                    else foreign_key == entity_id
+                )
+                statements.append(
+                    select(
+                        literal(kind).label("kind"),
+                        edge_model.id.label("relation_id"),
+                        edge_model.created_at.label("created_at"),
+                    ).where(condition)
+                )
         combined = union_all(*statements).subquery()
         total = self.session.scalar(select(func.count()).select_from(combined)) or 0
         rows = self.session.execute(
@@ -121,6 +163,9 @@ class RelationshipService:
         return entity
 
     def _index_statements(self, entity_type: EntityType, entity_id: int) -> list[Any]:
+        if entity_type == "publication":
+            return []
+
         def indexed(kind: str, model: Any, condition: Any) -> Any:
             return select(
                 literal(kind).label("kind"),
@@ -182,6 +227,15 @@ class RelationshipService:
         self, ids_by_kind: dict[str, set[int]]
     ) -> dict[str, dict[int, RelationshipRecord]]:
         records: dict[str, dict[int, RelationshipRecord]] = {}
+        for kind, edge_model, target in PUBLICATION_RELATIONS:
+            if ids := ids_by_kind.get(kind):
+                options = [selectinload(edge_model.publication), selectinload(target)]
+                if kind == "publication_gene":
+                    options.append(selectinload(PublicationGene.gene).selectinload(Gene.organism))
+                rows = self.session.scalars(
+                    select(edge_model).where(edge_model.id.in_(ids)).options(*options)
+                ).all()
+                records[kind] = {row.id: row for row in rows}
         if ids := ids_by_kind.get("gene_disease"):
             gene_disease_rows = self.session.scalars(
                 select(GeneDiseaseAssociation)
@@ -232,7 +286,21 @@ class RelationshipService:
         return records
 
     def _serialize(self, kind: str, record: RelationshipRecord) -> RelationshipRead:
-        if isinstance(record, GeneDiseaseAssociation):
+        predicate: Predicate
+        if isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease)):
+            subject = RelationshipNode(
+                entity_type="publication",
+                entity_id=record.publication_id,
+                label=record.publication.title,
+                href=f"/publication/{record.publication_id}",
+            )
+            if isinstance(record, PublicationGene):
+                object_, predicate = _gene_node(record.gene), "mentions"
+            elif isinstance(record, PublicationProtein):
+                object_, predicate = _protein_node(record.protein), "discusses"
+            else:
+                object_, predicate = _disease_node(record.disease), "studies"
+        elif isinstance(record, GeneDiseaseAssociation):
             subject, object_ = _gene_node(record.gene), _disease_node(record.disease)
             predicate = "associated_with"
         elif isinstance(record, VariantGeneLocation):
@@ -250,7 +318,7 @@ class RelationshipService:
             subject, object_ = _gene_node(record.gene), _protein_node(record)
             predicate = "encodes"
         return RelationshipRead(
-            relationship_type=kind,
+            relationship_type=cast(RelationshipType, kind),
             relationship_id=record.id,
             predicate=predicate,
             subject=subject,
@@ -260,6 +328,9 @@ class RelationshipService:
             source_url=record.source_url,
             imported_at=record.imported_at,
             evidence_text=None if isinstance(record, Protein) else record.evidence_text,
+            evidence_kind=record.evidence_kind
+            if isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease))
+            else None,
             provenance_basis=(
                 "protein_record" if isinstance(record, Protein) else "relationship_assertion"
             ),

@@ -16,6 +16,7 @@ const navigation = [
   ["/proteins", "Proteins"],
   ["/diseases", "Diseases"],
   ["/variants", "Variants"],
+  ["/publications", "Publications"],
   ["/about", "About"],
 ];
 
@@ -52,7 +53,7 @@ export function AppLayout() {
           <strong>BioKnowledge Platform</strong>
           <p>Open infrastructure for traceable biological knowledge.</p>
         </div>
-        <p>Phase 4 · Relationships</p>
+        <p>Phase 5 · Scientific literature</p>
       </footer>
     </div>
   );
