@@ -1,5 +1,6 @@
 import { EntityCard } from "../components/EntityCard";
 import { SearchBox } from "../components/SearchBox";
+import { Link } from "react-router-dom";
 
 export function HomePage() {
   return (
@@ -16,6 +17,9 @@ export function HomePage() {
           <p className="search-hint">
             Search genes, proteins, organisms, and publications already in the local database.
           </p>
+          <Link className="hero-graph-link" to="/graph">
+            Explore the relationship graph ↗
+          </Link>
         </div>
         <div className="hero-visual" aria-hidden="true">
           <span className="node node--gene">Gene</span>

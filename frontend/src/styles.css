@@ -1457,3 +1457,224 @@ footer p {
 .publication-abstract {
   white-space: pre-wrap;
 }
+/* Bounded knowledge graph explorer */
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.2rem;
+  margin: 0 0 1rem;
+}
+.hero-graph-link {
+  color: #d7eddf;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.graph-page {
+  max-width: 1600px;
+}
+.graph-root-form,
+.graph-query-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.graph-root-form label,
+.graph-query-controls label,
+.graph-inspector label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.graph-root-form input,
+.graph-query-controls select,
+.graph-inspector select {
+  padding: 0.7rem;
+  border: 1px solid #becfc8;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  color: #183f34;
+  min-width: 0;
+  max-width: 100%;
+}
+.graph-root-form input {
+  min-width: 150px;
+}
+.graph-filters {
+  border: 1px solid #d5e0db;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+.graph-filters summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.graph-filters fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.1rem;
+  margin-top: 1rem;
+  border: 0;
+  padding: 0;
+}
+.graph-filters legend {
+  margin-bottom: 0.7rem;
+  font-size: 0.85rem;
+}
+.graph-filters label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+.graph-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-transform: capitalize;
+  font-size: 0.8rem;
+}
+.graph-type::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #24766a;
+}
+.graph-type--protein::before {
+  background: #467ab0;
+  border-radius: 3px;
+}
+.graph-type--disease::before {
+  background: #a25676;
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+.graph-type--variant::before {
+  background: #bb7b32;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  border-radius: 0;
+}
+.graph-type--publication::before {
+  background: #7660a5;
+  border-radius: 0;
+}
+.graph-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 1rem;
+}
+.graph-summary button,
+.graph-camera button,
+.graph-node-actions button {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid #b4c8bf;
+  background: #fff;
+  color: #173f33;
+  border-radius: 7px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+}
+.graph-workspace button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  border: 1px solid #d5e0db;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+.graph-canvas-shell {
+  position: relative;
+  min-width: 0;
+  background:
+    radial-gradient(circle, #b7c8bf 1px, transparent 1px) 0 0 / 24px 24px,
+    #f6faf7;
+}
+.graph-canvas {
+  height: 650px;
+  min-height: 400px;
+  width: 100%;
+}
+.graph-camera {
+  position: absolute;
+  z-index: 2;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.graph-inspector {
+  padding: 1.4rem;
+  border-left: 1px solid #d5e0db;
+  overflow-wrap: anywhere;
+}
+.graph-inspector h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+.graph-inspector label {
+  margin: 1rem 0;
+}
+.graph-inspector select {
+  width: 100%;
+}
+.graph-inspector h3 {
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+.graph-inspector dl {
+  font-size: 0.8rem;
+  margin: 1rem 0;
+}
+.graph-inspector dt {
+  font-weight: 600;
+  margin-top: 0.7rem;
+}
+.graph-inspector dd {
+  margin: 0.3rem 0;
+}
+.graph-node-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.2rem 0;
+}
+.graph-limit-notice {
+  background: #fff8e9;
+  border: 1px solid #dbbd6b;
+  color: #665019;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.graph-intro {
+  border: 1px dashed #afc7bb;
+  border-radius: 12px;
+  padding: 2rem;
+  line-height: 1.8;
+}
+@media (max-width: 1000px) {
+  .graph-layout {
+    grid-template-columns: 1fr;
+  }
+  .graph-inspector {
+    border-left: 0;
+    border-top: 1px solid #d5e0db;
+  }
+  .graph-canvas {
+    height: 500px;
+  }
+}

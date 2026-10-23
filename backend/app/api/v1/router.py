@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.v1 import (
     diseases,
     genes,
+    graph,
     organisms,
     proteins,
     publications,
@@ -20,3 +21,4 @@ router.include_router(variants.router)
 router.include_router(relationships.router)
 router.include_router(search.router)
 router.include_router(publications.router)
+router.include_router(graph.router)

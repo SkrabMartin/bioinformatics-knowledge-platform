@@ -23,7 +23,8 @@ export function AboutPage() {
           <p>
             Genes and proteins can be imported from NCBI and UniProt and searched alongside
             organisms. PubMed citations can be imported and searched with explicit provider links to
-            locally stored genes. Diseases, variants, and sourced relationships are browsable.
+            locally stored genes. Diseases, variants, and sourced relationships are browsable. The
+            graph explorer supports bounded traversal, node expansion and source inspection.
           </p>
         </section>
         <section>

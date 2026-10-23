@@ -60,6 +60,39 @@ class RelationshipService:
     def __init__(self, session: Session) -> None:
         self.session = session
 
+    def node_for(self, entity_type: EntityType, entity_id: int) -> RelationshipNode:
+        model = {
+            "gene": Gene,
+            "protein": Protein,
+            "variant": Variant,
+            "disease": Disease,
+            "publication": Publication,
+        }[entity_type]
+        record = self._require(model, entity_id)
+        if isinstance(record, Gene):
+            return _gene_node(record)
+        if isinstance(record, Protein):
+            return _protein_node(record)
+        if isinstance(record, Variant):
+            return _variant_node(record)
+        if isinstance(record, Disease):
+            return _disease_node(record)
+        return _publication_node(cast(Publication, record))
+
+    def read_many(self, references: list[tuple[RelationshipType, int]]) -> list[RelationshipRead]:
+        """Hydrate only a bounded set of explicit edge references, without count queries."""
+        ids: dict[str, set[int]] = defaultdict(set)
+        for kind, identifier in references:
+            ids[kind].add(identifier)
+        records = self._load_records(ids)
+        result = []
+        for kind, identifier in references:
+            record = records.get(kind, {}).get(identifier)
+            if record is None or (isinstance(record, Protein) and record.gene is None):
+                continue
+            result.append(self._serialize(kind, record))
+        return result
+
     def create_gene_disease(self, data: GeneDiseaseCreate) -> RelationshipRead:
         self._require(Gene, data.gene_id)
         self._require(Disease, data.disease_id)
@@ -288,12 +321,7 @@ class RelationshipService:
     def _serialize(self, kind: str, record: RelationshipRecord) -> RelationshipRead:
         predicate: Predicate
         if isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease)):
-            subject = RelationshipNode(
-                entity_type="publication",
-                entity_id=record.publication_id,
-                label=record.publication.title,
-                href=f"/publication/{record.publication_id}",
-            )
+            subject = _publication_node(record.publication)
             if isinstance(record, PublicationGene):
                 object_, predicate = _gene_node(record.gene), "mentions"
             elif isinstance(record, PublicationProtein):
@@ -374,4 +402,13 @@ def _disease_node(disease: Disease) -> RelationshipNode:
         entity_id=disease.id,
         label=disease.name,
         href=f"/disease/{disease.id}",
+    )
+
+
+def _publication_node(publication: Publication) -> RelationshipNode:
+    return RelationshipNode(
+        entity_type="publication",
+        entity_id=publication.id,
+        label=publication.title,
+        href=f"/publication/{publication.id}",
     )

@@ -30,6 +30,11 @@ export function RelationshipPanel({
 
   return (
     <DetailSection title="Relationships">
+      <p>
+        <Link className="button button--small" to={`/graph?type=${entityType}&id=${entityId}`}>
+          Explore graph ↗
+        </Link>
+      </p>
       <div className="relationship-panel" aria-live="polite">
         {loading && <LoadingState label="Loading sourced relationships" />}
         {!loading && error && <ErrorState message={error} onRetry={retry} />}

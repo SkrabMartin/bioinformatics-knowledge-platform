@@ -14,6 +14,7 @@ from app.api.errors import (
     validation_error_handler,
 )
 from app.api.health import router as health_router
+from app.api.v1.graph import compatibility_router as graph_compatibility_router
 from app.api.v1.router import router as v1_router
 from app.api.v1.search import compatibility_router as search_compatibility_router
 from app.core.config import get_settings
@@ -36,7 +37,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
-        version="0.5.0",
+        version="0.6.0",
         description="Biological entity API with ingestion, search, and sourced relationships.",
         lifespan=lifespan,
     )
@@ -77,6 +78,7 @@ def create_app() -> FastAPI:
     application.include_router(health_router, prefix="/api")
     application.include_router(v1_router, prefix="/api")
     application.include_router(search_compatibility_router, prefix="/api")
+    application.include_router(graph_compatibility_router, prefix="/api")
     return application
 
 

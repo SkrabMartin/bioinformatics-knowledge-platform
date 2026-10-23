@@ -6,13 +6,15 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Phase 5 — Publications and Scientific Literature is implemented (0.5.0, work in progress).**
+**Phase 6 — Knowledge Graph Explorer is implemented (0.6.0, work in progress).**
 
 The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
 The application still ships explicitly marked Phase 1 demo fixtures for local startup. Real gene/protein imports are opt-in CLI operations. Phase 4 does **not** automatically import disease or variant assertions: those collections start empty until source-backed records are supplied through the API. Search never invents results for absent records.
 
-Current architecture, Phase 5 operation, and verification notes are maintained in this README. [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+The interactive graph explorer now navigates stored gene, protein, disease, variant, and publication assertions with bounded traversal, node expansion, branch collapse, and source inspection. It does not infer missing relationships or treat source assertions as confirmed scientific conclusions.
+
+Current architecture, operation, and verification notes are maintained in this README. [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
 ## What works
 
@@ -30,6 +32,7 @@ Current architecture, Phase 5 operation, and verification notes are maintained i
 - Reusable navigation, search, cards, tables, pagination, loading, empty, and error states.
 - Responsive scientific UI with explicit provenance badges and demo-data notices.
 - Publication browsing/search, newest/oldest/relevance sorting, citation links, and an associated-publications section on gene pages.
+- Interactive Cytoscape.js graph with pan/zoom, typed nodes, directed assertions, provenance inspection, bounded expansion/collapse, shareable query settings, and entity-page navigation.
 - Fail-closed administrator token protection for new literature HTTP writes and a baseline GitHub Actions workflow with PostgreSQL migration/runtime checks.
 - Docker Compose services for PostgreSQL, backend, and frontend.
 - Backend and frontend tests plus lint, formatting, typing, and build checks.
@@ -116,6 +119,29 @@ Publication SQL matching is shared by the publication repository and unified sea
 
 New HTTP link writes use `BKP_ADMIN_API_TOKEN` on the server. With no configured token they return `503`; missing or incorrect credentials return `401`. This is scoped protection for the new operations, not authentication for the entire legacy API. CLI imports rely on local operating-system access. No admin token is sent to the browser or stored in frontend configuration.
 
+### Phase 6 architecture
+
+```text
+Graph page / entity relationship panel
+    -> typed, read-only graph REST API
+    -> GraphService: bounded breadth-first traversal and response assembly
+    -> GraphRepository: limited UNION projections over eight existing relationship kinds
+    -> PostgreSQL typed relationship tables (no new tables or migration)
+
+Graph response -> bounded client workspace -> lazy-loaded Cytoscape.js canvas
+                                        -> keyboard-accessible node/edge inspector
+```
+
+The graph reuses all five Phase 4 relationship kinds and the three literature link kinds. Each node has a type-qualified ID, detail-page link, and discovery depth. Each edge has a relationship-kind-qualified ID and the complete existing assertion/provenance response. Multiple sources remain separate edges; self-interactions are retained. Encoding edges inherit protein-record provenance. Protein interactions are undirected; other assertions retain their semantic arrow even though neighborhood discovery follows incoming and outgoing links.
+
+Traversal defaults to depth 1, 60 nodes and 120 edges; hard maximums are depth 3, 150 nodes and 300 edges. At most 1,000 candidate edges are scanned per request. Each table projection is limited before the combined result is limited; only selected records are hydrated. A final bounded pass adds edges between already discovered boundary nodes without going beyond the requested depth. Filters do not traverse hidden entity types; the root always remains visible. Ordering is deterministic for unchanged data, not scientific relevance ranking.
+
+`BKP_GRAPH_TIMEOUT_MS` defaults to 1500 (allowed range 100–10000). Cooperative checkpoints bound traversal work, and every PostgreSQL graph SQL statement receives the remaining transaction-local statement timeout. The listener is detached before cancellation rollback and on exit. A timeout before loading the root returns normalized `503 graph_timeout`; afterward it returns the completed partial neighborhood with `time_budget`. This is not a hard end-to-end HTTP deadline: database connection checkout, response serialization and network transport are outside that budget.
+
+Responses expose `truncated`, `truncation_reasons` (`node_limit`, `edge_limit`, `scan_limit`, `time_budget`, or `data_changed`), and `scanned_edges`. Missing/deleted or changed projected endpoints are skipped safely. Reads do not establish a frozen multi-query snapshot. A complete response describes only the stored neighborhood at the requested depth and filters, not complete biological knowledge.
+
+The browser enforces the same workspace node/edge caps across successive one-hop expansions, deduplicates typed IDs, and never introduces dangling edges. Collapse prunes nodes no longer reachable from the root when traversal stops at the selected branch; nodes reachable by another route remain. Requests are aborted when query settings change or the page closes; expansion errors preserve the graph for retry. Cytoscape is loaded only for the graph page. No graph database, background workers, or new ingestion source is introduced.
+
 ## Repository layout
 
 ```text
@@ -140,6 +166,7 @@ New HTTP link writes use `BKP_ADMIN_API_TOKEN` on the server. With no configured
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   ├── features/
 │   │   ├── hooks/
 │   │   ├── pages/
 │   │   ├── services/
@@ -265,6 +292,14 @@ Open <http://localhost:5173/diseases> or <http://localhost:5173/variants>. The l
 
 The API has no authentication yet. Do not expose development write endpoints to untrusted networks or submit unsupported scientific claims. Existing gene→protein links are shown with `provenance_basis=protein_record`; new association rows use `provenance_basis=relationship_assertion`.
 
+### Explore the knowledge graph
+
+Open <http://localhost:5173/graph>, enter a stored gene symbol (human taxonomy `9606` by default), or use **Explore graph** in an entity's Relationships section. A direct example is `/graph?symbol=TP53&taxonomy_id=9606`; typed internal IDs use `/graph?type=gene&id=1`. The default fixtures show a clearly marked demo encoding edge, not authoritative biological evidence.
+
+Use the depth and node/edge controls and entity/relationship filters to bound the neighborhood. Pan by dragging the background, zoom with the wheel or buttons, and use Fit to return to the visible graph. Click a node or edge, or use the inspector's native selection controls, to inspect it. Nodes link to their entity pages and support one-hop expansion and branch collapse. Edges show predicate, source identifier, retrieval timestamp, evidence text/kind when available, provenance basis, and source links. Colors and shapes distinguish entity types.
+
+The URL preserves the root, initial depth, limits, and filters. Manual node positions and expanded/collapsed workspace history are session-local. Partial-result warnings are intentional safety signals: lower depth, narrow filters, or change limits for a different view. An entity with no stored assertions shows an honest isolated-node state. Organisms are not graph nodes in this phase because no explicit organism relationship assertions are currently exposed.
+
 ### Frontend
 
 Node.js 22 or newer and pnpm are required. From `frontend/`:
@@ -325,6 +360,8 @@ GET   /api/v1/variants/{id}
 PATCH /api/v1/variants/{id}
 
 GET   /api/v1/relationships/{gene|protein|variant|disease|publication}/{id}
+GET   /api/v1/graph/{gene|protein|variant|disease|publication}/{id}
+GET   /api/v1/graph/gene/by-symbol/{symbol}?taxonomy_id=9606
 POST  /api/v1/relationships/gene-disease
 POST  /api/v1/relationships/variant-gene
 POST  /api/v1/relationships/variant-disease
@@ -332,6 +369,8 @@ POST  /api/v1/relationships/protein-interaction
 ```
 
 Collection endpoints accept one-based `page` and bounded `page_size` parameters. The response includes `items`, `page`, `page_size`, `total`, and `pages`.
+
+Graph reads accept `depth`, `max_nodes`, `max_edges`, repeated `type=gene|protein|disease|variant|publication`, and repeated `relationship_type` parameters. The kinds are `gene_protein`, `gene_disease`, `variant_gene`, `variant_disease`, `protein_interaction`, `publication_gene`, `publication_protein`, and `publication_disease`. Numeric roots use positive internal IDs, not external identifiers. `/api/graph/gene/{symbol}` is a compatibility alias; versioned routes are canonical. Graph responses use `root_id`, `nodes`, `edges`, `limits`, `truncated`, `truncation_reasons`, and `scanned_edges` rather than collection pagination.
 
 Search accepts a non-blank query of at most 200 characters, `page_size` from 1 to 100, and repeated `type=gene|protein|organism|publication` parameters. Its response also includes per-category counts, relevance scores, matched fields, source labels, and detail links. Counts cover all categories even when `type` filters the current page; `total` and `pages` describe the selected categories. Suggestions require at least two characters and return at most 12 records. `/api/search?q=...` is a compatibility alias; `/api/v1/search` is the documented canonical endpoint. Publication collection reads additionally accept `sort=newest|oldest|relevance`, optional `q`, and optional `gene_id`; relevance without a query falls back to newest available dates.
 
@@ -394,6 +433,18 @@ The preceding paragraph records the historical Phase 4 checks. Phase 5 adds a Gi
 
 Important Phase 5 files: `backend/app/models/publication.py`, `schemas/publication.py`, `repositories/publications.py`, `services/publications.py`, `integrations/ncbi/pubmed.py`, `ingestion/publications.py`, `search/publications.py`, `api/v1/publications.py`, `core/security.py`, migration `20261022_0005_publications.py`, the publication tests, frontend publication pages/components, and `.github/workflows/ci.yml`.
 
+### Phase 6 verification and change record (2026-10-23)
+
+- 48 backend tests passed with an isolated PostgreSQL 17 instance, including actual slow-query cancellation, transaction-local timeout reset, bounded graph traversal, all root types, cycles, parallel edges, filters, provenance and prior-phase regressions.
+- 25 frontend tests passed, including bounded workspace merging, shared-branch collapse, source inspection, expansion/retry, empty/partial states, shareable query controls and request cancellation. The canvas is mocked in unit tests; browser rendering is verified separately.
+- Ruff lint/format, strict mypy, ESLint, Prettier, TypeScript and the production Vite build passed. Cytoscape is in a separate lazy-loaded graph chunk (~143 kB gzipped).
+- All five existing migrations applied on a fresh isolated PostgreSQL 17 database, with no schema differences. No Phase 6 schema migration was required.
+- Docker images built successfully. Updating an existing frontend dependency volume exposed pnpm's non-interactive purge prompt; the Compose frontend now sets `CI=true` so locked dependency refreshes can proceed without a TTY and without deleting PostgreSQL data.
+- Live Docker HTTP checks passed for API version 0.6.0, graph lookup and node-cap warnings, previous search, and publication browsing. The alternate-port verification stack used frontend 5175/API 8005 because default ports were occupied. Manual browser verification confirmed actual canvas rendering, edge-source inspection, keyboard node selection, collapse/re-expansion, zoom and fit on the explicitly labeled demo neighborhood.
+- The upstream Starlette/AnyIO deprecation warning remains; a local pytest cache-permission warning does not affect test execution. Graph performance on production-scale biological datasets remains unbenchmarked.
+
+Important Phase 6 files: `backend/app/schemas/graph.py`, `repositories/graph.py`, `services/graph.py`, `api/v1/graph.py`, `services/relationships.py`, graph unit/PostgreSQL tests, `frontend/src/features/graph/`, `pages/GraphPage.tsx`, `test/Phase6.test.tsx`, graph entry links, and Compose/configuration updates.
+
 ## Product principles
 
 - Never fabricate scientific data. Development fixtures are visibly labeled.
@@ -406,6 +457,7 @@ Important Phase 5 files: `backend/app/models/publication.py`, `schemas/publicati
 
 ## Known limitations
 
+- Graph safety limits intentionally omit oversized neighborhoods; there are no complete degree counts, relevance-ranked graph sampling, saved layouts, export, or production-scale graph benchmarks yet. Workspace expansions/layout are not persisted in shareable URLs. Graph traversal covers five entity types, not organisms or future ontology/pathway entities.
 - Disease and variant records, and their associations, are API-created only in Phase 4. There is no automated MONDO, ClinVar, or dbSNP ingestion yet; a fresh installation shows empty disease/variant collections rather than made-up science.
 - Relationship evidence is source-level assertion metadata, not a scientific confidence score or independently verified claim. Curated versus machine-extracted assertions and multi-source claim reconciliation are not modeled.
 - Existing gene→protein linkage inherits protein-record provenance; it has no separate relationship-evidence row. Clinical significance, assembly-aware coordinates, variant normalization, and evidence ontologies are not stored.
@@ -428,9 +480,9 @@ Important Phase 5 files: `backend/app/models/publication.py`, `schemas/publicati
 
 ## Next phase
 
-Phase 6 will add an interactive knowledge graph explorer with bounded depth/node/edge counts, source inspection, expansion/collapse, and navigation to entity pages. It has not been implemented as part of Phase 5.
+Phase 7 will add pathways, biological processes, molecular functions, and ontology-aware hierarchical relationships. Any enrichment implementation must explicitly report its background population, statistical test, and multiple-testing correction. Phase 7 has not been started.
 
-Graph traversal, pathways, OpenSearch/Elasticsearch, and later-phase infrastructure remain out of scope.
+Pathways, enrichment, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 6.
 
 ## Contributing
 
@@ -438,7 +490,7 @@ Graph traversal, pathways, OpenSearch/Elasticsearch, and later-phase infrastruct
 2. Include tests for behavior changes.
 3. Add migrations for schema changes; never rewrite applied migration history.
 4. Keep external payloads outside domain and persistence interfaces.
-5. Update `README.md`, `ARCHITECTURE.md`, and `CHANGELOG.md` when behavior or architecture changes.
+5. Maintain current behavior, architecture, and verification records in `README.md`; historical architecture/changelog files are retained. Local roadmap, prompt, and report Markdown files are not release artifacts and are not included in commits.
 
 ## License
 

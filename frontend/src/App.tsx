@@ -15,6 +15,12 @@ import { VariantDetailPage } from "./pages/VariantDetailPage";
 import { VariantsPage } from "./pages/VariantsPage";
 import { PublicationsPage } from "./pages/PublicationsPage";
 import { PublicationDetailPage } from "./pages/PublicationDetailPage";
+import { lazy, Suspense } from "react";
+import { LoadingState } from "./components/States";
+
+const GraphPage = lazy(() =>
+  import("./pages/GraphPage").then((module) => ({ default: module.GraphPage })),
+);
 
 export function App() {
   return (
@@ -31,6 +37,20 @@ export function App() {
         <Route path="variants" element={<VariantsPage />} />
         <Route path="publications" element={<PublicationsPage />} />
         <Route path="publication/:id" element={<PublicationDetailPage />} />
+        <Route
+          path="graph"
+          element={
+            <Suspense
+              fallback={
+                <div className="page-container">
+                  <LoadingState label="Loading graph explorer" />
+                </div>
+              }
+            >
+              <GraphPage />
+            </Suspense>
+          }
+        />
         <Route path="variant/:id" element={<VariantDetailPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="*" element={<NotFoundPage />} />
