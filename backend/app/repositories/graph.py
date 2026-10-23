@@ -6,9 +6,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import ColumnElement
 
 from app.models import (
+    GeneBiologicalProcess,
     GeneDiseaseAssociation,
+    GenePathway,
+    OntologyParent,
     Protein,
     ProteinInteraction,
+    ProteinMolecularFunction,
     PublicationDisease,
     PublicationGene,
     PublicationProtein,
@@ -27,9 +31,47 @@ class EdgeSpec:
     subject: Any
     object_type: EntityType
     object: Any
+    condition: ColumnElement[bool] | None = None
 
 
 SPECS = (
+    EdgeSpec(
+        "gene_pathway", GenePathway, "gene", GenePathway.gene_id, "pathway", GenePathway.pathway_id
+    ),
+    EdgeSpec(
+        "gene_biological_process",
+        GeneBiologicalProcess,
+        "gene",
+        GeneBiologicalProcess.gene_id,
+        "biological_process",
+        GeneBiologicalProcess.term_id,
+    ),
+    EdgeSpec(
+        "protein_molecular_function",
+        ProteinMolecularFunction,
+        "protein",
+        ProteinMolecularFunction.protein_id,
+        "molecular_function",
+        ProteinMolecularFunction.term_id,
+    ),
+    EdgeSpec(
+        "biological_process_parent",
+        OntologyParent,
+        "biological_process",
+        OntologyParent.child_id,
+        "biological_process",
+        OntologyParent.parent_id,
+        OntologyParent.kind == "biological_process",
+    ),
+    EdgeSpec(
+        "molecular_function_parent",
+        OntologyParent,
+        "molecular_function",
+        OntologyParent.child_id,
+        "molecular_function",
+        OntologyParent.parent_id,
+        OntologyParent.kind == "molecular_function",
+    ),
     EdgeSpec("gene_protein", Protein, "gene", Protein.gene_id, "protein", Protein.id),
     EdgeSpec(
         "gene_disease",
@@ -139,6 +181,8 @@ class GraphRepository:
             ).where(or_(*conditions), spec.subject.is_not(None), spec.object.is_not(None))
             if excluded := seen.get(spec.kind):
                 statement = statement.where(spec.model.id.not_in(excluded))
+            if spec.condition is not None:
+                statement = statement.where(spec.condition)
             if within is not None:
                 statement = statement.where(
                     spec.subject.in_(within.get(spec.subject_type, [])),

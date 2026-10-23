@@ -5,7 +5,16 @@ from pydantic import Field, HttpUrl
 
 from app.schemas.common import ApiModel
 
-EntityType = Literal["gene", "protein", "variant", "disease", "publication"]
+EntityType = Literal[
+    "gene",
+    "protein",
+    "variant",
+    "disease",
+    "publication",
+    "pathway",
+    "biological_process",
+    "molecular_function",
+]
 RelationshipType = Literal[
     "gene_disease",
     "variant_gene",
@@ -15,9 +24,24 @@ RelationshipType = Literal[
     "publication_gene",
     "publication_protein",
     "publication_disease",
+    "gene_pathway",
+    "gene_biological_process",
+    "protein_molecular_function",
+    "biological_process_parent",
+    "molecular_function_parent",
 ]
 Predicate = Literal[
-    "associated_with", "located_in", "interacts_with", "encodes", "mentions", "discusses", "studies"
+    "associated_with",
+    "located_in",
+    "interacts_with",
+    "encodes",
+    "mentions",
+    "discusses",
+    "studies",
+    "participates_in",
+    "involved_in",
+    "has_function",
+    "is_a",
 ]
 
 
@@ -68,6 +92,8 @@ class RelationshipRead(ApiModel):
     imported_at: datetime | None
     evidence_text: str | None
     evidence_kind: Literal["structured_metadata", "curated"] | None = None
+    source_release: str | None = None
+    evidence_code: str | None = None
     provenance_basis: Literal["relationship_assertion", "protein_record"]
     created_at: datetime
     updated_at: datetime

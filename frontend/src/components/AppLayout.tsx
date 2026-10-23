@@ -17,6 +17,7 @@ const navigation = [
   ["/diseases", "Diseases"],
   ["/variants", "Variants"],
   ["/publications", "Publications"],
+  ["/pathways", "Pathways"],
   ["/graph", "Graph"],
   ["/about", "About"],
 ];
@@ -54,7 +55,7 @@ export function AppLayout() {
           <strong>BioKnowledge Platform</strong>
           <p>Open infrastructure for traceable biological knowledge.</p>
         </div>
-        <p>Phase 6 · Knowledge graph</p>
+        <p>Phase 7 · Pathways &amp; ontology</p>
       </footer>
     </div>
   );

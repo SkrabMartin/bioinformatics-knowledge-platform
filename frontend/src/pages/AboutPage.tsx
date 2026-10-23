@@ -25,6 +25,9 @@ export function AboutPage() {
             organisms. PubMed citations can be imported and searched with explicit provider links to
             locally stored genes. Diseases, variants, and sourced relationships are browsable. The
             graph explorer supports bounded traversal, node expansion and source inspection.
+            Pathways, biological processes, molecular functions and direct ontology hierarchies can
+            be browsed with source releases. Functional records are administrator-supplied;
+            enrichment statistics and automatic ontology imports are not implemented.
           </p>
         </section>
         <section>

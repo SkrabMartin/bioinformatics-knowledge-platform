@@ -35,7 +35,7 @@ export function GraphWorkspace({ resource }: { resource: string }) {
       <div className="graph-legend" aria-label="Graph node type legend">
         {entityTypes.map((type) => (
           <span key={type} className={`graph-type graph-type--${type}`}>
-            {type}
+            {type.replaceAll("_", " ")}
           </span>
         ))}
       </div>
@@ -91,7 +91,7 @@ export function GraphWorkspace({ resource }: { resource: string }) {
           {node && (
             <div className="graph-node-details">
               <span className={`graph-type graph-type--${node.entity_type}`}>
-                {node.entity_type}
+                {node.entity_type.replaceAll("_", " ")}
               </span>
               <h3>{node.label}</h3>
               <Link to={node.href}>Open entity page ↗</Link>
@@ -131,6 +131,18 @@ export function GraphWorkspace({ resource }: { resource: string }) {
                 <dd>{edge.assertion.evidence_kind?.replaceAll("_", " ") ?? "Not classified"}</dd>
                 <dt>Retrieved</dt>
                 <dd>{edge.assertion.imported_at ?? "Not supplied"}</dd>
+                {edge.assertion.source_release && (
+                  <>
+                    <dt>Source release</dt>
+                    <dd>{edge.assertion.source_release}</dd>
+                  </>
+                )}
+                {edge.assertion.evidence_code && (
+                  <>
+                    <dt>Evidence code (as supplied)</dt>
+                    <dd>{edge.assertion.evidence_code}</dd>
+                  </>
+                )}
               </dl>
               {edge.assertion.evidence_text && <p>{edge.assertion.evidence_text}</p>}
               {edge.assertion.source_url && (

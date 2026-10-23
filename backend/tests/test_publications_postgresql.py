@@ -4,6 +4,8 @@ import os
 from uuid import uuid4
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
@@ -22,7 +24,7 @@ def test_postgresql_migration_fulltext_and_partial_dates() -> None:
         with engine.connect() as connection, connection.begin() as transaction:
             assert (
                 connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "20261022_0005"
+                == ScriptDirectory.from_config(Config("alembic.ini")).get_current_head()
             )
             assert (
                 connection.scalar(

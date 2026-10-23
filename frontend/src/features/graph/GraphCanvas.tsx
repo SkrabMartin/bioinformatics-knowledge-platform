@@ -67,6 +67,18 @@ export function GraphCanvas({
         },
         { selector: "node.root", style: { "border-color": "#163f36", "border-width": 5 } },
         {
+          selector: "node[type='pathway']",
+          style: { "background-color": "#598038", shape: "hexagon" },
+        },
+        {
+          selector: "node[type='biological_process']",
+          style: { "background-color": "#278a91", shape: "pentagon" },
+        },
+        {
+          selector: "node[type='molecular_function']",
+          style: { "background-color": "#9a6c36", shape: "vee" },
+        },
+        {
           selector: "edge",
           style: {
             label: "data(label)",

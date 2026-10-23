@@ -221,8 +221,12 @@ def test_database_cancellation_is_partial_but_other_errors_propagate(session: Se
 
 
 def test_graph_api_symbol_alias_validation_missing_root_and_isolation(
-    client: TestClient, session: Session
+    client: TestClient, session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # Contract equivalence must not depend on CI/desktop load; deadlines have separate tests.
+    monkeypatch.setattr(
+        "app.api.v1.graph.GraphService", lambda session: GraphService(session, clock=lambda: 0)
+    )
     ids = seed_graph(session)
     symbol = client.get("/api/v1/graph/gene/by-symbol/DEMO", params={"taxonomy_id": "999999"})
     alias = client.get("/api/graph/gene/DEMO", params={"taxonomy_id": "999999"})

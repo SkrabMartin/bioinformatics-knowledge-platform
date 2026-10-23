@@ -16,6 +16,10 @@ const predicateLabels = {
   mentions: "mentions (source link)",
   studies: "studies (source assertion)",
   discusses: "discusses (source assertion)",
+  participates_in: "participates in",
+  involved_in: "involved in",
+  has_function: "has function",
+  is_a: "is a (broader term)",
 };
 
 export function RelationshipPanel({
@@ -57,6 +61,12 @@ export function RelationshipPanel({
                   <div className="relationship-meta">
                     <ProvenanceBadge source={relationship.source} />
                     <span>Source ID: {relationship.source_identifier ?? "Not supplied"}</span>
+                    {relationship.source_release && (
+                      <span>Release: {relationship.source_release}</span>
+                    )}
+                    {relationship.evidence_code && (
+                      <span>Evidence code: {relationship.evidence_code}</span>
+                    )}
                     {relationship.evidence_kind && (
                       <span>
                         {relationship.evidence_kind === "curated"

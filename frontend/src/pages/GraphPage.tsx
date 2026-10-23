@@ -196,8 +196,8 @@ export function GraphPage() {
         <GraphWorkspace key={resource} resource={resource} />
       ) : (
         <p className="graph-intro">
-          Start with a gene symbol, or choose “Explore graph” on a gene, protein, disease, variant
-          or publication page. No relationships are inferred from a matching name.
+          Start with a gene symbol, or choose “Explore graph” on an entity page, including a pathway
+          or GO term. No relationships are inferred from a matching name.
         </p>
       )}
     </div>

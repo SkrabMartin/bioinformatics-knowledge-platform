@@ -1,5 +1,6 @@
 import { EntityCard } from "../components/EntityCard";
 import { SearchBox } from "../components/SearchBox";
+import { ResearchEntryPanel } from "../components/ResearchEntryPanel";
 import { Link } from "react-router-dom";
 
 export function HomePage() {
@@ -21,22 +22,7 @@ export function HomePage() {
             Explore the relationship graph ↗
           </Link>
         </div>
-        <div className="hero-visual" aria-hidden="true">
-          <span className="node node--gene">Gene</span>
-          <span className="node node--protein">Protein</span>
-          <span className="node node--organism">Organism</span>
-          <svg viewBox="0 0 440 310">
-            <path d="M100 155 C160 155 150 66 220 66" />
-            <path d="M100 155 C165 155 158 246 230 246" />
-            <path d="M220 66 C310 66 288 155 348 155" />
-            <circle cx="100" cy="155" r="6" />
-            <circle cx="220" cy="66" r="6" />
-            <circle cx="230" cy="246" r="6" />
-            <circle cx="348" cy="155" r="6" />
-          </svg>
-          <span className="visual-label visual-label--one">encodes</span>
-          <span className="visual-label visual-label--two">belongs to</span>
-        </div>
+        <ResearchEntryPanel />
       </section>
 
       <section className="content-section entity-overview" aria-labelledby="explore-heading">
@@ -85,6 +71,13 @@ export function HomePage() {
             description="Read imported citations, open source articles, and follow explicitly recorded entity links."
             href="/publications"
             icon="L"
+          />
+          <EntityCard
+            eyebrow="Functional context"
+            title="Pathways & ontology"
+            description="Explore source-defined pathways, biological processes, molecular functions, and their directly recorded annotations."
+            href="/pathways"
+            icon="F"
           />
           <article className="entity-card entity-card--static">
             <span className="entity-icon" aria-hidden="true">

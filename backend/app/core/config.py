@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     external_api_timeout_seconds: float = Field(default=15.0, gt=0, le=120)
     external_api_max_attempts: int = Field(default=3, ge=1, le=5)
     external_api_backoff_seconds: float = Field(default=0.5, ge=0, le=10)
-    external_api_user_agent: str = "bio-knowledge-platform/0.6.0"
+    external_api_user_agent: str = "bio-knowledge-platform/0.7.0"
     ncbi_base_url: str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
     ncbi_tool: str = "bio_knowledge_platform"
     ncbi_email: str | None = None

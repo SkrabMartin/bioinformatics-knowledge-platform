@@ -8,11 +8,19 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.models import (
+    BiologicalProcess,
     Disease,
     Gene,
+    GeneBiologicalProcess,
     GeneDiseaseAssociation,
+    GenePathway,
+    MolecularFunction,
+    OntologyParent,
+    OntologyTerm,
+    Pathway,
     Protein,
     ProteinInteraction,
+    ProteinMolecularFunction,
     Publication,
     PublicationDisease,
     PublicationGene,
@@ -33,6 +41,7 @@ from app.schemas.relationship import (
     VariantDiseaseCreate,
     VariantGeneCreate,
 )
+from app.services import ontology_relationships as knowledge
 from app.services.entities import model_values
 from app.services.errors import ConflictError, InvalidInputError, NotFoundError
 
@@ -45,6 +54,10 @@ RelationshipRecord = (
     | PublicationGene
     | PublicationProtein
     | PublicationDisease
+    | GenePathway
+    | GeneBiologicalProcess
+    | ProteinMolecularFunction
+    | OntologyParent
 )
 
 PUBLICATION_RELATIONS: tuple[tuple[str, Any, Any], ...] = (
@@ -67,8 +80,13 @@ class RelationshipService:
             "variant": Variant,
             "disease": Disease,
             "publication": Publication,
+            "pathway": Pathway,
+            "biological_process": BiologicalProcess,
+            "molecular_function": MolecularFunction,
         }[entity_type]
         record = self._require(model, entity_id)
+        if isinstance(record, (Pathway, OntologyTerm)):
+            return knowledge.knowledge_node(record)
         if isinstance(record, Gene):
             return _gene_node(record)
         if isinstance(record, Protein):
@@ -137,9 +155,13 @@ class RelationshipService:
             "variant": Variant,
             "disease": Disease,
             "publication": Publication,
+            "pathway": Pathway,
+            "biological_process": BiologicalProcess,
+            "molecular_function": MolecularFunction,
         }[entity_type]
         self._require(model, entity_id)
         statements = self._index_statements(entity_type, entity_id)
+        statements.extend(knowledge.index_statements(entity_type, entity_id))
         for kind, edge_model, foreign_key in (
             ("publication_gene", PublicationGene, PublicationGene.gene_id),
             ("publication_protein", PublicationProtein, PublicationProtein.protein_id),
@@ -196,7 +218,7 @@ class RelationshipService:
         return entity
 
     def _index_statements(self, entity_type: EntityType, entity_id: int) -> list[Any]:
-        if entity_type == "publication":
+        if entity_type == "publication" or entity_type in knowledge.KNOWLEDGE_KINDS:
             return []
 
         def indexed(kind: str, model: Any, condition: Any) -> Any:
@@ -259,7 +281,9 @@ class RelationshipService:
     def _load_records(
         self, ids_by_kind: dict[str, set[int]]
     ) -> dict[str, dict[int, RelationshipRecord]]:
-        records: dict[str, dict[int, RelationshipRecord]] = {}
+        records: dict[str, dict[int, RelationshipRecord]] = knowledge.load_records(
+            self.session, ids_by_kind
+        )
         for kind, edge_model, target in PUBLICATION_RELATIONS:
             if ids := ids_by_kind.get(kind):
                 options = [selectinload(edge_model.publication), selectinload(target)]
@@ -320,7 +344,18 @@ class RelationshipService:
 
     def _serialize(self, kind: str, record: RelationshipRecord) -> RelationshipRead:
         predicate: Predicate
-        if isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease)):
+        if isinstance(
+            record, (GenePathway, GeneBiologicalProcess, ProteinMolecularFunction, OntologyParent)
+        ):
+            first, second, predicate = knowledge.endpoints(record)
+            if isinstance(first, Gene):
+                subject = _gene_node(first)
+            elif isinstance(first, Protein):
+                subject = _protein_node(first)
+            else:
+                subject = knowledge.knowledge_node(first)
+            object_ = knowledge.knowledge_node(second)
+        elif isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease)):
             subject = _publication_node(record.publication)
             if isinstance(record, PublicationGene):
                 object_, predicate = _gene_node(record.gene), "mentions"
@@ -357,8 +392,20 @@ class RelationshipService:
             imported_at=record.imported_at,
             evidence_text=None if isinstance(record, Protein) else record.evidence_text,
             evidence_kind=record.evidence_kind
-            if isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease))
+            if isinstance(
+                record,
+                (
+                    PublicationGene,
+                    PublicationProtein,
+                    PublicationDisease,
+                    GenePathway,
+                    GeneBiologicalProcess,
+                    ProteinMolecularFunction,
+                ),
+            )
             else None,
+            source_release=getattr(record, "source_release", None),
+            evidence_code=getattr(record, "evidence_code", None),
             provenance_basis=(
                 "protein_record" if isinstance(record, Protein) else "relationship_assertion"
             ),

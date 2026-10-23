@@ -6,13 +6,15 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Phase 6 — Knowledge Graph Explorer is implemented (0.6.0, work in progress).**
+**Phase 7 — Pathways, Ontologies and Advanced Bioinformatics is implemented (0.7.0, work in progress).**
 
 The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
 The application still ships explicitly marked Phase 1 demo fixtures for local startup. Real gene/protein imports are opt-in CLI operations. Phase 4 does **not** automatically import disease or variant assertions: those collections start empty until source-backed records are supplied through the API. Search never invents results for absent records.
 
 The interactive graph explorer now navigates stored gene, protein, disease, variant, and publication assertions with bounded traversal, node expansion, branch collapse, and source inspection. It does not infer missing relationships or treat source assertions as confirmed scientific conclusions.
+
+Pathways and GO biological-process/molecular-function terms now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
 Current architecture, operation, and verification notes are maintained in this README. [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
@@ -33,6 +35,7 @@ Current architecture, operation, and verification notes are maintained in this R
 - Responsive scientific UI with explicit provenance badges and demo-data notices.
 - Publication browsing/search, newest/oldest/relevance sorting, citation links, and an associated-publications section on gene pages.
 - Interactive Cytoscape.js graph with pan/zoom, typed nodes, directed assertions, provenance inspection, bounded expansion/collapse, shareable query settings, and entity-page navigation.
+- Pathway/GO browsers and detail pages; direct gene→pathway, gene→biological-process, protein→molecular-function annotations, and same-aspect multi-parent `is_a` assertions with source releases.
 - Fail-closed administrator token protection for new literature HTTP writes and a baseline GitHub Actions workflow with PostgreSQL migration/runtime checks.
 - Docker Compose services for PostgreSQL, backend, and frontend.
 - Backend and frontend tests plus lint, formatting, typing, and build checks.
@@ -141,6 +144,30 @@ Traversal defaults to depth 1, 60 nodes and 120 edges; hard maximums are depth 3
 Responses expose `truncated`, `truncation_reasons` (`node_limit`, `edge_limit`, `scan_limit`, `time_budget`, or `data_changed`), and `scanned_edges`. Missing/deleted or changed projected endpoints are skipped safely. Reads do not establish a frozen multi-query snapshot. A complete response describes only the stored neighborhood at the requested depth and filters, not complete biological knowledge.
 
 The browser enforces the same workspace node/edge caps across successive one-hop expansions, deduplicates typed IDs, and never introduces dangling edges. Collapse prunes nodes no longer reachable from the root when traversal stops at the selected branch; nodes reachable by another route remain. Requests are aborted when query settings change or the page closes; expansion errors preserve the graph for retry. Cytoscape is loaded only for the graph page. No graph database, background workers, or new ingestion source is introduced.
+
+### Phase 7 architecture
+
+```text
+Administrator API (existing server-only bearer token)
+    -> KnowledgeService -> KnowledgeRepository / explicit ORM tables
+    -> PostgreSQL identity, source uniqueness and aspect constraints
+
+Pathway / process / function browser and detail
+    -> paginated reads + shared RelationshipPanel
+    -> existing GraphService / GraphRepository (same safety caps)
+```
+
+`pathways` has a source-scoped stable identifier, name/description, optional organism scope, required source release and provenance. `ontology_terms` has globally unique `GO:nnnnnnn` IDs, a validated aspect, and required source/release metadata. SQLAlchemy single-table inheritance exposes distinct `BiologicalProcess` and `MolecularFunction` domain models without duplicating GO identity across tables. Neither names nor GO numeric ranges establish aspect membership: administrators must supply source-backed metadata. Payload validation checks format, not independent scientific correctness.
+
+Three explicit tables (`gene_pathways`, `gene_biological_processes`, `protein_molecular_functions`) store direct positive assertions, evidence kind/code, source identifier, release, optional evidence text/URL and retrieval timestamp. Composite foreign keys constrain process/function annotation targets to their correct aspect. Pathway membership validates organism compatibility when the pathway has a scope; API gene-organism updates use the same gene row lock and cannot invalidate an existing membership. Optional organism scope does not imply universal membership across species.
+
+`ontology_parents` stores sourced direct child→`is_a`→parent assertions. Composite foreign keys prohibit cross-aspect links and a check constraint forbids self-parent edges. Multiple parents are allowed. Administrator writes reject cycles using a deduplicating recursive ancestor query with a 1,000-ancestor validation cap; larger validation requests fail closed. A nonblocking PostgreSQL transaction advisory lock serializes hierarchy mutations, so concurrent incompatible writes cannot both pass cycle validation under the default READ COMMITTED isolation. Cycles are prevented by the service, not a database-wide DAG trigger: direct SQL writers must not bypass this boundary.
+
+The additive `20261023_0006` migration creates six indexed tables and leaves existing entities and assertions intact. Shared relationship responses add nullable `source_release` and `evidence_code` for compatibility; graph traversal now covers eight node types and thirteen relationship kinds, with unchanged depth/node/edge/time limits. `is_a` arrows point from specific to broader terms; neighborhood browsing follows both directions. No annotation propagation, inferred membership or relationship confidence scores are computed.
+
+This is an enrichment-ready **data foundation**, not an enrichment engine: stable direct gene memberships, organism context and source releases can underpin a later explicit gene-set/background snapshot. No reference population, p-value, enrichment score or multiple-testing result is fabricated. A future calculation must specify its universe, identifier mapping, annotation propagation/evidence policy, source versions, statistical test and correction, and return reproducible results. Source releases are caller-supplied labels, not archived reproducible snapshots yet.
+
+GO has distinct relation semantics and permits multiple parents; this phase deliberately supports only direct same-aspect `is_a` hierarchy. It does not reinterpret `regulates`, `part_of`, negative (`NOT`) annotations, obsolete terms, or cellular-component terms as positive annotations. Unknown payload fields are rejected. The application predicates `involved_in` and `has_function` are its scoped source-assertion labels, not a claim to implement every GO annotation relation. See the [GO relations documentation](https://geneontology.org/docs/ontology-relations/) and [GO annotation principles](https://www.geneontology.org/docs/go-annotations/).
 
 ## Repository layout
 
@@ -298,7 +325,33 @@ Open <http://localhost:5173/graph>, enter a stored gene symbol (human taxonomy `
 
 Use the depth and node/edge controls and entity/relationship filters to bound the neighborhood. Pan by dragging the background, zoom with the wheel or buttons, and use Fit to return to the visible graph. Click a node or edge, or use the inspector's native selection controls, to inspect it. Nodes link to their entity pages and support one-hop expansion and branch collapse. Edges show predicate, source identifier, retrieval timestamp, evidence text/kind when available, provenance basis, and source links. Colors and shapes distinguish entity types.
 
-The URL preserves the root, initial depth, limits, and filters. Manual node positions and expanded/collapsed workspace history are session-local. Partial-result warnings are intentional safety signals: lower depth, narrow filters, or change limits for a different view. An entity with no stored assertions shows an honest isolated-node state. Organisms are not graph nodes in this phase because no explicit organism relationship assertions are currently exposed.
+The URL preserves the root, initial depth, limits, and filters. Manual node positions and expanded/collapsed workspace history are session-local. Partial-result warnings are intentional safety signals: lower depth, narrow filters, or change limits for a different view. An entity with no stored assertions shows an honest isolated-node state. Pathways, biological processes and molecular functions are now graph nodes with their own shapes and filters. Organisms remain outside the explicit graph relationships.
+
+### Explore pathways and GO concepts
+
+Open <http://localhost:5173/pathways>; the collection navigation also opens `/biological-processes` and `/molecular-functions`. Filter by name or stable identifier. Filter/page state is shareable in the URL. Record pages (`/pathway/{id}`, `/biological-process/{id}`, `/molecular-function/{id}`) show identifiers, source release, provenance, and direct relationships. Follow the existing graph link to explore direct parents, children or annotations. Gene and protein pages automatically show the new incident assertions in their Relationships section.
+
+New installations intentionally contain no pathway or GO assertions. There is no automatic Reactome/GO import or default invented functional fixture. To enter source-backed records, configure `BKP_ADMIN_API_TOKEN` on the server and use the bearer authorization in API docs. Every new write requires that token; the read-only GUI never collects it. Omit an unknown organism scope rather than guessing it, and supply a genuine source release label. GO IDs are format-validated only; administrators remain responsible for correct labels/aspects and evidence. These APIs accept direct positive annotations only, not GAF/GPAD files or NOT annotations.
+
+Example request shapes (replace placeholders with verified source values and local IDs):
+
+```text
+POST /api/v1/pathways
+  name, source, source_identifier, source_release,
+  optional description, organism_id, source_url, imported_at
+POST /api/v1/ontology
+  kind=biological_process|molecular_function, go_id=GO:nnnnnnn,
+  name, source, source_identifier, source_release, optional description/source metadata
+POST /api/v1/pathways/{id}/genes
+POST /api/v1/ontology/{kind}/{id}/annotations
+  entity_id (gene for pathway/process; protein for function),
+  source, source_identifier, source_release, evidence_kind=curated|structured_metadata,
+  optional evidence_code, evidence_text, source_url, imported_at
+POST /api/v1/ontology/{kind}/{id}/parents
+  parent_id, source, source_identifier, source_release, optional source/evidence metadata
+```
+
+Duplicates return `409`, missing/wrong-aspect targets `404`, unsupported or malformed payloads `422`, and concurrent hierarchy validation may return retryable `409`. New writes return `503` when the administrator token is unconfigured and `401` for missing/incorrect credentials. These create-only interfaces do not implement source-history reconciliation or editing/deprecation yet. No enrichment operation is exposed.
 
 ### Frontend
 
@@ -367,6 +420,8 @@ POST  /api/v1/relationships/variant-gene
 POST  /api/v1/relationships/variant-disease
 POST  /api/v1/relationships/protein-interaction
 ```
+
+Phase 7 adds `GET /api/v1/pathways`, `GET /api/v1/pathways/{id}`, `GET /api/v1/ontology/{biological_process|molecular_function}`, and `GET /api/v1/ontology/{kind}/{id}` plus the protected POST routes described above. New collections accept `q` (literal partial name/identifier matching, at most 200 characters), `page` and `page_size` (1–100). Graph/relationship root type parameters also accept `pathway`, `biological_process`, and `molecular_function`. New relationship filters are `gene_pathway`, `gene_biological_process`, `protein_molecular_function`, `biological_process_parent`, and `molecular_function_parent`. Unified search remains limited to its previous four categories; use functional collection filtering for new types.
 
 Collection endpoints accept one-based `page` and bounded `page_size` parameters. The response includes `items`, `page`, `page_size`, `total`, and `pages`.
 
@@ -445,6 +500,17 @@ Important Phase 5 files: `backend/app/models/publication.py`, `schemas/publicati
 
 Important Phase 6 files: `backend/app/schemas/graph.py`, `repositories/graph.py`, `services/graph.py`, `api/v1/graph.py`, `services/relationships.py`, graph unit/PostgreSQL tests, `frontend/src/features/graph/`, `pages/GraphPage.tsx`, `test/Phase6.test.tsx`, graph entry links, and Compose/configuration updates.
 
+### Phase 7 verification and change record (2026-10-23)
+
+- 57 backend tests passed, including all previous phases, direct functional annotations, GO identity/aspects, multi-parent DAG and cycle rejection, literal filtering, authorization, SQL-level namespace/self-edge constraints, and a real PostgreSQL concurrent hierarchy-lock check.
+- 30 frontend tests passed, including live-record home preview/loading/empty/error/retry behavior, functional collection filters/navigation, source-release detail display and graph links. Ruff lint/format, strict mypy, ESLint, Prettier, TypeScript and the production build passed.
+- Six migrations applied successfully on a clean isolated PostgreSQL 17 database; Alembic reports no pending schema differences. The historical publication runtime test now compares the database revision to the current Alembic head instead of a hardcoded Phase 5 revision.
+- API-contract graph tests use an injected deterministic clock so background desktop/build load does not change assertion equivalence. Separate cooperative budget tests and actual PostgreSQL query-cancellation tests retain real timeout coverage.
+- The existing Docker development stack upgraded to 0.7.0 without deleting data. Live HTTP checks confirmed graph regression, new empty functional collections and API version. Browser checks confirmed the redesigned home panel with a real local demo record, source labeling, and functional collection navigation/empty states. The panel was also checked at a 430-pixel viewport and the default viewport restored afterward.
+- Local pnpm cache files are excluded from Docker context, ESLint and Prettier. They are build/dependency artifacts, not project source. The upstream AnyIO deprecation and local pytest cache-permission warnings remain non-fatal.
+
+Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`, `repositories/ontology.py`, `services/ontology.py`, `services/ontology_relationships.py`, `api/v1/ontology.py`, migration `20261023_0006_ontology.py`, ontology unit/PostgreSQL tests, the existing relationship/graph extensions, frontend functional collection/detail pages and configuration, `ResearchEntryPanel.tsx`, `HomePage.tsx`, styles and `Phase7.test.tsx`.
+
 ## Product principles
 
 - Never fabricate scientific data. Development fixtures are visibly labeled.
@@ -457,7 +523,9 @@ Important Phase 6 files: `backend/app/schemas/graph.py`, `repositories/graph.py`
 
 ## Known limitations
 
-- Graph safety limits intentionally omit oversized neighborhoods; there are no complete degree counts, relevance-ranked graph sampling, saved layouts, export, or production-scale graph benchmarks yet. Workspace expansions/layout are not persisted in shareable URLs. Graph traversal covers five entity types, not organisms or future ontology/pathway entities.
+- Graph safety limits intentionally omit oversized neighborhoods; there are no complete degree counts, relevance-ranked graph sampling, saved layouts, export, or production-scale graph benchmarks yet. Workspace expansions/layout are not persisted in shareable URLs. Graph traversal covers eight entity types, not organisms or future dataset entities.
+- Functional records and direct assertions are source-backed administrator entries, not automatic GO/Reactome imports. There is no ontology release archive, obsolete-term handling, negative annotation support, evidence-code registry validation, ancestor annotation propagation, or statistical enrichment. A syntactically valid GO ID is not proof of correct aspect or biological content.
+- Ontology cycle checks use a service-level lock and bounded recursive query, not a universal SQL DAG constraint. Direct SQL writes must honor that service boundary. Functional collections use bounded offset pagination and synchronous counts; large-scale hierarchy and membership performance is unbenchmarked.
 - Disease and variant records, and their associations, are API-created only in Phase 4. There is no automated MONDO, ClinVar, or dbSNP ingestion yet; a fresh installation shows empty disease/variant collections rather than made-up science.
 - Relationship evidence is source-level assertion metadata, not a scientific confidence score or independently verified claim. Curated versus machine-extracted assertions and multi-source claim reconciliation are not modeled.
 - Existing gene→protein linkage inherits protein-record provenance; it has no separate relationship-evidence row. Clinical significance, assembly-aware coordinates, variant normalization, and evidence ontologies are not stored.
@@ -480,9 +548,9 @@ Important Phase 6 files: `backend/app/schemas/graph.py`, `repositories/graph.py`
 
 ## Next phase
 
-Phase 7 will add pathways, biological processes, molecular functions, and ontology-aware hierarchical relationships. Any enrichment implementation must explicitly report its background population, statistical test, and multiple-testing correction. Phase 7 has not been started.
+Phase 8 will add justified background processing, tracked import jobs, retries and bounded batch workflows. It has not been started. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
 
-Pathways, enrichment, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 6.
+Enrichment calculations, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 7.
 
 ## Contributing
 

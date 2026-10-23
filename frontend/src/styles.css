@@ -323,74 +323,119 @@ main {
   color: #96b8b1;
   font-size: 12px;
 }
-.hero-visual {
-  position: relative;
-  min-height: 500px;
-  background: linear-gradient(145deg, #0d4d48, #0d6358);
+.research-entry {
+  align-self: center;
+  width: min(490px, calc(100% - 56px));
+  margin: 44px 28px;
+  padding: 28px;
+  border: 1px solid #467870;
+  border-radius: 16px;
+  background: #f4f6ee;
+  color: var(--ink);
+  box-shadow: 0 24px 64px #002b2940;
 }
-.hero-visual::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: linear-gradient(to left, black, transparent);
+.research-entry-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.12em;
 }
-.hero-visual svg {
-  position: absolute;
-  width: 82%;
-  left: 5%;
-  top: 18%;
-  fill: var(--mint);
-  stroke: rgba(203, 233, 220, 0.46);
-  stroke-width: 1.5;
+.research-entry-heading h2 {
+  margin: 12px 0 22px;
+  font:
+    29px/1.12 "Newsreader",
+    Georgia,
+    serif;
+  letter-spacing: -0.025em;
 }
-.node {
-  position: absolute;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  background: rgba(8, 57, 52, 0.82);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
-  font-family: "Newsreader", Georgia, serif;
+.research-entry-record {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
 }
-.node--gene {
-  width: 104px;
-  height: 104px;
-  top: 37%;
-  left: 9%;
+.research-entry-record-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
 }
-.node--protein {
-  width: 124px;
-  height: 124px;
-  top: 8%;
-  left: 42%;
-}
-.node--organism {
-  width: 118px;
-  height: 118px;
-  bottom: 8%;
-  left: 44%;
-}
-.visual-label {
-  position: absolute;
-  z-index: 3;
-  padding: 4px 7px;
-  background: rgba(7, 63, 59, 0.84);
-  color: #9ad1c0;
+.research-entry-type {
   font-size: 10px;
-  letter-spacing: 0.08em;
+  color: var(--ink-soft);
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
-.visual-label--one {
-  top: 31%;
-  left: 33%;
+.research-entry-record h3 {
+  font:
+    34px/1.1 "Newsreader",
+    Georgia,
+    serif;
+  margin: 19px 0 6px;
+  overflow-wrap: anywhere;
 }
-.visual-label--two {
-  bottom: 28%;
-  left: 30%;
+.research-entry-record p {
+  margin: 0 0 5px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.research-entry-organism {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-style: italic;
+}
+.research-entry-cta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0 0;
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal);
+}
+.research-entry-record .research-entry-note {
+  margin-top: 12px;
+  color: #795c2a;
+  font-size: 10px;
+}
+.research-entry-steps {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: grid;
+  gap: 18px;
+}
+.research-entry-steps li {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+}
+.research-entry-steps li > span {
+  border: 1px solid #cad7cb;
+  padding: 5px 6px;
+  border-radius: 5px;
+  font: 10px/1 monospace;
+  color: var(--teal);
+}
+.research-entry-steps strong {
+  display: block;
+  font-size: 12px;
+}
+.research-entry-steps p {
+  margin: 5px 0 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.research-entry-disclaimer {
+  margin: 22px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 .content-section,
@@ -1223,8 +1268,9 @@ footer p {
     justify-self: center;
     padding: 70px 28px;
   }
-  .hero-visual {
-    display: none;
+  .research-entry {
+    justify-self: center;
+    margin-top: 0;
   }
   .page-header {
     grid-template-columns: 1fr;
@@ -1468,6 +1514,69 @@ footer p {
   color: #d7eddf;
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+.knowledge-navigation {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 24px;
+}
+.knowledge-navigation a {
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-decoration: none;
+}
+.knowledge-navigation a.active {
+  background: var(--teal);
+  color: white;
+  border-color: var(--teal);
+}
+.knowledge-search {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.knowledge-search label {
+  display: grid;
+  gap: 8px;
+  min-width: min(300px, 100%);
+  font-size: 12px;
+}
+.knowledge-search input {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 12px;
+}
+.knowledge-empty {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+.knowledge-empty h2 {
+  font-size: 20px;
+}
+.knowledge-empty p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.graph-type--pathway::before {
+  background: #598038;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+.graph-type--biological_process::before {
+  background: #278a91;
+  clip-path: polygon(50% 0, 100% 40%, 80% 100%, 20% 100%, 0 40%);
+}
+.graph-type--molecular_function::before {
+  background: #9a6c36;
+  clip-path: polygon(0 0, 50% 40%, 100% 0, 50% 100%);
 }
 .graph-page {
   max-width: 1600px;

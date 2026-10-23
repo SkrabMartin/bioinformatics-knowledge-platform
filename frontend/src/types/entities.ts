@@ -76,7 +76,32 @@ export interface Variant extends ProvenanceFields {
   organism: OrganismSummary;
 }
 
-export type RelatedEntityType = "gene" | "protein" | "variant" | "disease" | "publication";
+export type RelatedEntityType =
+  | "gene"
+  | "protein"
+  | "variant"
+  | "disease"
+  | "publication"
+  | "pathway"
+  | "biological_process"
+  | "molecular_function";
+
+export type KnowledgeKind = "pathway" | "biological_process" | "molecular_function";
+export interface Pathway extends ProvenanceFields {
+  id: number;
+  name: string;
+  description: string | null;
+  organism_id: number | null;
+  source_release: string;
+}
+export interface OntologyTerm extends ProvenanceFields {
+  id: number;
+  name: string;
+  description: string | null;
+  kind: "biological_process" | "molecular_function";
+  go_id: string;
+  source_release: string;
+}
 
 export interface Publication extends ProvenanceFields {
   id: number;
@@ -106,7 +131,12 @@ export interface EntityRelationship {
     | "gene_protein"
     | "publication_gene"
     | "publication_protein"
-    | "publication_disease";
+    | "publication_disease"
+    | "gene_pathway"
+    | "gene_biological_process"
+    | "protein_molecular_function"
+    | "biological_process_parent"
+    | "molecular_function_parent";
   relationship_id: number;
   predicate:
     | "associated_with"
@@ -115,7 +145,13 @@ export interface EntityRelationship {
     | "encodes"
     | "mentions"
     | "discusses"
-    | "studies";
+    | "studies"
+    | "participates_in"
+    | "involved_in"
+    | "has_function"
+    | "is_a";
+  source_release?: string | null;
+  evidence_code?: string | null;
   evidence_kind?: "structured_metadata" | "curated" | null;
   subject: RelationshipNode;
   object: RelationshipNode;

@@ -38,6 +38,9 @@ export const entityTypes: RelatedEntityType[] = [
   "disease",
   "variant",
   "publication",
+  "pathway",
+  "biological_process",
+  "molecular_function",
 ];
 export const relationshipLabels: Record<RelationshipType, string> = {
   gene_protein: "Gene encodes protein",
@@ -48,6 +51,11 @@ export const relationshipLabels: Record<RelationshipType, string> = {
   publication_gene: "Publication mentions gene",
   publication_protein: "Publication discusses protein",
   publication_disease: "Publication studies disease",
+  gene_pathway: "Gene participates in pathway",
+  gene_biological_process: "Gene involved in biological process",
+  protein_molecular_function: "Protein has molecular function",
+  biological_process_parent: "Biological process is a broader process",
+  molecular_function_parent: "Molecular function is a broader function",
 };
 export const truncationLabels: Record<TruncationReason, string> = {
   node_limit: "Node limit reached",

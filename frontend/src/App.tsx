@@ -17,6 +17,8 @@ import { PublicationsPage } from "./pages/PublicationsPage";
 import { PublicationDetailPage } from "./pages/PublicationDetailPage";
 import { lazy, Suspense } from "react";
 import { LoadingState } from "./components/States";
+import { KnowledgeBrowserPage } from "./pages/KnowledgeBrowserPage";
+import { KnowledgeDetailPage } from "./pages/KnowledgeDetailPage";
 
 const GraphPage = lazy(() =>
   import("./pages/GraphPage").then((module) => ({ default: module.GraphPage })),
@@ -36,6 +38,24 @@ export function App() {
         <Route path="disease/:id" element={<DiseaseDetailPage />} />
         <Route path="variants" element={<VariantsPage />} />
         <Route path="publications" element={<PublicationsPage />} />
+        <Route path="pathways" element={<KnowledgeBrowserPage kind="pathway" />} />
+        <Route path="pathway/:id" element={<KnowledgeDetailPage kind="pathway" />} />
+        <Route
+          path="biological-processes"
+          element={<KnowledgeBrowserPage kind="biological_process" />}
+        />
+        <Route
+          path="biological-process/:id"
+          element={<KnowledgeDetailPage kind="biological_process" />}
+        />
+        <Route
+          path="molecular-functions"
+          element={<KnowledgeBrowserPage kind="molecular_function" />}
+        />
+        <Route
+          path="molecular-function/:id"
+          element={<KnowledgeDetailPage kind="molecular_function" />}
+        />
         <Route path="publication/:id" element={<PublicationDetailPage />} />
         <Route
           path="graph"

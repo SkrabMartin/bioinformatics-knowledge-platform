@@ -9,6 +9,7 @@ from app.core.database import Base
 from app.models import (
     Disease,
     Gene,
+    GenePathway,
     Organism,
     Protein,
     Variant,
@@ -110,6 +111,7 @@ class GeneService(EntityService[Gene]):
 
     def update(self, entity_id: int, data: GeneUpdate) -> Gene:
         entity = self.get(entity_id)
+        self.session.refresh(entity, with_for_update=True)
         values = model_values(data, exclude_unset=True)
         if "organism_id" in values:
             self._require_organism(values["organism_id"])
@@ -122,7 +124,14 @@ class GeneService(EntityService[Gene]):
                     .where(VariantGeneLocation.gene_id == entity_id)
                     .limit(1)
                 )
-                if linked_protein is not None or linked_variant is not None:
+                linked_pathway = self.session.scalar(
+                    select(GenePathway.id).where(GenePathway.gene_id == entity_id).limit(1)
+                )
+                if (
+                    linked_protein is not None
+                    or linked_variant is not None
+                    or linked_pathway is not None
+                ):
                     raise ConflictError(
                         "Cannot change a gene's organism while relationships exist."
                     )
