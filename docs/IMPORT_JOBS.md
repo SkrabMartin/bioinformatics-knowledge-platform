@@ -138,4 +138,4 @@ discovery, retention/purge, arbitrary automatic retries of terminal failures,
 per-attempt audit table, raw payload archive or enrichment engine.
 History is the current state/result, attempts and safe last error per item.
 Queue length/history retention and list counts are not production-scale benchmarked.
-Future phases beyond this Phase 8 scope are not specified in the checked-in roadmap.
+The owner’s [long-term roadmap](ROADMAP.md) now supplies the broader direction; its phase numbering differs from this historical milestone.

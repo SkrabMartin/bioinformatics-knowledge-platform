@@ -3,7 +3,12 @@ from typing import Any, Literal, cast
 
 from pydantic import HttpUrl, ValidationError
 
-from app.ingestion.models import NormalizedGene, NormalizedOrganism, SourceProvenance
+from app.ingestion.models import (
+    NormalizedGene,
+    NormalizedGeneLocation,
+    NormalizedOrganism,
+    SourceProvenance,
+)
 from app.integrations.errors import (
     IntegrationConfigurationError,
     UpstreamNotFoundError,
@@ -152,6 +157,8 @@ class NcbiGeneAdapter:
                 strand=strand,
                 ncbi_gene_id=gene_id,
                 ensembl_gene_id=None,
+                aliases=_aliases(record),
+                genomic_locations=_placements(record),
                 provenance=SourceProvenance(
                     source="NCBI Gene",
                     source_identifier=gene_id,
@@ -191,3 +198,42 @@ def _coordinates(
         return chromosome, None, None, None
     strand: Literal["+", "-"] = "+" if raw_start <= raw_stop else "-"
     return chromosome, min(raw_start, raw_stop) + 1, max(raw_start, raw_stop) + 1, strand
+
+
+def _aliases(record: dict[str, Any]) -> list[str]:
+    raw = record.get("otheraliases")
+    if raw in (None, "", "-"):
+        return []
+    if not isinstance(raw, str):
+        raise UpstreamResponseError("NCBI Gene", "Invalid gene alias response shape.")
+    return [alias.strip() for alias in raw.split(",") if alias.strip() and alias.strip() != "-"]
+
+
+def _placements(record: dict[str, Any]) -> list[NormalizedGeneLocation]:
+    raw = record.get("genomicinfo")
+    if raw is None:
+        return []
+    if not isinstance(raw, list) or len(raw) > 100:
+        raise UpstreamResponseError("NCBI Gene", "Invalid or oversized genomic placement response.")
+    placements: dict[tuple[str, int, int, str], NormalizedGeneLocation] = {}
+    for entry in raw:
+        if not isinstance(entry, dict):
+            raise UpstreamResponseError("NCBI Gene", "Invalid genomic placement response shape.")
+        accession = _string(entry.get("chraccver"))
+        if accession is None:
+            # Legacy summaries may supply coordinates without a reference ID.
+            # Keep their existing projection but do not invent a sequence record.
+            continue
+        start, stop = entry.get("chrstart"), entry.get("chrstop")
+        if type(start) is not int or type(stop) is not int or start < 0 or stop < 0:
+            raise UpstreamResponseError("NCBI Gene", "Invalid zero-based genomic coordinates.")
+        placement = NormalizedGeneLocation(
+            sequence_accession=accession,
+            chromosome=_string(entry.get("chrloc")) or _string(record.get("chromosome")),
+            start_position=min(start, stop) + 1,
+            end_position=max(start, stop) + 1,
+            strand="+" if start <= stop else "-",
+        )
+        key = (accession, placement.start_position, placement.end_position, placement.strand)
+        placements[key] = placement
+    return list(placements.values())

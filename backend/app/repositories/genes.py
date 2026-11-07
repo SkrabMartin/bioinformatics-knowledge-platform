@@ -12,7 +12,12 @@ class GeneRepository(Repository[Gene]):
         statement = (
             select(Gene)
             .where(Gene.id == entity_id)
-            .options(selectinload(Gene.organism), selectinload(Gene.proteins))
+            .options(
+                selectinload(Gene.organism),
+                selectinload(Gene.proteins),
+                selectinload(Gene.aliases),
+                selectinload(Gene.genomic_locations),
+            )
         )
         return self.session.scalar(statement)
 
@@ -39,5 +44,10 @@ class GeneRepository(Repository[Gene]):
                 func.upper(Gene.symbol) == symbol.upper(),
                 Gene.organism.has(taxonomy_id=taxonomy_id),
             )
-            .options(selectinload(Gene.organism), selectinload(Gene.proteins))
+            .options(
+                selectinload(Gene.organism),
+                selectinload(Gene.proteins),
+                selectinload(Gene.aliases),
+                selectinload(Gene.genomic_locations),
+            )
         )

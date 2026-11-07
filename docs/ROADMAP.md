@@ -1,0 +1,89 @@
+# Long-term roadmap and implementation coverage
+
+This is a concise reference to the 0–50 roadmap supplied by the project owner.
+It preserves its phase names and direction; it is not a verbatim copy of the full
+owner document or an instruction to implement every phase immediately.
+
+**Roadmap phases and historical BKP implementation milestones use different
+numbering.** The historical “Phase 8” release 0.8.0 delivered tracked imports.
+It did not complete long-term roadmap phases 0–8. Release 0.9.0 now addresses a
+bounded part of long-term **Phase 2**, not long-term Phase 9.
+
+## Direction
+
+Database → biological knowledge base → search → knowledge graph →
+bioinformatics analysis → scientific intelligence → AI-assisted research.
+Correctness, useful biology, provenance, reproducibility and justified complexity
+take priority over code volume or premature infrastructure.
+
+## Coverage checked against source in 0.9.0
+
+| Roadmap phase | Long-term scope | Current coverage / remaining work |
+|---|---|---|
+| 0 | Architectural Foundation | Implemented layered FastAPI/PostgreSQL/React foundation; evolves with later work. |
+| 1 | Core Application Platform | Running application, entity APIs, migrations, tests and Compose. |
+| 2 | Biological Data Model | Partial: organisms, genes, proteins, external IDs, source-backed gene aliases and reference sequence placements. Transcripts, normalized chromosomes/assemblies and general cross-provider identifier registry remain. |
+| 3 | External Data Integration Framework | Partial: NCBI Gene, UniProt, PubMed adapters, bounded retries, normalization, request pacing. No Ensembl adapter or general source-version/pagination framework. |
+| 4 | Data Ingestion Engine | Partial: idempotent single-record and bounded queued imports, record status/results and crash replay. No large-scale incremental source synchronization or full checkpoint framework. |
+| 5 | Provenance and Data Quality System | Partial: record/assertion provenance, identity and namespace constraints, safe errors. No comprehensive quality dashboard, immutable payload/source snapshots or claim history. |
+| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and four entity categories. No all-entity coverage or fuzzy/synonym ontology expansion. |
+| 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Phenotypes and phenotype annotations absent. |
+| 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Assembly-aware variant representation, clinical significance/frequency, protein/publication links and normalization absent. |
+| 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular component and automatic ontology ingestion absent. |
+| 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. No full-text corpus, keyword layer or variant/drug/dataset literature links. |
+| 11 | Dataset Discovery | Not implemented. |
+| 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations. No general coverage of all future node/edge kinds. |
+| 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; production-scale performance and additional entity types remain. |
+| 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries and monitoring through CLI/protected API. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
+| 15 | Advanced Search Infrastructure | Not implemented; PostgreSQL remains the search backend. |
+| 16 | Bioinformatics Analysis Engine | Not implemented; no fabricated statistics. |
+| 17 | Genomics Toolkit | Not implemented; placement metadata is a prerequisite, not a genome browser or file-analysis toolkit. |
+| 18 | Transcriptomics | Not implemented. |
+| 19 | Proteomics and Protein Interactions | Partial: proteins and sourced protein interactions. Abundance, families, domains and PTMs absent. |
+| 20 | Structural Biology | Not implemented. |
+| 21 | Drugs and Pharmacology | Not implemented. |
+| 22 | Clinical Trials | Not implemented. |
+| 23 | Researcher and Institution Network | Not implemented; publication authors are text, not resolved researcher identities. |
+| 24 | Scientific Trend Analytics | Not implemented. |
+| 25 | Research Dashboard | Not implemented; the live-record home panel is not an analytics dashboard. |
+| 26 | User Accounts and Personal Workspace | Not implemented; a server admin bearer token is not a user-account system. |
+| 27 | Alerts and Research Monitoring | Not implemented. |
+| 28 | Programmatic API | Partial: versioned REST API and local CLI. No public SDK/R package or full programmatic product. |
+| 29 | Export and Interoperability | Partial JSON API only; no dedicated export subsystem. |
+| 30 | Workflow and Analysis System | Not implemented. |
+| 31 | Reproducible Research | Partial source context only; no reproducible analysis runs or complete source snapshots. |
+| 32 | Machine Learning Foundation | Not implemented. |
+| 33 | NLP for Scientific Literature | Not implemented; no machine-extracted biological claims. |
+| 34 | Semantic Search | Not implemented. |
+| 35 | RAG Knowledge System | Not implemented. |
+| 36 | AI Research Assistant | Not implemented. |
+| 37 | Hypothesis Generation | Not implemented. |
+| 38 | Graph Analytics | Not implemented; bounded neighborhood traversal is not statistical network analysis. |
+| 39 | Multi-omics Integration | Not implemented. |
+| 40 | Advanced Visual Analytics | Partial graph navigation only; no dedicated scientific plotting subsystem. |
+| 41 | Collaborative Research | Not implemented. |
+| 42 | Plugin / Extension System | Not implemented. |
+| 43 | Large-scale Distributed Data Processing | Not implemented; introduce only when measured workloads justify it. |
+| 44 | High Performance Bioinformatics | Not implemented. |
+| 45 | Data Versioning | Partial migration/retrieval metadata only; no biological source version archive. |
+| 46 | Full Observability | Partial logs, request IDs, healthchecks and job status. No full metrics/tracing/alerting. |
+| 47 | Security and Access Control | Partial protected newer writes and read-only public proxy. No general RBAC/account system. Basic security is required now, not deferred until this phase. |
+| 48 | Production Infrastructure | Partial CI, isolated temporary public student preview, backup/restore checks and rollback images. Long-term hosting, off-site backups and disaster recovery remain. |
+| 49 | Public Open-source Platform | Partial public repository/docs/CI/PR workflow. No selected open-source license or complete contributor ecosystem. |
+| 50 | Mature Bioinformatics Research Platform | Long-term target, not a delivered feature. |
+
+## Current increment and next candidates
+
+Release 0.9.0 adds sourced aliases, all bounded NCBI reference placements with
+explicit sequence accessions, alias search and detail display.
+See [gene context](GENE_CONTEXT.md). This is a foundation increment within Phase 2.
+
+Remaining Phase 2 candidates include a source-scoped identifier registry, explicit
+assembly/chromosome models and transcripts. Select one bounded scope after
+reviewing useful source coverage and the data needed by the next biological task.
+Do not infer assembly identity from a sequence label or invent transcript links.
+Later dataset/phenotype/enrichment features must state their own source and
+reproducibility requirements before implementation.
+
+A phase proceeds only when its prerequisites work, it adds actual value,
+complexity is justified and existing stability/provenance are preserved.

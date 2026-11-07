@@ -13,3 +13,5 @@ data/raw/*
 data/processed/*
 
 .env.*
+
+backups

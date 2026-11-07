@@ -6,7 +6,11 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Phase 8 — Tracked Import Jobs and Background Processing is implemented (0.8.0).**
+**Release 0.9.0 — Biological Model Foundation: gene aliases and reference sequence placements.**
+
+The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
+numbering from the historical implementation milestones below. Release 0.9.0
+advances part of long-term Phase 2; it does not complete long-term Phase 9.
 
 The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
@@ -170,6 +174,13 @@ The additive `20261023_0006` migration creates six indexed tables and leaves exi
 This is an enrichment-ready **data foundation**, not an enrichment engine: stable direct gene memberships, organism context and source releases can underpin a later explicit gene-set/background snapshot. No reference population, p-value, enrichment score or multiple-testing result is fabricated. A future calculation must specify its universe, identifier mapping, annotation propagation/evidence policy, source versions, statistical test and correction, and return reproducible results. Source releases are caller-supplied labels, not archived reproducible snapshots yet.
 
 GO has distinct relation semantics and permits multiple parents; this phase deliberately supports only direct same-aspect `is_a` hierarchy. It does not reinterpret `regulates`, `part_of`, negative (`NOT`) annotations, obsolete terms, or cellular-component terms as positive annotations. Unknown payload fields are rejected. The application predicates `involved_in` and `has_function` are its scoped source-assertion labels, not a claim to implement every GO annotation relation. See the [GO relations documentation](https://geneontology.org/docs/ontology-relations/) and [GO annotation principles](https://www.geneontology.org/docs/go-annotations/).
+
+### Gene context architecture (0.9.0)
+
+NCBI explicit aliases and sequence placements → bounded normalization → atomic,
+source-backed gene context tables → alias-aware unified search and gene detail.
+Sequence identity is preserved; missing assemblies/transcripts are not inferred.
+See [gene context operations and limits](docs/GENE_CONTEXT.md).
 
 ### Phase 8 architecture
 
@@ -549,12 +560,12 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 - Existing gene→protein linkage inherits protein-record provenance; it has no separate relationship-evidence row. Clinical significance, assembly-aware coordinates, variant normalization, and evidence ontologies are not stored.
 - The relationship listing uses bounded offset pagination. Large-corpus query plans and association counts have not been benchmarked. Cross-organism integrity for variant→gene links is enforced by services, not a cross-table database constraint.
 - The UI is read-only for disease/variant and relationship creation; controlled-development writes use the API. Write endpoints remain unauthenticated and must not be internet-exposed.
-- Search covers locally stored genes, proteins, organisms, and publications. Diseases/variants are not yet part of unified search. There is no fuzzy typo correction, synonym expansion, alias handling, or cross-provider federated search.
+- Search covers locally stored genes, proteins, organisms, and publications. Diseases/variants are not yet part of unified search. Gene aliases now participate in search. Fuzzy typo correction, ontology-wide synonym expansion and cross-provider federated search remain absent.
 - Search uses offset pagination and synchronous count queries. Ranking weights and PostgreSQL index use have not been benchmarked on a large biological corpus.
 - Organism results have no detail page yet. Gene search links require taxonomy context; older bare `/gene/{symbol}` links still default to human (`9606`).
 - There are no hard-delete endpoints or entity deprecation workflow yet.
 - Entity provenance is record-level and relationship assertions have their own source fields. Multiple-provider claim history, raw payload retention, payload checksums, provider releases and parser versions are not yet modeled. Phase 8 now tracks import-job/item status, attempts and safe results; raw payload and per-attempt archives remain deferred.
-- NCBI Gene summary coordinates are converted from zero-based positions to one-based inclusive coordinates, but the selected assembly/accession is not stored yet; the first provider placement is used.
+- NCBI Gene summary coordinates are converted from zero-based positions to one-based inclusive coordinates, but the legacy fields still project the first provider placement. Release 0.9.0 additionally preserves explicit reference sequence accessions and all bounded placements; assembly identity remains unknown unless separately established.
 - Gene imports require a configured NCBI contact email. Phase 4 verification did not depend on live NCBI requests; its adapter remains covered by mocked contract tests.
 - Protein imports link only to genes already present locally and do not synthesize partial genes from UniProt data.
 - Publication imports support journal-style PubMed article records, not book citations, full texts, provider deletion feeds, retraction-status tracking, or corrected identity reconciliation. Author names are ordered text values, not researcher/ORCID entities. DOI is canonicalized and format-validated, not independently resolved.
@@ -566,7 +577,7 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 
 ## Next phase
 
-Phase 8 is implemented: [tracked imports and a bounded PostgreSQL worker](docs/IMPORT_JOBS.md). Further numbered phases are not specified in the checked-in roadmap. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
+Phase 8 is implemented: [tracked imports and a bounded PostgreSQL worker](docs/IMPORT_JOBS.md). The owner’s [long-term roadmap](docs/ROADMAP.md) supersedes the earlier short implementation plan; its numbering is independent. Release 0.9.0 advances the biological-model foundation, with remaining Phase 2 work explicitly identified. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
 
 Enrichment calculations, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 7.
 
@@ -576,7 +587,7 @@ Enrichment calculations, OpenSearch/Elasticsearch, background processing, and la
 2. Include tests for behavior changes.
 3. Add migrations for schema changes; never rewrite applied migration history.
 4. Keep external payloads outside domain and persistence interfaces.
-5. Maintain current behavior, architecture, and verification records in `README.md`; historical architecture/changelog files are retained. Local roadmap, prompt, and report Markdown files are not release artifacts and are not included in commits.
+5. Maintain current behavior, architecture, and verification records in `README.md`; historical architecture/changelog files are retained. Local root-level planning, prompt and report Markdown files are not release artifacts. The owner-approved roadmap coverage reference is versioned in docs/ROADMAP.md.
 
 ## License
 

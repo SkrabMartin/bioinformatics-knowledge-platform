@@ -19,6 +19,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.9.0] - 2026-11-07
+
+### Added
+
+- Source-backed gene aliases and reference sequence placements, including normalized NCBI source fields, all bounded placements and per-observation provenance.
+- Alias-aware unified search with canonical identity, deduplicated counts and exact-symbol precedence; source context on the gene detail page.
+- Additive migration 20261107_0008, taxonomy/organism safeguards and a coverage map of the owner's long-term roadmap.
+
+### Compatibility
+
+- Preserved existing gene list/ID responses, legacy coordinate columns and import/job contracts. No inferred assemblies, automatic data backfill or real imports.
+
 ## [0.8.0] - 2026-11-07
 
 ### Added

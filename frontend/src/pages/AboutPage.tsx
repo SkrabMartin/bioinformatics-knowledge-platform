@@ -29,7 +29,9 @@ export function AboutPage() {
             be browsed with source releases. Functional records are administrator-supplied;
             enrichment statistics and automatic ontology imports are not implemented. Administrators
             can queue bounded import batches, track each record and retry temporary provider
-            failures. Imports preserve the original source metadata.
+            failures. Imports preserve the original source metadata. Gene records retain
+            source-reported aliases and reference sequence placements. Alias search leads to
+            canonical gene records without merging genes that share a name.
           </p>
         </section>
         <section>

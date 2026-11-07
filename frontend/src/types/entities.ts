@@ -43,8 +43,24 @@ export interface ProteinSummary {
   name: string;
 }
 
+export interface GeneAlias extends ProvenanceFields {
+  id: number;
+  alias: string;
+}
+
+export interface GeneGenomicLocation extends ProvenanceFields {
+  id: number;
+  sequence_accession: string;
+  chromosome: string | null;
+  start_position: number;
+  end_position: number;
+  strand: "+" | "-";
+}
+
 export interface GeneDetail extends Gene {
   proteins: ProteinSummary[];
+  aliases?: GeneAlias[];
+  genomic_locations?: GeneGenomicLocation[];
 }
 
 export interface Protein extends ProvenanceFields {

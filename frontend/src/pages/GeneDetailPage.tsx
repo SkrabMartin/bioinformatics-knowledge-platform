@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
 import { RelationshipPanel } from "../components/RelationshipPanel";
+import { GeneContextPanel } from "../components/GeneContextPanel";
 import { PublicationPanel } from "../components/PublicationPanel";
 import { ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
@@ -69,9 +70,11 @@ export function GeneDetailPage() {
             ]}
           />
           <p className="context-note">
-            Coordinates are one-based and inclusive. Assembly metadata is not yet stored.
+            This is the legacy location summary. NCBI imports use one-based inclusive coordinates;
+            older manually entered values may have unspecified conventions. No assembly is inferred.
           </p>
         </DetailSection>
+        <GeneContextPanel aliases={gene.aliases ?? []} locations={gene.genomic_locations ?? []} />
         <DetailSection title="Associated proteins">
           {gene.proteins.length ? (
             <ul className="related-list">

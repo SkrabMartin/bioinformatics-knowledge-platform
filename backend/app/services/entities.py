@@ -9,6 +9,8 @@ from app.core.database import Base
 from app.models import (
     Disease,
     Gene,
+    GeneAlias,
+    GeneGenomicLocation,
     GenePathway,
     Organism,
     Protein,
@@ -131,6 +133,16 @@ class GeneService(EntityService[Gene]):
                     linked_protein is not None
                     or linked_variant is not None
                     or linked_pathway is not None
+                    or self.session.scalar(
+                        select(GeneAlias.id).where(GeneAlias.gene_id == entity_id).limit(1)
+                    )
+                    is not None
+                    or self.session.scalar(
+                        select(GeneGenomicLocation.id)
+                        .where(GeneGenomicLocation.gene_id == entity_id)
+                        .limit(1)
+                    )
+                    is not None
                 ):
                     raise ConflictError(
                         "Cannot change a gene's organism while relationships exist."

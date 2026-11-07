@@ -61,5 +61,19 @@ class GeneRead(GeneBase, StoredProvenanceFields):
     organism: OrganismSummary
 
 
+class GeneAliasRead(StoredProvenanceFields):
+    alias: str
+
+
+class GeneLocationRead(StoredProvenanceFields):
+    sequence_accession: str
+    chromosome: str | None
+    start_position: int
+    end_position: int
+    strand: Literal["+", "-"]
+
+
 class GeneDetail(GeneRead):
     proteins: list[ProteinSummary]
+    aliases: list[GeneAliasRead] = Field(default_factory=list)
+    genomic_locations: list[GeneLocationRead] = Field(default_factory=list)

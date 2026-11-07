@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.ingestion.errors import IngestionPersistenceError as IngestionPersistenceError
+from app.ingestion.gene_context import store_gene_context
 from app.ingestion.models import NormalizedGene, NormalizedOrganism, NormalizedProtein
 from app.models import Gene, Organism, Protein
 from app.repositories.genes import GeneRepository
@@ -26,10 +28,6 @@ class ImportResult(BaseModel):
     action: Literal["created", "updated", "unchanged"]
 
 
-class IngestionPersistenceError(RuntimeError):
-    pass
-
-
 class GeneIngestionService:
     def __init__(self, session: Session, provider: GeneProvider) -> None:
         self.session = session
@@ -39,6 +37,10 @@ class GeneIngestionService:
 
     def import_gene(self, symbol: str, taxonomy_id: str = "9606") -> ImportResult:
         record = self.provider.fetch_gene(symbol, taxonomy_id)
+        if record.organism.taxonomy_id != taxonomy_id:
+            raise IngestionPersistenceError(
+                "Provider gene taxonomy differs from the requested taxonomy."
+            )
         try:
             organism = _upsert_organism(self.session, self.organisms, record.organism)
             gene_by_identifier = self.genes.by_external_identifier(record.ncbi_gene_id)
@@ -73,6 +75,11 @@ class GeneIngestionService:
                 self.session.flush()
                 action: Literal["created", "updated", "unchanged"] = "created"
             else:
+                self.session.refresh(gene, with_for_update=True)
+                if gene.organism_id != organism.id:
+                    raise IngestionPersistenceError(
+                        "An existing gene cannot change organism during import."
+                    )
                 if (
                     gene.ncbi_gene_id not in (None, record.ncbi_gene_id)
                     and gene.source != "development_fixture"
@@ -82,6 +89,9 @@ class GeneIngestionService:
                     )
                 changed = _update_gene(gene, record, organism.id)
                 action = "updated" if changed else "unchanged"
+            context_changed = store_gene_context(self.session, gene, record)
+            if action == "unchanged" and context_changed:
+                action = "updated"
             self.session.commit()
         except IngestionPersistenceError:
             self.session.rollback()

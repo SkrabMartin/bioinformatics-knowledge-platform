@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql import ColumnElement, Select
 
-from app.models import Gene, Organism, Protein
+from app.models import Gene, GeneAlias, Organism, Protein
 from app.schemas.search import (
     SearchCounts,
     SearchEntityType,
@@ -177,6 +177,52 @@ class SearchService:
             prefix_primary=(Gene.symbol,),
             prefix_name=(Gene.name,),
         )
+
+        def alias_condition(value: str) -> ColumnElement[bool]:
+            return (
+                select(GeneAlias.id)
+                .where(
+                    GeneAlias.gene_id == Gene.id,
+                    GeneAlias.alias.ilike(f"%{_escape_like(value)}%", escape="\\"),
+                )
+                .correlate(Gene)
+                .exists()
+            )
+
+        alias_match = alias_condition(query)
+        if terms:
+            match_condition = or_(
+                match_condition,
+                and_(
+                    *[
+                        or_(_partial_match(fields, term, []), alias_condition(term))
+                        for term in terms
+                    ]
+                ),
+            )
+        else:
+            match_condition = or_(match_condition, alias_match)
+        matching_alias = (
+            select(func.min(GeneAlias.alias))
+            .where(
+                GeneAlias.gene_id == Gene.id,
+                or_(
+                    *[
+                        GeneAlias.alias.ilike(f"%{_escape_like(value)}%", escape="\\")
+                        for value in [query, *terms]
+                    ]
+                ),
+            )
+            .correlate(Gene)
+            .scalar_subquery()
+        )
+        alias_exact = (
+            select(GeneAlias.id)
+            .where(GeneAlias.gene_id == Gene.id, func.lower(GeneAlias.alias) == query.casefold())
+            .correlate(Gene)
+            .exists()
+        )
+        base_score = case((base_score >= 1100, base_score), (alias_exact, 1100), else_=base_score)
         return (
             select(
                 literal(SearchEntityType.GENE.value).label("entity_type"),
@@ -195,8 +241,10 @@ class SearchService:
                 Gene.ncbi_gene_id.label("field_3_value"),
                 literal("ensembl_gene_id").label("field_4_name"),
                 Gene.ensembl_gene_id.label("field_4_value"),
-                literal("description").label("field_5_name"),
-                Gene.description.label("field_5_value"),
+                case((matching_alias.is_not(None), "alias"), else_="description").label(
+                    "field_5_name"
+                ),
+                func.coalesce(matching_alias, Gene.description).label("field_5_value"),
                 (base_score + full_text_rank).label("score"),
             )
             .join(Organism, Gene.organism_id == Organism.id)
