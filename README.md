@@ -6,11 +6,11 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.9.0 — Biological Model Foundation: gene aliases and reference sequence placements.**
+**Release 0.10.0 — Source-backed transcript model, Ensembl adapter and transcript browser.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
-numbering from the historical implementation milestones below. Release 0.9.0
-advances part of long-term Phase 2; it does not complete long-term Phase 9.
+numbering from the historical implementation milestones below. Releases 0.9–0.10
+advance parts of long-term Phases 2–3, independently of the historical milestone numbers.
 
 The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
@@ -21,6 +21,12 @@ The interactive graph explorer now navigates stored gene, protein, disease, vari
 Pathways and GO biological-process/molecular-function terms now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+
+## Data availability
+
+The public instance now contains an explicitly imported NCBI/UniProt starter set:
+three genes and three proteins. See [current data and refresh behavior](docs/DATA_STATUS.md).
+Imports and queued jobs load records explicitly; scheduled synchronization is not enabled.
 
 ## What works
 
@@ -174,6 +180,12 @@ The additive `20261023_0006` migration creates six indexed tables and leaves exi
 This is an enrichment-ready **data foundation**, not an enrichment engine: stable direct gene memberships, organism context and source releases can underpin a later explicit gene-set/background snapshot. No reference population, p-value, enrichment score or multiple-testing result is fabricated. A future calculation must specify its universe, identifier mapping, annotation propagation/evidence policy, source versions, statistical test and correction, and return reproducible results. Source releases are caller-supplied labels, not archived reproducible snapshots yet.
 
 GO has distinct relation semantics and permits multiple parents; this phase deliberately supports only direct same-aspect `is_a` hierarchy. It does not reinterpret `regulates`, `part_of`, negative (`NOT`) annotations, obsolete terms, or cellular-component terms as positive annotations. Unknown payload fields are rejected. The application predicates `involved_in` and `has_function` are its scoped source-assertion labels, not a claim to implement every GO annotation relation. See the [GO relations documentation](https://geneontology.org/docs/ontology-relations/) and [GO annotation principles](https://www.geneontology.org/docs/go-annotations/).
+
+### Transcript architecture (0.10.0)
+
+Explicit Ensembl parent/species/assembly annotations → bounded normalization →
+atomic transcript persistence for an existing mapped gene → paginated catalogue
+and gene/detail navigation. See [transcript operations](docs/TRANSCRIPTS.md).
 
 ### Gene context architecture (0.9.0)
 
@@ -577,7 +589,7 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 
 ## Next phase
 
-Phase 8 is implemented: [tracked imports and a bounded PostgreSQL worker](docs/IMPORT_JOBS.md). The owner’s [long-term roadmap](docs/ROADMAP.md) supersedes the earlier short implementation plan; its numbering is independent. Release 0.9.0 advances the biological-model foundation, with remaining Phase 2 work explicitly identified. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
+Phase 8 is implemented: [tracked imports and a bounded PostgreSQL worker](docs/IMPORT_JOBS.md). The owner’s [long-term roadmap](docs/ROADMAP.md) supersedes the earlier short implementation plan; its numbering is independent. Release 0.10.0 adds transcript annotations and a bounded Ensembl adapter; normalized assembly/chromosome and general identifier models remain future Phase 2 work. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
 
 Enrichment calculations, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 7.
 

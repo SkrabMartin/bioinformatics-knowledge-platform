@@ -75,6 +75,29 @@ export function GeneDetailPage() {
           </p>
         </DetailSection>
         <GeneContextPanel aliases={gene.aliases ?? []} locations={gene.genomic_locations ?? []} />
+        <DetailSection title="Observed transcripts">
+          {gene.transcripts?.length ? (
+            <ul className="related-list">
+              {gene.transcripts.map((transcript) => (
+                <li key={transcript.id}>
+                  <Link to={"/transcript/" + encodeURIComponent(transcript.ensembl_transcript_id)}>
+                    <strong>{transcript.ensembl_transcript_id}</strong>
+                    <span>
+                      {transcript.assembly_name} · Ensembl release {transcript.source_release}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="context-note">
+              No source-backed transcript annotations have been imported.
+            </p>
+          )}
+          <p className="context-note">
+            These are retained source annotations, not an inferred complete set of current isoforms.
+          </p>
+        </DetailSection>
         <DetailSection title="Associated proteins">
           {gene.proteins.length ? (
             <ul className="related-list">

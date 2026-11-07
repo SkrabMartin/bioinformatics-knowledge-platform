@@ -31,7 +31,9 @@ export function AboutPage() {
             can queue bounded import batches, track each record and retry temporary provider
             failures. Imports preserve the original source metadata. Gene records retain
             source-reported aliases and reference sequence placements. Alias search leads to
-            canonical gene records without merging genes that share a name.
+            canonical gene records without merging genes that share a name. Ensembl transcript
+            annotations can be imported for existing mapped genes and browsed with source release,
+            assembly and coordinate context.
           </p>
         </section>
         <section>

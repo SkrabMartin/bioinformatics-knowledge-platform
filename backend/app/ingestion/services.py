@@ -1,13 +1,14 @@
 from typing import Literal, Protocol
 
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.ingestion.errors import IngestionPersistenceError as IngestionPersistenceError
 from app.ingestion.gene_context import store_gene_context
 from app.ingestion.models import NormalizedGene, NormalizedOrganism, NormalizedProtein
-from app.models import Gene, Organism, Protein
+from app.models import Gene, Organism, Protein, Transcript
 from app.repositories.genes import GeneRepository
 from app.repositories.organisms import OrganismRepository
 from app.repositories.proteins import ProteinRepository
@@ -87,6 +88,15 @@ class GeneIngestionService:
                     raise IngestionPersistenceError(
                         f"Gene {gene.symbol} already has a different NCBI Gene identifier."
                     )
+                if (
+                    record.ensembl_gene_id is not None
+                    and record.ensembl_gene_id != gene.ensembl_gene_id
+                    and self.session.scalar(
+                        select(Transcript.id).where(Transcript.gene_id == gene.id).limit(1)
+                    )
+                    is not None
+                ):
+                    raise IngestionPersistenceError("Ensembl gene identity has stored transcripts.")
                 changed = _update_gene(gene, record, organism.id)
                 action = "updated" if changed else "unchanged"
             context_changed = store_gene_context(self.session, gene, record)

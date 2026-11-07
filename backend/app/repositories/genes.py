@@ -17,6 +17,7 @@ class GeneRepository(Repository[Gene]):
                 selectinload(Gene.proteins),
                 selectinload(Gene.aliases),
                 selectinload(Gene.genomic_locations),
+                selectinload(Gene.transcripts),
             )
         )
         return self.session.scalar(statement)
@@ -49,5 +50,6 @@ class GeneRepository(Repository[Gene]):
                 selectinload(Gene.proteins),
                 selectinload(Gene.aliases),
                 selectinload(Gene.genomic_locations),
+                selectinload(Gene.transcripts),
             )
         )

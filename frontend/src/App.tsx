@@ -1,6 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 
 import { AppLayout } from "./components/AppLayout";
+import { TranscriptsPage } from "./pages/TranscriptsPage";
+import { TranscriptDetailPage } from "./pages/TranscriptDetailPage";
 import { AboutPage } from "./pages/AboutPage";
 import { DiseaseDetailPage } from "./pages/DiseaseDetailPage";
 import { DiseasesPage } from "./pages/DiseasesPage";
@@ -30,6 +32,8 @@ export function App() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="search" element={<SearchPage />} />
+        <Route path="transcripts" element={<TranscriptsPage />} />
+        <Route path="transcript/:accession" element={<TranscriptDetailPage />} />
         <Route path="genes" element={<GenesPage />} />
         <Route path="gene/:symbol" element={<GeneDetailPage />} />
         <Route path="proteins" element={<ProteinsPage />} />

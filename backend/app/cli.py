@@ -18,7 +18,9 @@ from app.ingestion.services import (
     IngestionPersistenceError,
     ProteinIngestionService,
 )
+from app.ingestion.transcripts import TranscriptIngestionService
 from app.ingestion.worker import run_worker
+from app.integrations.ensembl import EnsemblTranscriptAdapter
 from app.integrations.errors import IntegrationError
 from app.integrations.http import RetryingJsonClient
 from app.integrations.ncbi import NcbiGeneAdapter
@@ -52,6 +54,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="Import one PubMed citation and explicit links to already stored genes",
     )
     publication_parser.add_argument("pubmed_id", help="Numeric PubMed ID")
+    transcript_parser = subparsers.add_parser(
+        "import-transcripts", help="Import Ensembl transcripts for an existing mapped gene"
+    )
+    transcript_parser.add_argument("ensembl_gene_id")
     batch_parser = subparsers.add_parser("enqueue-import", help="Queue 1-100 explicit identifiers")
     batch_parser.add_argument("entity_type", choices=["gene", "protein", "publication"])
     batch_parser.add_argument("identifiers", nargs="+")
@@ -145,6 +151,21 @@ def main() -> None:
             follow_redirects=True,
             headers={"User-Agent": settings.external_api_user_agent, "Accept": "application/json"},
         ) as client:
+            if arguments.command == "import-transcripts":
+                transport = RetryingJsonClient(
+                    client,
+                    provider="Ensembl",
+                    max_attempts=settings.external_api_max_attempts,
+                    backoff_seconds=settings.external_api_backoff_seconds,
+                    min_interval_seconds=settings.import_request_interval_seconds,
+                )
+                with get_session_factory()() as session:
+                    transcript_result = TranscriptIngestionService(
+                        session,
+                        EnsemblTranscriptAdapter(transport, base_url=settings.ensembl_base_url),
+                    ).import_transcripts(arguments.ensembl_gene_id)
+                print(transcript_result.model_dump_json())
+                return
             if arguments.command == "import-gene":
                 api_key = (
                     settings.ncbi_api_key.get_secret_value().strip()

@@ -11,6 +11,7 @@ from app.api.v1 import (
     publications,
     relationships,
     search,
+    transcripts,
     variants,
 )
 
@@ -27,3 +28,5 @@ router.include_router(graph.router)
 router.include_router(ontology.router)
 
 router.include_router(import_jobs.router)
+
+router.include_router(transcripts.router)

@@ -26,6 +26,7 @@ from app.models.relationships import (
     VariantDiseaseAssociation,
     VariantGeneLocation,
 )
+from app.models.transcript import Transcript
 from app.models.variant import Variant
 
 __all__ = [
@@ -51,6 +52,7 @@ __all__ = [
     "PublicationDisease",
     "PublicationGene",
     "PublicationProtein",
+    "Transcript",
     "Variant",
     "VariantDiseaseAssociation",
     "VariantGeneLocation",

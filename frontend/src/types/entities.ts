@@ -57,10 +57,29 @@ export interface GeneGenomicLocation extends ProvenanceFields {
   strand: "+" | "-";
 }
 
+export interface TranscriptSummary extends ProvenanceFields {
+  id: number;
+  ensembl_transcript_id: string;
+  version: number | null;
+  name: string | null;
+  biotype: string | null;
+  assembly_name: string;
+  sequence_region: string;
+  start_position: number;
+  end_position: number;
+  strand: "+" | "-";
+  source_release: string;
+}
+export interface Transcript extends TranscriptSummary {
+  gene_id: number;
+  gene: GeneSummary & { organism: OrganismSummary };
+}
+
 export interface GeneDetail extends Gene {
   proteins: ProteinSummary[];
   aliases?: GeneAlias[];
   genomic_locations?: GeneGenomicLocation[];
+  transcripts?: TranscriptSummary[];
 }
 
 export interface Protein extends ProvenanceFields {

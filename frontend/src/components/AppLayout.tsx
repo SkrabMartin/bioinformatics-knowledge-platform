@@ -13,6 +13,7 @@ const navigation = [
   ["/", "Home"],
   ["/search", "Search"],
   ["/genes", "Genes"],
+  ["/transcripts", "Transcripts"],
   ["/proteins", "Proteins"],
   ["/diseases", "Diseases"],
   ["/variants", "Variants"],
@@ -55,7 +56,7 @@ export function AppLayout() {
           <strong>BioKnowledge Platform</strong>
           <p>Open infrastructure for traceable biological knowledge.</p>
         </div>
-        <p>v0.9 · Gene context</p>
+        <p>v0.10 · Transcripts</p>
       </footer>
     </div>
   );

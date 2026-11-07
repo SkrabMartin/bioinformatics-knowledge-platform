@@ -21,6 +21,9 @@ services:
       dockerfile: backend/Dockerfile
     environment: &backend_environment
       BKP_DATABASE_URL: postgresql+psycopg://bkp:${POSTGRES_PASSWORD:?Run scripts/init-preview.py first}@db:5432/bkp
+      BKP_ENSEMBL_BASE_URL: ${BKP_ENSEMBL_BASE_URL:-https://rest.ensembl.org}
+      BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
+      BKP_NCBI_API_KEY: ${BKP_NCBI_API_KEY:-}
       BKP_ENVIRONMENT: staging
       BKP_LOG_JSON: "true"
       BKP_CORS_ORIGINS: '[]'

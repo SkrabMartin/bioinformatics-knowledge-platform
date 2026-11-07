@@ -19,6 +19,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.10.0] - 2026-11-07
+
+### Added
+
+- First-class sourced transcripts, explicit Ensembl parent/species/assembly validation, atomic idempotent CLI imports and additive migration 20261107_0009.
+- Transcript browser/detail, scoped filtering and observed transcripts on gene detail; gene identifier/organism safeguards protect source parent identity.
+- Actual initial NCBI gene and UniProt protein records loaded through existing source adapters after the user's request for data. Private contact configuration is excluded from Git.
+
+### Verified
+
+- 117 backend and 36 frontend tests, fresh PostgreSQL migrations/model comparison and lint/typing/build checks passed. Live Ensembl metadata returned provider errors; no successful real transcript import is claimed.
+- Public API confirmed three genes, three proteins, source provenance and the TP53 protein link. Periodic synchronization remains disabled.
+
 ## [0.9.0] - 2026-11-07
 
 ### Added

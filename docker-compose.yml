@@ -21,6 +21,7 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       BKP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bkp}:${POSTGRES_PASSWORD:-bkp_development}@db:5432/${POSTGRES_DB:-bkp}
+      BKP_ENSEMBL_BASE_URL: ${BKP_ENSEMBL_BASE_URL:-https://rest.ensembl.org}
       BKP_ENVIRONMENT: development
       BKP_LOG_LEVEL: INFO
       BKP_LOG_JSON: "false"
@@ -29,7 +30,7 @@ services:
       BKP_EXTERNAL_API_TIMEOUT_SECONDS: ${BKP_EXTERNAL_API_TIMEOUT_SECONDS:-15}
       BKP_EXTERNAL_API_MAX_ATTEMPTS: ${BKP_EXTERNAL_API_MAX_ATTEMPTS:-3}
       BKP_EXTERNAL_API_BACKOFF_SECONDS: ${BKP_EXTERNAL_API_BACKOFF_SECONDS:-0.5}
-      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.9.0}
+      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.10.0}
       BKP_NCBI_BASE_URL: ${BKP_NCBI_BASE_URL:-https://eutils.ncbi.nlm.nih.gov/entrez/eutils}
       BKP_NCBI_TOOL: ${BKP_NCBI_TOOL:-bio_knowledge_platform}
       BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}

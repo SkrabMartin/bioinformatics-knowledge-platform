@@ -14,6 +14,7 @@ from app.models import (
     GenePathway,
     Organism,
     Protein,
+    Transcript,
     Variant,
     VariantGeneLocation,
 )
@@ -134,6 +135,10 @@ class GeneService(EntityService[Gene]):
                     or linked_variant is not None
                     or linked_pathway is not None
                     or self.session.scalar(
+                        select(Transcript.id).where(Transcript.gene_id == entity_id).limit(1)
+                    )
+                    is not None
+                    or self.session.scalar(
                         select(GeneAlias.id).where(GeneAlias.gene_id == entity_id).limit(1)
                     )
                     is not None
@@ -147,6 +152,15 @@ class GeneService(EntityService[Gene]):
                     raise ConflictError(
                         "Cannot change a gene's organism while relationships exist."
                     )
+        if (
+            "ensembl_gene_id" in values
+            and values["ensembl_gene_id"] != entity.ensembl_gene_id
+            and self.session.scalar(
+                select(Transcript.id).where(Transcript.gene_id == entity_id).limit(1)
+            )
+            is not None
+        ):
+            raise ConflictError("Cannot change Ensembl gene identity while transcripts exist.")
         start = values.get("start_position", entity.start_position)
         end = values.get("end_position", entity.end_position)
         if start is not None and end is not None and end < start:
