@@ -1,5 +1,6 @@
 from app.models.disease import Disease
 from app.models.gene import Gene
+from app.models.import_job import ImportJob, ImportJobItem
 from app.models.ontology import (
     BiologicalProcess,
     GeneBiologicalProcess,
@@ -33,6 +34,8 @@ __all__ = [
     "GeneBiologicalProcess",
     "GeneDiseaseAssociation",
     "GenePathway",
+    "ImportJob",
+    "ImportJobItem",
     "MolecularFunction",
     "OntologyParent",
     "OntologyTerm",

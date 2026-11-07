@@ -4,6 +4,7 @@ from app.api.v1 import (
     diseases,
     genes,
     graph,
+    import_jobs,
     ontology,
     organisms,
     proteins,
@@ -24,3 +25,5 @@ router.include_router(search.router)
 router.include_router(publications.router)
 router.include_router(graph.router)
 router.include_router(ontology.router)
+
+router.include_router(import_jobs.router)

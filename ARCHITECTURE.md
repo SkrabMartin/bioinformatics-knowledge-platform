@@ -1,5 +1,10 @@
 # Architecture
 
+The phase descriptions below are historical through Phase 4. The implementation
+is now version 0.8.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+The separate local staging topology and its read-only same-origin proxy boundary
+are documented in [Local staging](docs/LOCAL_STAGING.md).
+
 ## 1. Purpose and status
 
 This document describes the architecture implemented through Phase 4 of the Bioinformatics Knowledge Platform and identifies the boundaries reserved for later phases.

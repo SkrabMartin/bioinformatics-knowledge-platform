@@ -1,4 +1,5 @@
 import logging
+import math
 import time
 from collections.abc import Callable, Mapping
 from typing import Any, Protocol, cast
@@ -46,12 +47,17 @@ class RetryingJsonClient:
         max_attempts: int,
         backoff_seconds: float,
         sleeper: Callable[[float], None] = time.sleep,
+        min_interval_seconds: float = 0,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.client = client
         self.provider = provider
         self.max_attempts = max_attempts
         self.backoff_seconds = backoff_seconds
         self.sleeper = sleeper
+        self.min_interval_seconds = min_interval_seconds
+        self.clock = clock
+        self.next_request_at = 0.0
 
     def get_json(
         self,
@@ -90,6 +96,11 @@ class RetryingJsonClient:
         not_found_message: str,
     ) -> httpx2.Response:
         for attempt in range(1, self.max_attempts + 1):
+            if self.min_interval_seconds:
+                delay = max(0.0, self.next_request_at - self.clock())
+                if delay:
+                    self.sleeper(delay)
+                self.next_request_at = self.clock() + self.min_interval_seconds
             try:
                 with self.client.stream("GET", url, params=params) as streamed:
                     body = bytearray()
@@ -133,7 +144,12 @@ class RetryingJsonClient:
                         if response.status_code == 429
                         else f"{self.provider} is temporarily unavailable."
                     )
-                    raise error_type(self.provider, message)
+                    error = error_type(self.provider, message)
+                    if isinstance(error, UpstreamRateLimitError):
+                        error.retry_after_seconds = self._retry_after_seconds(
+                            response.headers.get("Retry-After")
+                        )
+                    raise error
                 self._wait(
                     attempt,
                     response.headers.get("Retry-After"),
@@ -171,6 +187,7 @@ class RetryingJsonClient:
         if value is None:
             return None
         try:
-            return max(0.0, float(value))
+            parsed = float(value)
+            return max(0.0, parsed) if math.isfinite(parsed) else None
         except ValueError:
             return None

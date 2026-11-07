@@ -6,10 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Separate local staging Compose with a private PostgreSQL network, explicit migration service, static same-origin frontend, read-only API proxy, private configuration initializer and VPS/Tailscale handoff guide. No automatic fixtures.
+
+### Security
+
+- Restricted development HTTP port bindings to localhost and removed the database host port. Excluded all local environment variants from Docker build contexts.
+
 ### Fixed
 
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
+
+## [0.8.0] - 2026-11-07
+
+### Added
+
+- Durable, bounded NCBI Gene / UniProt / PubMed import jobs, protected administrator API, host CLI and an optional PostgreSQL queue worker.
+- Per-record progress/results, request idempotency, cancellation, capped transient retries, shared HTTP pacing and crash recovery using existing provenance-preserving ingestion.
+- Additive migration 20261107_0007 and tests for PostgreSQL worker exclusion, crash replay, cancellation, authorization and all provider dispatch paths.
+
+### Changed
+
+- Updated application version and frontend phase/About text to Phase 8. The public API proxy remains read-only and workers/imports are opt-in.
+- Documented Phase 8 operations, at-least-once recovery and the existing temporary public-preview deployment path.
 
 ## [0.4.0] - 2026-09-21
 

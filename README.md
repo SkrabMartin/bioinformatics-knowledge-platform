@@ -6,7 +6,7 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Phase 7 — Pathways, Ontologies and Advanced Bioinformatics is implemented (0.7.0, work in progress).**
+**Phase 8 — Tracked Import Jobs and Background Processing is implemented (0.8.0).**
 
 The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
@@ -16,7 +16,7 @@ The interactive graph explorer now navigates stored gene, protein, disease, vari
 
 Pathways and GO biological-process/molecular-function terms now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
-Current architecture, operation, and verification notes are maintained in this README. [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
 ## What works
 
@@ -39,6 +39,8 @@ Current architecture, operation, and verification notes are maintained in this R
 - Fail-closed administrator token protection for new literature HTTP writes and a baseline GitHub Actions workflow with PostgreSQL migration/runtime checks.
 - Docker Compose services for PostgreSQL, backend, and frontend.
 - Backend and frontend tests plus lint, formatting, typing, and build checks.
+
+- Durable administrator import batches (up to 100 identifiers), per-item progress, cancellation, bounded retries and a separately started PostgreSQL worker.
 
 ## Architecture at a glance
 
@@ -169,6 +171,16 @@ This is an enrichment-ready **data foundation**, not an enrichment engine: stabl
 
 GO has distinct relation semantics and permits multiple parents; this phase deliberately supports only direct same-aspect `is_a` hierarchy. It does not reinterpret `regulates`, `part_of`, negative (`NOT`) annotations, obsolete terms, or cellular-component terms as positive annotations. Unknown payload fields are rejected. The application predicates `involved_in` and `has_function` are its scoped source-assertion labels, not a claim to implement every GO annotation relation. See the [GO relations documentation](https://geneontology.org/docs/ontology-relations/) and [GO annotation principles](https://www.geneontology.org/docs/go-annotations/).
 
+### Phase 8 architecture
+
+Administrator API / host CLI → PostgreSQL import_jobs + import_job_items →
+optional singleton worker → existing NCBI Gene / UniProt / PubMed adapters and
+idempotent ingestion services. No imports start automatically. The public preview
+keeps its read-only proxy; job APIs require a server-side administrator token.
+Crash recovery provides at-least-once processing within a bounded attempt budget.
+See [tracked import jobs](docs/IMPORT_JOBS.md) for commands, state transitions,
+provider pacing, cancellation semantics and operational limits.
+
 ## Repository layout
 
 ```text
@@ -213,12 +225,18 @@ GO has distinct relation semantics and permits multiple parents; this phase deli
 
 `backend/app/search/` owns ranking and result assembly; the API router only validates requests and returns typed responses.
 
+## Safe local staging
+
+For an isolated, read-only local staging stack with a static frontend and private
+database, follow [the local staging and VPS handoff guide](docs/LOCAL_STAGING.md).
+Do not expose the development stack publicly.
+
 ## Quick start with Docker Compose
 
 Requirements:
 
 - Docker with Docker Compose support
-- ports `5173`, `8000`, and `5432` available
+- localhost ports `5173` and `8000` available (database is Docker-internal)
 
 Create a local environment file and start the stack:
 
@@ -239,7 +257,7 @@ Open:
 - API documentation: <http://localhost:8000/docs>
 - health endpoint: <http://localhost:8000/api/health>
 
-Stop the stack with `docker compose down`. Add `--volumes` only when intentionally discarding the development database.
+Stop the stack with `docker compose down`; preserve database volumes.
 
 ### Frontend dependency-volume recovery
 
@@ -251,7 +269,7 @@ docker compose rm -f frontend
 docker volume ls --filter name=frontend_node_modules
 ```
 
-Remove the exact frontend dependency volume name shown by the last command, then restart with `docker compose up --build`. Do not run `docker compose down --volumes` unless the PostgreSQL development data should also be deleted.
+Remove the exact frontend dependency volume name shown by the last command, then restart with `docker compose up --build`. Preserve PostgreSQL volumes; do not use `docker compose down --volumes` for dependency recovery.
 
 ## Native development
 
@@ -272,7 +290,7 @@ python -m app.cli load-fixtures
 uvicorn app.main:app --app-dir backend --reload
 ```
 
-The default database URL expects PostgreSQL at `localhost:5432`. Override any setting with a `BKP_`-prefixed environment variable. Settings load the repository-root `.env` file automatically.
+Native development requires a separately managed local PostgreSQL instance at `localhost:5432`; the development Compose database is not published to the host. Override any setting with a `BKP_`-prefixed environment variable. Settings load the repository-root `.env` file automatically.
 
 The fixture loader is idempotent. A second run reports zero created records.
 
@@ -535,7 +553,7 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 - Search uses offset pagination and synchronous count queries. Ranking weights and PostgreSQL index use have not been benchmarked on a large biological corpus.
 - Organism results have no detail page yet. Gene search links require taxonomy context; older bare `/gene/{symbol}` links still default to human (`9606`).
 - There are no hard-delete endpoints or entity deprecation workflow yet.
-- Entity provenance is record-level and relationship assertions have their own source fields. Multiple-provider claim history, raw payload retention, payload checksums, provider releases, parser versions, and import-job history are not yet modeled.
+- Entity provenance is record-level and relationship assertions have their own source fields. Multiple-provider claim history, raw payload retention, payload checksums, provider releases and parser versions are not yet modeled. Phase 8 now tracks import-job/item status, attempts and safe results; raw payload and per-attempt archives remain deferred.
 - NCBI Gene summary coordinates are converted from zero-based positions to one-based inclusive coordinates, but the selected assembly/accession is not stored yet; the first provider placement is used.
 - Gene imports require a configured NCBI contact email. Phase 4 verification did not depend on live NCBI requests; its adapter remains covered by mocked contract tests.
 - Protein imports link only to genes already present locally and do not synthesize partial genes from UniProt data.
@@ -548,7 +566,7 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 
 ## Next phase
 
-Phase 8 will add justified background processing, tracked import jobs, retries and bounded batch workflows. It has not been started. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
+Phase 8 is implemented: [tracked imports and a bounded PostgreSQL worker](docs/IMPORT_JOBS.md). Further numbered phases are not specified in the checked-in roadmap. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
 
 Enrichment calculations, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 7.
 

@@ -49,3 +49,6 @@ docker-compose.override.yml
 /homepage.png
 # Accidental copies of environment assignments are local configuration, too.
 /BKP_*=*
+
+# Private database backups and deployment manifests
+/backups/

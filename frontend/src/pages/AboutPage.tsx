@@ -27,7 +27,9 @@ export function AboutPage() {
             graph explorer supports bounded traversal, node expansion and source inspection.
             Pathways, biological processes, molecular functions and direct ontology hierarchies can
             be browsed with source releases. Functional records are administrator-supplied;
-            enrichment statistics and automatic ontology imports are not implemented.
+            enrichment statistics and automatic ontology imports are not implemented. Administrators
+            can queue bounded import batches, track each record and retry temporary provider
+            failures. Imports preserve the original source metadata.
           </p>
         </section>
         <section>
