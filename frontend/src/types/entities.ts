@@ -221,7 +221,17 @@ export interface Page<T> {
   pages: number;
 }
 
-export type SearchEntityType = "gene" | "protein" | "organism" | "publication";
+export type SearchEntityType =
+  | "gene"
+  | "protein"
+  | "organism"
+  | "publication"
+  | "transcript"
+  | "disease"
+  | "variant"
+  | "pathway"
+  | "biological_process"
+  | "molecular_function";
 
 export interface SearchMatchedField {
   field: string;
@@ -245,6 +255,13 @@ export interface SearchResult {
 }
 
 export interface SearchCounts {
+  transcript?: number;
+  disease?: number;
+  variant?: number;
+  pathway?: number;
+  biological_process?: number;
+  molecular_function?: number;
+
   gene: number;
   protein: number;
   organism: number;

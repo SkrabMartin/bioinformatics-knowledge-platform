@@ -10,6 +10,12 @@ const entityLabels = {
   protein: "Protein",
   organism: "Organism",
   publication: "Publication",
+  transcript: "Transcript",
+  disease: "Disease",
+  variant: "Variant",
+  pathway: "Pathway",
+  biological_process: "Biological process",
+  molecular_function: "Molecular function",
 };
 
 const fieldLabels: Record<string, string> = {
@@ -29,6 +35,15 @@ const fieldLabels: Record<string, string> = {
   title: "Title",
   journal: "Journal",
   abstract: "Abstract",
+  transcript_identifier: "Transcript identifier",
+  biotype: "Biotype",
+  assembly: "Assembly",
+  mondo_id: "MONDO ID",
+  disease_ontology_id: "Disease Ontology ID",
+  rsid: "rsID",
+  hgvs: "HGVS",
+  source_identifier: "Source identifier",
+  go_id: "GO ID",
 };
 
 export function SearchResultCard({ result, query }: { result: SearchResult; query: string }) {

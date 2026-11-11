@@ -17,19 +17,19 @@ const categories: {
   { value: "protein", label: "Proteins", countKey: "protein" },
   { value: "organism", label: "Organisms", countKey: "organism" },
   { value: "publication", label: "Publications", countKey: "publication" },
+  { value: "transcript", label: "Transcripts", countKey: "transcript" },
+  { value: "disease", label: "Diseases", countKey: "disease" },
+  { value: "variant", label: "Variants", countKey: "variant" },
+  { value: "pathway", label: "Pathways", countKey: "pathway" },
+  { value: "biological_process", label: "Biological processes", countKey: "biological_process" },
+  { value: "molecular_function", label: "Molecular functions", countKey: "molecular_function" },
 ];
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const query = params.get("q")?.trim() ?? "";
   const requestedType = params.get("type");
-  const category: SearchEntityType | null =
-    requestedType === "gene" ||
-    requestedType === "protein" ||
-    requestedType === "organism" ||
-    requestedType === "publication"
-      ? requestedType
-      : null;
+  const category = categories.find((item) => item.value === requestedType)?.value ?? null;
   const requestedPage = Number(params.get("page") ?? 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const { data, error, loading, retry } = useSearchResults(query, page, category);
@@ -46,7 +46,7 @@ export function SearchPage() {
       <PageHeader
         eyebrow="Search workspace"
         title={query ? `Search: ${query}` : "Search biological knowledge"}
-        description="Find locally stored genes, proteins, organisms, and publications by name or identifier. Results retain their source context."
+        description="Find locally stored genes, proteins, transcripts, diseases, variants, pathways, GO terms, organisms and publications. Results retain their source context."
         searchValue={query}
       />
 

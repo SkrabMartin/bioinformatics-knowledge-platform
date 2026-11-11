@@ -19,6 +19,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.13.0] - 2026-11-11
+
+### Added
+
+- Unified search now includes transcripts, diseases, variants, pathways, GO biological processes and molecular functions alongside the existing four categories.
+- Matching source context, counts, filters, suggestions and detail links across the expanded catalogue; exact stored transcript versions and HGVS-only variants are supported.
+- Bounded search/suggestion execution with safe timeout errors. No schema migration or biological data import is required.
+
+### Verified
+
+- 161 backend tests on isolated PostgreSQL, migration/model comparison, Ruff and strict mypy passed; frontend passed 43 tests, formatting, lint, typecheck and production build.
+- A restored live database retained 3 genes, 3 proteins, 128 transcripts and six evidenced gene identities. Searching TP53 returned the gene, its protein and 40 stored transcripts, with 42 total results.
+
+- Deployed 0.13 via existing VPS/Compose; public HTTPS search/filter/version/suggestion checks, original catalogue totals, SPA asset and blocked writes passed.
+
 ## [0.12.0] - 2026-11-11
 
 ### Added

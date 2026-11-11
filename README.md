@@ -6,13 +6,13 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.12.0 — Read-only provenance, consistency and refresh review.**
+**Release 0.13.0 — Unified search across ten stored biological entity categories.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
 advance parts of long-term Phases 2–3, independently of the historical milestone numbers.
 
-The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
+The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, transcripts, diseases, variants, pathways, GO biological processes and molecular functions, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
 The application still ships explicitly marked Phase 1 demo fixtures for local startup. Real gene/protein imports are opt-in CLI operations. Phase 4 does **not** automatically import disease or variant assertions: those collections start empty until source-backed records are supplied through the API. Search never invents results for absent records.
 
@@ -22,7 +22,10 @@ Pathways and GO biological-process/molecular-function terms now extend that navi
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
-The new [data quality review](docs/DATA_QUALITY.md) exposes ten metadata and
+The expanded [unified search](docs/UNIFIED_SEARCH.md) adds six catalogue categories
+to matching, filters, counts and suggestions.
+
+The [data quality review](docs/DATA_QUALITY.md) exposes ten metadata and
 coverage checks at `/data-quality`, without modifying biological records.
 
 See [gene identifiers](docs/GENE_IDENTIFIERS.md) for explicit namespace resolution,

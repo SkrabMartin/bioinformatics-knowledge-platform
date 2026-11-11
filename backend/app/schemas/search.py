@@ -10,6 +10,12 @@ class SearchEntityType(StrEnum):
     PROTEIN = "protein"
     ORGANISM = "organism"
     PUBLICATION = "publication"
+    TRANSCRIPT = "transcript"
+    DISEASE = "disease"
+    VARIANT = "variant"
+    PATHWAY = "pathway"
+    BIOLOGICAL_PROCESS = "biological_process"
+    MOLECULAR_FUNCTION = "molecular_function"
 
 
 class SearchMatchedField(ApiModel):
@@ -40,6 +46,12 @@ class SearchCounts(ApiModel):
     protein: int = Field(ge=0)
     organism: int = Field(ge=0)
     publication: int = Field(default=0, ge=0)
+    transcript: int = Field(default=0, ge=0)
+    disease: int = Field(default=0, ge=0)
+    variant: int = Field(default=0, ge=0)
+    pathway: int = Field(default=0, ge=0)
+    biological_process: int = Field(default=0, ge=0)
+    molecular_function: int = Field(default=0, ge=0)
     total: int = Field(ge=0)
 
 
