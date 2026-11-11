@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    data_quality,
     diseases,
     genes,
     graph,
@@ -30,3 +31,5 @@ router.include_router(ontology.router)
 router.include_router(import_jobs.router)
 
 router.include_router(transcripts.router)
+
+router.include_router(data_quality.router)

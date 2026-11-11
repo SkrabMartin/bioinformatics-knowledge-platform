@@ -6,7 +6,7 @@ owner document or an instruction to implement every phase immediately.
 
 **Roadmap phases and historical BKP implementation milestones use different
 numbering.** The historical “Phase 8” release 0.8.0 delivered tracked imports.
-It did not complete long-term roadmap phases 0–8. Releases 0.9–0.10 address a
+It did not complete long-term roadmap phases 0–8. Releases 0.9–0.11 address a
 bounded part of long-term **Phase 2**, not long-term Phase 9.
 
 ## Direction
@@ -16,16 +16,16 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage checked against source in 0.9.0
+## Coverage updated through 0.12.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
 | 0 | Architectural Foundation | Implemented layered FastAPI/PostgreSQL/React foundation; evolves with later work. |
 | 1 | Core Application Platform | Running application, entity APIs, migrations, tests and Compose. |
-| 2 | Biological Data Model | Partial: organisms, genes, proteins, external IDs, source-backed gene aliases and reference sequence placements and sourced transcripts. Normalized chromosomes/assemblies and general cross-provider identifier registry remain. |
+| 2 | Biological Data Model | Partial: organisms, genes, proteins, external IDs, source-backed gene aliases and reference sequence placements and sourced transcripts. Normalized chromosomes/assemblies and broader identifier namespaces remain; a sourced NCBI/Ensembl registry is implemented. |
 | 3 | External Data Integration Framework | Partial: NCBI Gene, UniProt, PubMed adapters, bounded retries, normalization, request pacing. A bounded Ensembl transcript adapter now exists; no general bulk source-version/pagination framework. |
 | 4 | Data Ingestion Engine | Partial: idempotent single-record and bounded queued imports, record status/results and crash replay. No large-scale incremental source synchronization or full checkpoint framework. |
-| 5 | Provenance and Data Quality System | Partial: record/assertion provenance, identity and namespace constraints, safe errors. No comprehensive quality dashboard, immutable payload/source snapshots or claim history. |
+| 5 | Provenance and Data Quality System | Partial: record/assertion provenance, identity and namespace constraints, safe errors. Initial bounded metadata/consistency/refresh dashboard for genes/proteins/transcripts/identifiers; no comprehensive quality coverage, immutable payload/source snapshots or claim history. |
 | 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and four entity categories. No all-entity coverage or fuzzy/synonym ontology expansion. |
 | 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Phenotypes and phenotype annotations absent. |
 | 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Assembly-aware variant representation, clinical significance/frequency, protein/publication links and normalization absent. |
@@ -93,3 +93,11 @@ complexity is justified and existing stability/provenance are preserved.
 The sourced NCBI/Ensembl identity registry and explicit provider cross-references
 advance parts of long-term Phases 2–3. This does not complete either phase or the
 subsequent dataset-discovery phase. See [identifier operations](GENE_IDENTIFIERS.md).
+
+## Release 0.12 follow-up
+
+An initial Phase 5 quality/provenance review adds ten read-only checks over the
+existing gene/protein/transcript/identifier data. It does not complete Phase 5 or
+certify biological correctness. Broader metadata normalization and provider/source
+versioning remain prerequisites for later whole-platform quality workflows.
+See [data quality](DATA_QUALITY.md).

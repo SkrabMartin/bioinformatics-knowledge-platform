@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import { DataQualityPage } from "./pages/DataQualityPage";
 import { AppLayout } from "./components/AppLayout";
 import { TranscriptsPage } from "./pages/TranscriptsPage";
 import { TranscriptDetailPage } from "./pages/TranscriptDetailPage";
@@ -76,6 +77,7 @@ export function App() {
           }
         />
         <Route path="variant/:id" element={<VariantDetailPage />} />
+        <Route path="data-quality" element={<DataQualityPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

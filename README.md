@@ -6,7 +6,7 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.11.0 — Source-backed NCBI/Ensembl gene identities and interoperable transcript imports.**
+**Release 0.12.0 — Read-only provenance, consistency and refresh review.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
@@ -21,6 +21,9 @@ The interactive graph explorer now navigates stored gene, protein, disease, vari
 Pathways and GO biological-process/molecular-function terms now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+
+The new [data quality review](docs/DATA_QUALITY.md) exposes ten metadata and
+coverage checks at `/data-quality`, without modifying biological records.
 
 See [gene identifiers](docs/GENE_IDENTIFIERS.md) for explicit namespace resolution,
 source assertions, conflict handling and transcript import prerequisites.

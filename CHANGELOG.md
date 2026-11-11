@@ -19,6 +19,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.12.0] - 2026-11-11
+
+### Added
+
+- Read-only `/api/v1/data-quality` and `/data-quality` page with ten scoped metadata, identifier consistency, organism consistency and refresh review checks.
+- Bounded record examples, organism-specific gene links, explicit fixture exclusion and safe review timeouts. Coverage and retrieval age are distinguished from scientific correctness.
+- No schema migration, biological imports, data corrections or automatic refresh in this release. Existing APIs remain compatible.
+
+### Verified
+
+- 151 backend tests on isolated PostgreSQL, migration/model comparison, Ruff and strict mypy; 41 frontend tests, formatting, lint, typecheck and production build passed.
+- A fresh live-data backup was restored with 3 genes, 3 proteins, 128 transcripts and 6 evidenced identities preserved. The new review completed on that clone without findings in its ten scoped checks.
+
+- Deployed 0.12 through the existing VPS/Compose setup; public HTTPS report, interval validation, SPA asset, original catalogue counts and blocked writes passed.
+
 ## [0.11.0] - 2026-11-11
 
 ### Added

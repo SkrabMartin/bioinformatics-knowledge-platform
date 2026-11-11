@@ -20,6 +20,7 @@ const navigation = [
   ["/publications", "Publications"],
   ["/pathways", "Pathways"],
   ["/graph", "Graph"],
+  ["/data-quality", "Data quality"],
   ["/about", "About"],
 ];
 
@@ -56,7 +57,7 @@ export function AppLayout() {
           <strong>BioKnowledge Platform</strong>
           <p>Open infrastructure for traceable biological knowledge.</p>
         </div>
-        <p>v0.11 · Source-backed identities</p>
+        <p>v0.12 · Provenance and quality</p>
       </footer>
     </div>
   );

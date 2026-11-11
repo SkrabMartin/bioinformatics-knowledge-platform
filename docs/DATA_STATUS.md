@@ -58,3 +58,9 @@ three proteins and one organism remain. Public write methods remain blocked.
 This is a bounded starter set, not whole-genome coverage or an automatic data feed.
 Transcript metadata are available at /transcripts and on gene detail pages.
 See [transcripts](TRANSCRIPTS.md) and [identifier evidence](GENE_IDENTIFIERS.md).
+
+## Metadata review
+
+Release 0.12 adds the read-only [data quality review](DATA_QUALITY.md) at
+`/data-quality`. It checks the stored starter records and their identifier metadata;
+it does not load additional biological records or enable scheduled updates.
