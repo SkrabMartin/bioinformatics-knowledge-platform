@@ -74,11 +74,12 @@ take priority over code volume or premature infrastructure.
 
 ## Current increment and next candidates
 
-Release 0.10.0 adds source-backed transcript annotations, a bounded Ensembl adapter
-and a public transcript browser. See [transcripts](TRANSCRIPTS.md) and the earlier
+Release 0.11.0 extends sourced transcripts with a namespaced NCBI/Ensembl
+identifier registry, explicit UniProt mapping evidence and live-compatible Ensembl
+metadata handling. See [transcripts](TRANSCRIPTS.md) and the earlier
 [gene context](GENE_CONTEXT.md). These increments advance long-term Phases 2–3.
 
-Remaining Phase 2 candidates include a source-scoped identifier registry and
+Remaining Phase 2 candidates include broader identifier namespaces and
 normalized assembly/chromosome models. Transcript exon/translation models and
 large-scale refresh require their own source/identity contracts.
 Later dataset/phenotype/enrichment features must state their own source and
@@ -86,3 +87,9 @@ reproducibility requirements before implementation.
 
 A phase proceeds only when its prerequisites work, it adds actual value,
 complexity is justified and existing stability/provenance are preserved.
+
+## Release 0.11 follow-up
+
+The sourced NCBI/Ensembl identity registry and explicit provider cross-references
+advance parts of long-term Phases 2–3. This does not complete either phase or the
+subsequent dataset-discovery phase. See [identifier operations](GENE_IDENTIFIERS.md).

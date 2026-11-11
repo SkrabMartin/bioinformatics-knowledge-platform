@@ -3,6 +3,7 @@ from typing import Literal
 from pydantic import Field, HttpUrl, model_validator
 
 from app.schemas.common import ApiModel, PatchModel, ProvenanceFields, StoredProvenanceFields
+from app.schemas.gene_identifier import GeneExternalIdentifierRead
 from app.schemas.organism import OrganismSummary
 from app.schemas.transcript import TranscriptSummary
 
@@ -79,3 +80,4 @@ class GeneDetail(GeneRead):
     aliases: list[GeneAliasRead] = Field(default_factory=list)
     genomic_locations: list[GeneLocationRead] = Field(default_factory=list)
     transcripts: list[TranscriptSummary] = Field(default_factory=list)
+    external_identifiers: list[GeneExternalIdentifierRead] = Field(default_factory=list)

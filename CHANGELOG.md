@@ -19,6 +19,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.11.0] - 2026-11-11
+
+### Added
+
+- Namespaced NCBI/Ensembl gene identity registry, bounded source evidence, exact observed-version resolution and provenance display on gene detail. Additive migration 20261111_0010.
+- UniProt explicit cross-reference ingestion enables Ensembl mapping without symbol guessing or gene merging; conflicts roll back the record.
+
+### Fixed
+
+- Ensembl species metadata accepts strict decimal taxonomy strings; JSON requests use the validated documentation-style query.
+- Unknown explicit NCBI identifiers no longer fall back to gene symbols. Worker retry tests derive their clock from queued work.
+
+### Verified
+
+- 142 backend tests on isolated PostgreSQL, migration/model comparison, Ruff and strict mypy passed. Frontend validation passed 38 tests, formatting, lint, typecheck and build.
+- Live bounded imports added 128 Ensembl transcripts (TP53 40, BRCA1 59, PINK1 29) using explicit UniProt mappings; public HTTPS/API checks passed. Scheduled refresh remains disabled.
+- Pre-release backup was restored and upgraded with original record counts preserved; previous application images were retained and smoke-tested.
+
 ## [0.10.0] - 2026-11-07
 
 ### Added

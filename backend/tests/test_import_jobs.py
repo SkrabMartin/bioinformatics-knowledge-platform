@@ -62,11 +62,12 @@ def test_invalid_batches_are_rejected(overrides: dict[str, object]) -> None:
 
 
 def test_worker_progress_retry_budget_and_safe_failures(session: Session) -> None:
-    now = datetime(2026, 11, 7, tzinfo=UTC)
     service = ImportJobService(session)
     job = service.create(batch(max_attempts=2))
-    # available_at uses wall-clock at enqueue; choose a future test clock.
-    now += timedelta(days=2)
+    # Derive the worker clock from the queued records so the test cannot expire.
+    now = max(
+        item.available_at.replace(tzinfo=UTC) for item in service.items(job.id, 1, 100).items
+    ) + timedelta(seconds=1)
 
     def fail(_session: Session, _job: object, item: ImportJobItem) -> dict[str, object]:
         if item.identifier == "TP53":

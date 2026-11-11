@@ -33,7 +33,8 @@ export function AboutPage() {
             source-reported aliases and reference sequence placements. Alias search leads to
             canonical gene records without merging genes that share a name. Ensembl transcript
             annotations can be imported for existing mapped genes and browsed with source release,
-            assembly and coordinate context.
+            assembly and coordinate context. Namespaced identifier mappings retain explicit source
+            assertions and reported versions, so cross-database identity can be inspected.
           </p>
         </section>
         <section>

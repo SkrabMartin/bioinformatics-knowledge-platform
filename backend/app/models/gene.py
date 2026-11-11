@@ -18,6 +18,7 @@ from app.models.types import BIGINT_PK
 
 if TYPE_CHECKING:
     from app.models.gene_context import GeneAlias, GeneGenomicLocation
+    from app.models.gene_identifier import GeneExternalIdentifier
     from app.models.organism import Organism
     from app.models.protein import Protein
     from app.models.transcript import Transcript
@@ -98,4 +99,8 @@ class Gene(ProvenanceMixin, Base):
 
     transcripts: Mapped[list["Transcript"]] = relationship(
         back_populates="gene", order_by="Transcript.ensembl_transcript_id"
+    )
+
+    external_identifiers: Mapped[list["GeneExternalIdentifier"]] = relationship(
+        back_populates="gene", order_by="GeneExternalIdentifier.namespace"
     )

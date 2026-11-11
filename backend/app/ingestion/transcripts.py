@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.ingestion.errors import IngestionPersistenceError
 from app.ingestion.transcript_models import ENSEMBL_GENE_PATTERN, NormalizedTranscriptBatch
-from app.models import Gene, Organism
+from app.models import Gene, GeneExternalIdentifier, Organism
 from app.models.transcript import Transcript
 
 
@@ -56,6 +56,16 @@ class TranscriptIngestionService:
             ):
                 raise IngestionPersistenceError(
                     "Gene identity changed or the provider returned another gene."
+                )
+            registered = self.session.scalar(
+                select(GeneExternalIdentifier).where(
+                    GeneExternalIdentifier.namespace == "ensembl_gene",
+                    GeneExternalIdentifier.accession == ensembl_gene_id,
+                )
+            )
+            if registered is not None and registered.gene_id != gene.id:
+                raise IngestionPersistenceError(
+                    "Registered Ensembl identity conflicts with the gene."
                 )
             taxonomy = self.session.scalar(
                 select(Organism.taxonomy_id).where(Organism.id == gene.organism_id)

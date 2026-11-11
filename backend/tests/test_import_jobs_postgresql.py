@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.ingestion.services import GeneIngestionService
 from app.ingestion.worker import WORKER_LOCK, run_worker
-from app.models import Gene, Organism
+from app.models import Gene, GeneExternalIdentifier, GeneIdentifierEvidence, Organism
 from app.models.import_job import ImportJob, ImportJobItem
 from app.schemas.import_job import ImportJobCreate
 from app.services.import_jobs import ImportJobService
@@ -106,6 +106,17 @@ def test_postgresql_worker_lock_crash_replay_and_inflight_cancellation() -> None
             session.execute(delete(ImportJobItem).where(ImportJobItem.job_id.in_(ids)))
             session.execute(delete(ImportJob).where(ImportJob.id.in_(ids)))
             if gene_id is not None:
+                identifiers = select(GeneExternalIdentifier.id).where(
+                    GeneExternalIdentifier.gene_id == gene_id
+                )
+                session.execute(
+                    delete(GeneIdentifierEvidence).where(
+                        GeneIdentifierEvidence.identifier_id.in_(identifiers)
+                    )
+                )
+                session.execute(
+                    delete(GeneExternalIdentifier).where(GeneExternalIdentifier.gene_id == gene_id)
+                )
                 session.execute(delete(Gene).where(Gene.id == gene_id))
             if organism_id is not None:
                 session.execute(delete(Organism).where(Organism.id == organism_id))

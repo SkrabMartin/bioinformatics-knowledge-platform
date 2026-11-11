@@ -3,6 +3,8 @@ from typing import Any, cast
 
 from pydantic import HttpUrl, ValidationError
 
+from app.core.identifiers import canonical_gene_identifier
+from app.ingestion.identifier_models import NormalizedGeneIdentifier
 from app.ingestion.models import NormalizedOrganism, NormalizedProtein, SourceProvenance
 from app.integrations.errors import UpstreamResponseError
 from app.integrations.http import JsonHttpClient
@@ -59,6 +61,8 @@ class UniProtAdapter:
                 name=name,
                 function=_function_text(record.get("comments")),
                 sequence_length=_sequence_length(record.get("sequence")),
+                gene_identifiers=_gene_identifiers(record.get("uniProtKBCrossReferences")),
+                source_record_version=_record_version(record.get("entryAudit")),
                 gene_symbol=_gene_symbol(record.get("genes")),
                 ncbi_gene_id=_database_reference(record.get("uniProtKBCrossReferences"), "GeneID"),
                 organism=NormalizedOrganism(
@@ -147,13 +151,68 @@ def _sequence_length(value: object) -> int | None:
 
 
 def _database_reference(value: object, database: str) -> str | None:
-    if not isinstance(value, list):
+    if value is None:
         return None
+    if not isinstance(value, list):
+        raise UpstreamResponseError("UniProt", "Invalid cross-reference response shape.")
+    matches: set[str] = set()
     for reference in value:
-        if (
-            isinstance(reference, dict)
-            and reference.get("database") == database
-            and (identifier := _string(reference.get("id")))
-        ):
-            return identifier
-    return None
+        if isinstance(reference, dict) and reference.get("database") == database:
+            identifier = _string(reference.get("id"))
+            if identifier is None:
+                raise UpstreamResponseError("UniProt", "Missing cross-reference identity.")
+            if database == "GeneID":
+                try:
+                    identifier = canonical_gene_identifier("ncbi_gene", identifier)
+                except ValueError as exc:
+                    raise UpstreamResponseError(
+                        "UniProt", "Invalid NCBI gene cross-reference."
+                    ) from exc
+            matches.add(identifier)
+    if len(matches) > 1:
+        raise UpstreamResponseError("UniProt", "Ambiguous gene cross-references.")
+    return next(iter(matches), None)
+
+
+def _gene_identifiers(value: object) -> list[NormalizedGeneIdentifier]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise UpstreamResponseError("UniProt", "Invalid cross-reference response shape.")
+    reported: dict[str, NormalizedGeneIdentifier] = {}
+    for reference in value:
+        if not isinstance(reference, dict) or reference.get("database") != "Ensembl":
+            continue
+        properties = reference.get("properties", [])
+        if not isinstance(properties, list):
+            raise UpstreamResponseError("UniProt", "Invalid Ensembl cross-reference properties.")
+        for item in properties:
+            if isinstance(item, dict) and item.get("key") == "GeneId":
+                raw = _string(item.get("value"))
+                if raw is None:
+                    raise UpstreamResponseError("UniProt", "Missing Ensembl gene identifier.")
+                try:
+                    canonical = canonical_gene_identifier("ensembl_gene", raw)
+                except ValueError as exc:
+                    raise UpstreamResponseError(
+                        "UniProt", "Invalid Ensembl gene identifier."
+                    ) from exc
+                reported[raw] = NormalizedGeneIdentifier(
+                    namespace="ensembl_gene", accession=canonical, reported_accession=raw
+                )
+    if len({item.accession for item in reported.values()}) > 1:
+        raise UpstreamResponseError("UniProt", "Ambiguous Ensembl gene identity.")
+    return list(reported.values())
+
+
+def _record_version(value: object) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise UpstreamResponseError("UniProt", "Invalid source record audit metadata.")
+    version = value.get("entryVersion")
+    if version is None:
+        return None
+    if type(version) is not int or version < 1:
+        raise UpstreamResponseError("UniProt", "Invalid source record version.")
+    return str(version)

@@ -10,6 +10,7 @@ from app.models import (
     Disease,
     Gene,
     GeneAlias,
+    GeneExternalIdentifier,
     GeneGenomicLocation,
     GenePathway,
     Organism,
@@ -135,6 +136,12 @@ class GeneService(EntityService[Gene]):
                     or linked_variant is not None
                     or linked_pathway is not None
                     or self.session.scalar(
+                        select(GeneExternalIdentifier.id)
+                        .where(GeneExternalIdentifier.gene_id == entity_id)
+                        .limit(1)
+                    )
+                    is not None
+                    or self.session.scalar(
                         select(Transcript.id).where(Transcript.gene_id == entity_id).limit(1)
                     )
                     is not None
@@ -161,6 +168,24 @@ class GeneService(EntityService[Gene]):
             is not None
         ):
             raise ConflictError("Cannot change Ensembl gene identity while transcripts exist.")
+        for namespace, field in (
+            ("ncbi_gene", "ncbi_gene_id"),
+            ("ensembl_gene", "ensembl_gene_id"),
+        ):
+            if (
+                field in values
+                and values[field] != getattr(entity, field)
+                and self.session.scalar(
+                    select(GeneExternalIdentifier.id)
+                    .where(
+                        GeneExternalIdentifier.gene_id == entity_id,
+                        GeneExternalIdentifier.namespace == namespace,
+                    )
+                    .limit(1)
+                )
+                is not None
+            ):
+                raise ConflictError("Cannot change a source-backed gene identifier.")
         start = values.get("start_position", entity.start_position)
         end = values.get("end_position", entity.end_position)
         if start is not None and end is not None and end < start:

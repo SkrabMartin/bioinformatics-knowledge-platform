@@ -72,7 +72,7 @@ There is no new HTTP write endpoint. The public read-only proxy remains in place
 The CLI uses local host authorization, request timeouts/retries and conservative
 per-process pacing. Concurrent independent commands are not a distributed limiter.
 
-## Verification and operational status
+## Release 0.10 verification and operational status
 
 117 backend tests passed with disposable PostgreSQL 17, nine fresh migrations and
 no Alembic model/schema differences. New contracts cover explicit source identity,
@@ -80,8 +80,18 @@ taxonomy, assembly, coordinates, malformed/oversized/duplicate batches, idempote
 version regression, cross-gene rollback, gene edit protection, filtering/pagination
 and real PostgreSQL checks. 36 frontend tests, lint/format/typing and build passed.
 
-Live Ensembl metadata checks encountered an HTTP 500 and a timeout during this
-session. The new adapter is covered with synthetic source responses in isolated
+Live Ensembl metadata checks encountered an HTTP 500 and a timeout during release 0.10
+validation. The new adapter is covered with synthetic source responses in isolated
 tests; no successful live Ensembl transcript import is claimed. An actual source
 failure leaves local records unchanged. The separately imported NCBI/UniProt
 starter data are described in DATA_STATUS.md.
+
+## Release 0.11 interoperability follow-up
+
+The earlier live failure above describes release 0.10 validation. Release 0.11
+adds explicit UniProt GeneID/Ensembl GeneId mapping evidence and corrects species
+taxonomy-string parsing and JSON query construction. An isolated restored clone
+successfully imported 40 TP53, 59 BRCA1 and 29 PINK1 transcripts from Ensembl.
+The same bounded imports subsequently succeeded in the deployed public instance;
+public catalogue and per-gene counts were verified over HTTPS on 2026-11-11.
+See [gene identifier operations](GENE_IDENTIFIERS.md) for prerequisites and limits.

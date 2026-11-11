@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.ingestion.errors import IngestionPersistenceError as IngestionPersistenceError
 from app.ingestion.gene_context import store_gene_context
+from app.ingestion.gene_identifiers import record_gene_identifier
 from app.ingestion.models import NormalizedGene, NormalizedOrganism, NormalizedProtein
-from app.models import Gene, Organism, Protein, Transcript
+from app.models import Gene, GeneExternalIdentifier, Organism, Protein, Transcript
 from app.repositories.genes import GeneRepository
 from app.repositories.organisms import OrganismRepository
 from app.repositories.proteins import ProteinRepository
@@ -44,7 +45,7 @@ class GeneIngestionService:
             )
         try:
             organism = _upsert_organism(self.session, self.organisms, record.organism)
-            gene_by_identifier = self.genes.by_external_identifier(record.ncbi_gene_id)
+            gene_by_identifier = self.genes.by_ncbi_identifier(record.ncbi_gene_id)
             gene_by_symbol = self.genes.by_organism_and_symbol(organism.id, record.symbol)
             if (
                 gene_by_identifier is not None
@@ -97,10 +98,25 @@ class GeneIngestionService:
                     is not None
                 ):
                     raise IngestionPersistenceError("Ensembl gene identity has stored transcripts.")
+                registered_ensembl = self.session.scalar(
+                    select(GeneExternalIdentifier.accession).where(
+                        GeneExternalIdentifier.gene_id == gene.id,
+                        GeneExternalIdentifier.namespace == "ensembl_gene",
+                    )
+                )
+                if (
+                    record.ensembl_gene_id is not None
+                    and registered_ensembl is not None
+                    and record.ensembl_gene_id != registered_ensembl
+                ):
+                    raise IngestionPersistenceError("Ensembl identity has source-backed evidence.")
                 changed = _update_gene(gene, record, organism.id)
                 action = "updated" if changed else "unchanged"
+            identifier_changed = record_gene_identifier(
+                self.session, gene, "ncbi_gene", record.ncbi_gene_id, record.provenance
+            )
             context_changed = store_gene_context(self.session, gene, record)
-            if action == "unchanged" and context_changed:
+            if action == "unchanged" and (context_changed or identifier_changed):
                 action = "updated"
             self.session.commit()
         except IngestionPersistenceError:
@@ -133,13 +149,41 @@ class ProteinIngestionService:
             organism = _upsert_organism(self.session, self.organisms, record.organism)
             gene = None
             if record.ncbi_gene_id:
-                gene = self.genes.by_external_identifier(record.ncbi_gene_id)
-            if gene is None and record.gene_symbol:
+                gene = self.genes.by_ncbi_identifier(record.ncbi_gene_id)
+            if gene is None and record.ncbi_gene_id is None and record.gene_symbol:
                 gene = self.genes.by_organism_and_symbol(organism.id, record.gene_symbol)
             if gene is not None and gene.organism_id != organism.id:
                 raise IngestionPersistenceError(
                     "The matching gene and UniProt protein belong to different organisms."
                 )
+
+            identifier_changed = False
+            if gene is not None and record.ncbi_gene_id is not None:
+                self.session.refresh(gene, with_for_update=True)
+                if gene.ncbi_gene_id != record.ncbi_gene_id or gene.organism_id != organism.id:
+                    raise IngestionPersistenceError(
+                        "UniProt mapping does not match local gene identity."
+                    )
+                identifier_changed = record_gene_identifier(
+                    self.session,
+                    gene,
+                    "ncbi_gene",
+                    record.ncbi_gene_id,
+                    record.provenance,
+                    source_record_version=record.source_record_version,
+                )
+                for reference in record.gene_identifiers:
+                    identifier_changed = (
+                        record_gene_identifier(
+                            self.session,
+                            gene,
+                            reference.namespace,
+                            reference.reported_accession,
+                            record.provenance,
+                            source_record_version=record.source_record_version,
+                        )
+                        or identifier_changed
+                    )
 
             protein = self.proteins.by_accession(record.accession)
             if protein is None:
@@ -161,6 +205,8 @@ class ProteinIngestionService:
             else:
                 changed = _update_protein(protein, record, organism.id, gene.id if gene else None)
                 action = "updated" if changed else "unchanged"
+            if action == "unchanged" and identifier_changed:
+                action = "updated"
             self.session.commit()
         except IngestionPersistenceError:
             self.session.rollback()

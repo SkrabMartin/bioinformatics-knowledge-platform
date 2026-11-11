@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
+from pydantic import Field, HttpUrl, model_validator
 
-
-class NormalizedModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+from app.ingestion.identifier_models import NormalizedGeneIdentifier
+from app.ingestion.models_base import NormalizedModel as NormalizedModel
 
 
 class SourceProvenance(NormalizedModel):
@@ -61,6 +60,8 @@ class NormalizedGene(NormalizedModel):
 
 
 class NormalizedProtein(NormalizedModel):
+    gene_identifiers: list[NormalizedGeneIdentifier] = Field(default_factory=list, max_length=20)
+    source_record_version: str | None = Field(default=None, max_length=32)
     accession: str = Field(min_length=1, max_length=64)
     name: str = Field(min_length=1, max_length=512)
     function: str | None = None

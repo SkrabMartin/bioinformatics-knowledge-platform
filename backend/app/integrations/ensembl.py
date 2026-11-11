@@ -23,8 +23,7 @@ class EnsemblTranscriptAdapter:
         if not re.fullmatch(ENSEMBL_GENE_PATTERN, ensembl_gene_id):
             raise ValueError("A versionless Ensembl gene identifier is required.")
         gene = self.http.get_json(
-            f"{self.base_url}/lookup/id/{ensembl_gene_id}",
-            params={"expand": 1, "content-type": "application/json"},
+            f"{self.base_url}/lookup/id/{ensembl_gene_id}?expand=1;content-type=application/json",
             not_found_message="Ensembl gene was not found.",
         )
         species = gene.get("species")
@@ -37,8 +36,7 @@ class EnsemblTranscriptAdapter:
         ):
             raise UpstreamResponseError("Ensembl", "Gene lookup identity or species is invalid.")
         metadata = self.http.get_json(
-            f"{self.base_url}/info/species",
-            params={"content-type": "application/json"},
+            f"{self.base_url}/info/species?content-type=application/json",
             not_found_message="Ensembl species metadata was not found.",
         )
         try:
@@ -63,8 +61,16 @@ class EnsemblTranscriptAdapter:
             raise ValueError("Species metadata is ambiguous.")
         species = matches[0]
         taxonomy, release = species.get("taxon_id"), species.get("release")
-        if type(taxonomy) is not int or taxonomy < 1 or type(release) is not int or release < 1:
-            raise ValueError("Explicit taxonomy and data release are required.")
+        # Ensembl exposes taxonomy IDs as decimal strings on live /info/species.
+        # Accept only explicit positive decimal IDs; booleans and coercions fail.
+        if type(taxonomy) is int and taxonomy > 0:
+            taxonomy_text = str(taxonomy)
+        elif isinstance(taxonomy, str) and re.fullmatch(r"[1-9][0-9]{0,15}", taxonomy):
+            taxonomy_text = taxonomy
+        else:
+            raise ValueError("Explicit taxonomy is required.")
+        if type(release) is not int or release < 1:
+            raise ValueError("Explicit data release is required.")
         assembly = gene.get("assembly_name")
         if not isinstance(assembly, str) or not assembly or assembly != species.get("assembly"):
             raise ValueError("Assembly context does not agree.")
@@ -115,7 +121,7 @@ class EnsemblTranscriptAdapter:
             records.append(record)
         return NormalizedTranscriptBatch(
             ensembl_gene_id=gene["id"],
-            taxonomy_id=str(taxonomy),
+            taxonomy_id=taxonomy_text,
             source_release=str(release),
             retrieved_at=datetime.now(UTC),
             transcripts=records,

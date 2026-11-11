@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
 import { RelationshipPanel } from "../components/RelationshipPanel";
+import { GeneIdentifierPanel } from "../components/GeneIdentifierPanel";
 import { GeneContextPanel } from "../components/GeneContextPanel";
 import { PublicationPanel } from "../components/PublicationPanel";
 import { ErrorState, LoadingState } from "../components/States";
@@ -61,6 +62,7 @@ export function GeneDetailPage() {
             ]}
           />
         </DetailSection>
+        <GeneIdentifierPanel identifiers={gene.external_identifiers ?? []} />
         <DetailSection title="Genomic location">
           <FactGrid
             facts={[

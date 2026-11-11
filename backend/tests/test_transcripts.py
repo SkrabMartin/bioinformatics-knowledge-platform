@@ -108,7 +108,8 @@ def test_adapter_uses_explicit_parent_taxonomy_assembly_and_release() -> None:
             transport, base_url="https://example.test"
         ).fetch_transcripts(GENE)
     assert len(requests) == 2
-    assert requests[0].url.params["expand"] == "1"
+    assert b"expand=1" in requests[0].url.query
+    assert b"content-type=application/json" in requests[0].url.query
     assert batch.taxonomy_id == "999999" and batch.source_release == "116"
     record = batch.transcripts[0]
     assert record.strand == "-" and record.start_position == 200
@@ -248,3 +249,13 @@ def test_transcript_read_api_pagination_filtering_and_gene_context(
     assert client.get("/api/v1/transcripts?page_size=101").status_code == 422
     gene_detail = client.get("/api/v1/genes/by-symbol/DEMO-TRANSCRIPT?taxonomy_id=999999").json()
     assert gene_detail["transcripts"][0]["ensembl_transcript_id"] == TRANSCRIPT
+
+
+def test_live_numeric_text_taxonomy_is_accepted_but_boolean_is_not() -> None:
+    species = metadata()
+    species["species"][0]["taxon_id"] = "999999"
+    assert provider(species=species).fetch_transcripts(GENE).taxonomy_id == "999999"
+    for invalid in (True, "999999.0", "not-known"):
+        species["species"][0]["taxon_id"] = invalid
+        with pytest.raises(UpstreamResponseError):
+            provider(species=species).fetch_transcripts(GENE)

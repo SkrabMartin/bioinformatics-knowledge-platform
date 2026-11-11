@@ -1,7 +1,7 @@
 from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import selectinload
 
-from app.models import Gene
+from app.models import Gene, GeneExternalIdentifier
 from app.repositories.base import Repository
 
 
@@ -18,12 +18,18 @@ class GeneRepository(Repository[Gene]):
                 selectinload(Gene.aliases),
                 selectinload(Gene.genomic_locations),
                 selectinload(Gene.transcripts),
+                selectinload(Gene.external_identifiers).selectinload(
+                    GeneExternalIdentifier.evidence
+                ),
             )
         )
         return self.session.scalar(statement)
 
     def list_statement(self) -> Select[tuple[Gene]]:
         return select(Gene).options(selectinload(Gene.organism)).order_by(Gene.symbol, Gene.id)
+
+    def by_ncbi_identifier(self, identifier: str) -> Gene | None:
+        return self.session.scalar(select(Gene).where(Gene.ncbi_gene_id == identifier))
 
     def by_external_identifier(self, identifier: str) -> Gene | None:
         return self.session.scalar(
@@ -51,5 +57,8 @@ class GeneRepository(Repository[Gene]):
                 selectinload(Gene.aliases),
                 selectinload(Gene.genomic_locations),
                 selectinload(Gene.transcripts),
+                selectinload(Gene.external_identifiers).selectinload(
+                    GeneExternalIdentifier.evidence
+                ),
             )
         )

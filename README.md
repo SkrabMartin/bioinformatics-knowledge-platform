@@ -6,10 +6,10 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.10.0 — Source-backed transcript model, Ensembl adapter and transcript browser.**
+**Release 0.11.0 — Source-backed NCBI/Ensembl gene identities and interoperable transcript imports.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
-numbering from the historical implementation milestones below. Releases 0.9–0.10
+numbering from the historical implementation milestones below. Releases 0.9–0.11
 advance parts of long-term Phases 2–3, independently of the historical milestone numbers.
 
 The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
@@ -22,10 +22,13 @@ Pathways and GO biological-process/molecular-function terms now extend that navi
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
+See [gene identifiers](docs/GENE_IDENTIFIERS.md) for explicit namespace resolution,
+source assertions, conflict handling and transcript import prerequisites.
+
 ## Data availability
 
 The public instance now contains an explicitly imported NCBI/UniProt starter set:
-three genes and three proteins. See [current data and refresh behavior](docs/DATA_STATUS.md).
+three genes, three proteins and 128 Ensembl transcript annotations. See [current data and refresh behavior](docs/DATA_STATUS.md).
 Imports and queued jobs load records explicitly; scheduled synchronization is not enabled.
 
 ## What works

@@ -33,6 +33,28 @@ the protected job API or host CLI, then processed by the existing imports worker
 The NCBI contact is now forwarded to the active backend/worker from .env.preview.
 See IMPORT_JOBS.md for queue and retry behavior.
 
-The Transcript catalogue is independent: it requires an existing verified Ensembl
-gene mapping and successful Ensembl provider responses. Live transcript loading
-was not claimed when that provider failed. See TRANSCRIPTS.md.
+## Transcript import — 2026-11-11 / release 0.11.0
+
+The public instance now also contains 128 real Ensembl transcript annotations:
+
+| Gene | Source-backed Ensembl gene | Imported transcripts |
+|---|---|---:|
+| TP53 | ENSG00000141510 | 40 |
+| BRCA1 | ENSG00000012048 | 59 |
+| PINK1 | ENSG00000158828 | 29 |
+
+UniProt protein reimports supplied explicit GeneID and Ensembl GeneId mapping
+assertions for the three existing genes. The registry contains six primary
+identities with provider evidence. Gene record provenance remains NCBI; mapping
+evidence identifies its actual UniProt source separately. Ensembl imports validated
+species, parent, assembly and release before committing each gene's transcripts.
+
+The sequence was first checked on an upgraded, restored copy of the live database,
+then executed through the host CLI in the deployed Compose backend. Public HTTPS
+checks verified catalogue totals, each gene's transcript count, stable/observed-version
+identifier resolution and rejection of unknown versions. Original three genes,
+three proteins and one organism remain. Public write methods remain blocked.
+
+This is a bounded starter set, not whole-genome coverage or an automatic data feed.
+Transcript metadata are available at /transcripts and on gene detail pages.
+See [transcripts](TRANSCRIPTS.md) and [identifier evidence](GENE_IDENTIFIERS.md).

@@ -75,11 +75,24 @@ export interface Transcript extends TranscriptSummary {
   gene: GeneSummary & { organism: OrganismSummary };
 }
 
+export interface GeneIdentifierEvidence extends ProvenanceFields {
+  id: number;
+  reported_accession: string;
+  source_record_version: string | null;
+}
+export interface GeneExternalIdentifier {
+  id: number;
+  namespace: "ncbi_gene" | "ensembl_gene";
+  accession: string;
+  evidence: GeneIdentifierEvidence[];
+}
+
 export interface GeneDetail extends Gene {
   proteins: ProteinSummary[];
   aliases?: GeneAlias[];
   genomic_locations?: GeneGenomicLocation[];
   transcripts?: TranscriptSummary[];
+  external_identifiers?: GeneExternalIdentifier[];
 }
 
 export interface Protein extends ProvenanceFields {
