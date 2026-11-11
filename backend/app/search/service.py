@@ -32,6 +32,7 @@ from app.models import (
     MolecularFunction,
     Organism,
     Pathway,
+    Phenotype,
     Protein,
     Transcript,
     Variant,
@@ -56,6 +57,7 @@ ENTITY_ORDER = (
     SearchEntityType.PROTEIN,
     SearchEntityType.ORGANISM,
     SearchEntityType.PUBLICATION,
+    SearchEntityType.PHENOTYPE,
     SearchEntityType.TRANSCRIPT,
     SearchEntityType.DISEASE,
     SearchEntityType.VARIANT,
@@ -503,7 +505,24 @@ class SearchService:
             organism_name=Organism.scientific_name,
             taxonomy_id=Organism.taxonomy_id,
         ).outerjoin(Organism, Pathway.organism_id == Organism.id)
+        phenotype = self._catalog_statement(
+            SearchEntityType.PHENOTYPE,
+            query,
+            terms,
+            identity=Phenotype.id,
+            primary=Phenotype.hpo_id,
+            secondary=Phenotype.name,
+            description=Phenotype.description,
+            source=Phenotype.source,
+            fields=(
+                ("hpo_id", Phenotype.hpo_id),
+                ("name", Phenotype.name),
+                ("description", Phenotype.description),
+            ),
+            identifiers=(Phenotype.hpo_id,),
+        )
         result = {
+            SearchEntityType.PHENOTYPE: phenotype,
             SearchEntityType.TRANSCRIPT: transcript,
             SearchEntityType.DISEASE: disease,
             SearchEntityType.VARIANT: variant,
@@ -695,6 +714,7 @@ def _result_from_row(row: RowMapping, query: str, terms: Sequence[str]) -> Searc
             f"/{entity_type.value.replace('_', '-')}/{row['entity_id']}"
             if entity_type
             in (
+                SearchEntityType.PHENOTYPE,
                 SearchEntityType.PUBLICATION,
                 SearchEntityType.DISEASE,
                 SearchEntityType.VARIANT,

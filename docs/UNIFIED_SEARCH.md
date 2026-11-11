@@ -90,3 +90,7 @@ The deployed 0.13 instance passed public HTTPS checks for TP53 transcript filter
 exact observed transcript versions, unknown-version rejection, suggestions, empty
 catalogue filters and the new SPA bundle. The original three genes, three proteins
 and 128 transcripts remained available, and public write methods stayed blocked.
+
+Release 0.14 additionally includes the `phenotype` category (eleven categories in
+total). HPO ID/name/description matching, counts, suggestions and numeric detail
+links follow the same search contract. See [phenotypes](PHENOTYPES.md).

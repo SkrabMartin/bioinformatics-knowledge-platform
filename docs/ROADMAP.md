@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.13.0
+## Coverage updated through 0.14.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -26,8 +26,8 @@ take priority over code volume or premature infrastructure.
 | 3 | External Data Integration Framework | Partial: NCBI Gene, UniProt, PubMed adapters, bounded retries, normalization, request pacing. A bounded Ensembl transcript adapter now exists; no general bulk source-version/pagination framework. |
 | 4 | Data Ingestion Engine | Partial: idempotent single-record and bounded queued imports, record status/results and crash replay. No large-scale incremental source synchronization or full checkpoint framework. |
 | 5 | Provenance and Data Quality System | Partial: record/assertion provenance, identity and namespace constraints, safe errors. Initial bounded metadata/consistency/refresh dashboard for genes/proteins/transcripts/identifiers; no comprehensive quality coverage, immutable payload/source snapshots or claim history. |
-| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and ten stored entity categories, including transcripts, diseases, variants, pathways and two GO kinds. Future entity coverage and fuzzy/synonym expansion remain. |
-| 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Phenotypes and phenotype annotations absent. |
+| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and eleven stored entity categories, including phenotypes, transcripts, diseases, variants, pathways and two GO kinds. Future entity coverage and fuzzy/synonym expansion remain. |
+| 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Sourced phenotype terms and qualified disease annotations are implemented; automatic HPO ingestion, disease ontology term modeling and broader phenotype annotation scope remain. |
 | 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Assembly-aware variant representation, clinical significance/frequency, protein/publication links and normalization absent. |
 | 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular component and automatic ontology ingestion absent. |
 | 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. No full-text corpus, keyword layer or variant/drug/dataset literature links. |
@@ -108,3 +108,10 @@ Long-term Phase 6 now searches ten stored categories with counts, filters and
 suggestions. This adds navigation to existing data rather than importing new facts.
 Fuzzy/semantic search, ontology-synonym expansion and future entity types remain.
 See [unified search](UNIFIED_SEARCH.md).
+
+## Release 0.14 follow-up
+
+Phase 7 gains sourced HPO-identified terms and explicit present/excluded disease
+annotations, both read directions, public browsing and unified search. The catalogue
+starts empty; this is not completion of Phase 7 or an HPO import engine.
+See [phenotypes](PHENOTYPES.md).

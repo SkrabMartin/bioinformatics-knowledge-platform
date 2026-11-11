@@ -8,6 +8,7 @@ from app.api.v1 import (
     import_jobs,
     ontology,
     organisms,
+    phenotypes,
     proteins,
     publications,
     relationships,
@@ -33,3 +34,5 @@ router.include_router(import_jobs.router)
 router.include_router(transcripts.router)
 
 router.include_router(data_quality.router)
+
+router.include_router(phenotypes.router)

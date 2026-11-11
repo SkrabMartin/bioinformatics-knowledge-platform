@@ -1,6 +1,10 @@
 # Architecture
 
-[Unified search](docs/UNIFIED_SEARCH.md) projects ten entity categories into a
+[Phenotypes](docs/PHENOTYPES.md) add sourced HPO identities and qualified
+disease assertions through additive tables and protected administrative writes.
+
+
+[Unified search](docs/UNIFIED_SEARCH.md) projects eleven entity categories into a
 common SQL result shape, with per-type counts, bounded paging and query deadlines.
 
 
@@ -13,7 +17,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.13.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.14.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).

@@ -222,6 +222,7 @@ export interface Page<T> {
 }
 
 export type SearchEntityType =
+  | "phenotype"
   | "gene"
   | "protein"
   | "organism"
@@ -255,6 +256,7 @@ export interface SearchResult {
 }
 
 export interface SearchCounts {
+  phenotype?: number;
   transcript?: number;
   disease?: number;
   variant?: number;

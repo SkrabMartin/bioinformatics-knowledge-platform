@@ -18,6 +18,7 @@ const categories: {
   { value: "organism", label: "Organisms", countKey: "organism" },
   { value: "publication", label: "Publications", countKey: "publication" },
   { value: "transcript", label: "Transcripts", countKey: "transcript" },
+  { value: "phenotype", label: "Phenotypes", countKey: "phenotype" },
   { value: "disease", label: "Diseases", countKey: "disease" },
   { value: "variant", label: "Variants", countKey: "variant" },
   { value: "pathway", label: "Pathways", countKey: "pathway" },
@@ -46,7 +47,7 @@ export function SearchPage() {
       <PageHeader
         eyebrow="Search workspace"
         title={query ? `Search: ${query}` : "Search biological knowledge"}
-        description="Find locally stored genes, proteins, transcripts, diseases, variants, pathways, GO terms, organisms and publications. Results retain their source context."
+        description="Find locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO terms, organisms and publications. Results retain their source context."
         searchValue={query}
       />
 

@@ -14,6 +14,7 @@ from app.models.ontology import (
     ProteinMolecularFunction,
 )
 from app.models.organism import Organism
+from app.models.phenotype import DiseasePhenotype, Phenotype
 from app.models.protein import Protein
 from app.models.publication import (
     Publication,
@@ -33,6 +34,7 @@ from app.models.variant import Variant
 __all__ = [
     "BiologicalProcess",
     "Disease",
+    "DiseasePhenotype",
     "Gene",
     "GeneAlias",
     "GeneBiologicalProcess",
@@ -48,6 +50,7 @@ __all__ = [
     "OntologyTerm",
     "Organism",
     "Pathway",
+    "Phenotype",
     "Protein",
     "ProteinInteraction",
     "ProteinMolecularFunction",

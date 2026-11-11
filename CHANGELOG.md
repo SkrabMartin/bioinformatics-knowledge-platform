@@ -19,6 +19,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.14.0] - 2026-11-11
+
+### Added
+
+- Sourced HPO-identified phenotype terms and explicitly qualified disease annotations, additive migration 20261111_0011, restrictive foreign keys and duplicate assertion constraints.
+- Protected administrator writes and paginated public reads in both directions, phenotype catalogue/detail and a phenotype panel on disease pages.
+- Unified search/suggestions now include an eleventh `phenotype` category. Present/excluded source assertions remain distinct, with references, evidence and releases shown.
+- New collections start empty; no real or synthetic phenotype import, automatic inference or scheduled synchronization is performed.
+
+### Verified
+
+- 174 backend tests on isolated PostgreSQL, fresh migrations, upgraded live backup, Alembic model comparison, Ruff and strict mypy passed.
+- 46 frontend tests plus formatting, lint, typecheck and production build passed. Original starter data and TP53 search results were retained on the upgraded clone; new phenotype collections remained empty.
+
+- Deployed 0.14 with migration 20261111_0011 through existing VPS/Compose; public phenotype/search/validation checks, original catalogue totals, SPA asset and blocked writes passed.
+
 ## [0.13.0] - 2026-11-11
 
 ### Added

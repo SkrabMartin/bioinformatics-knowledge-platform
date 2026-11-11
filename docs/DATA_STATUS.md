@@ -64,3 +64,10 @@ See [transcripts](TRANSCRIPTS.md) and [identifier evidence](GENE_IDENTIFIERS.md)
 Release 0.12 adds the read-only [data quality review](DATA_QUALITY.md) at
 `/data-quality`. It checks the stored starter records and their identifier metadata;
 it does not load additional biological records or enable scheduled updates.
+
+## Phenotype availability
+
+Release 0.14 introduces phenotype terms and sourced disease assertions. Those
+collections start empty; no synthetic examples or unverified biological claims are
+loaded during deployment. The existing real starter records remain the source of
+public gene/protein/transcript data. See [phenotype operations](PHENOTYPES.md).

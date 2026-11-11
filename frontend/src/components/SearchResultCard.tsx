@@ -6,6 +6,7 @@ import type { SearchResult } from "../types/entities";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 
 const entityLabels = {
+  phenotype: "Phenotype",
   gene: "Gene",
   protein: "Protein",
   organism: "Organism",
@@ -19,6 +20,7 @@ const entityLabels = {
 };
 
 const fieldLabels: Record<string, string> = {
+  hpo_id: "HPO ID",
   accession: "Accession",
   common_name: "Common name",
   description: "Description",

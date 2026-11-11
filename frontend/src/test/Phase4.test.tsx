@@ -80,9 +80,11 @@ test("disease detail shows sourced relationship evidence and navigation", async 
   const fetchMock = vi
     .spyOn(globalThis, "fetch")
     .mockImplementation(async (input) =>
-      String(input).includes("/relationships/disease/5")
-        ? jsonResponse({ items: [relationship], page: 1, page_size: 10, total: 1, pages: 1 })
-        : jsonResponse(disease),
+      String(input).includes("/diseases/5/phenotypes")
+        ? jsonResponse({ items: [], page: 1, page_size: 10, total: 0, pages: 0 })
+        : String(input).includes("/relationships/disease/5")
+          ? jsonResponse({ items: [relationship], page: 1, page_size: 10, total: 1, pages: 1 })
+          : jsonResponse(disease),
     );
   renderRoute("/disease/5");
 

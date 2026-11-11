@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
+import { PhenotypeAnnotations } from "../components/PhenotypeAnnotations";
 import { RelationshipPanel } from "../components/RelationshipPanel";
 import { ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
@@ -45,6 +46,9 @@ export function DiseaseDetailPage() {
               { label: "Disease Ontology ID", value: disease.disease_ontology_id },
             ]}
           />
+        </DetailSection>
+        <DetailSection title="Phenotype annotations">
+          <PhenotypeAnnotations key={disease.id} kind="disease" id={disease.id} />
         </DetailSection>
         <RelationshipPanel key={disease.id} entityType="disease" entityId={disease.id} />
         <DetailSection title="Source provenance">

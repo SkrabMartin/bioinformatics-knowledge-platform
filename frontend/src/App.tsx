@@ -1,6 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 
 import { DataQualityPage } from "./pages/DataQualityPage";
+import { PhenotypesPage } from "./pages/PhenotypesPage";
+import { PhenotypeDetailPage } from "./pages/PhenotypeDetailPage";
 import { AppLayout } from "./components/AppLayout";
 import { TranscriptsPage } from "./pages/TranscriptsPage";
 import { TranscriptDetailPage } from "./pages/TranscriptDetailPage";
@@ -39,6 +41,8 @@ export function App() {
         <Route path="gene/:symbol" element={<GeneDetailPage />} />
         <Route path="proteins" element={<ProteinsPage />} />
         <Route path="protein/:accession" element={<ProteinDetailPage />} />
+        <Route path="phenotypes" element={<PhenotypesPage />} />
+        <Route path="phenotype/:id" element={<PhenotypeDetailPage />} />
         <Route path="diseases" element={<DiseasesPage />} />
         <Route path="disease/:id" element={<DiseaseDetailPage />} />
         <Route path="variants" element={<VariantsPage />} />

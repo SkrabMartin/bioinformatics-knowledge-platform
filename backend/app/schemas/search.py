@@ -10,6 +10,7 @@ class SearchEntityType(StrEnum):
     PROTEIN = "protein"
     ORGANISM = "organism"
     PUBLICATION = "publication"
+    PHENOTYPE = "phenotype"
     TRANSCRIPT = "transcript"
     DISEASE = "disease"
     VARIANT = "variant"
@@ -46,6 +47,7 @@ class SearchCounts(ApiModel):
     protein: int = Field(ge=0)
     organism: int = Field(ge=0)
     publication: int = Field(default=0, ge=0)
+    phenotype: int = Field(default=0, ge=0)
     transcript: int = Field(default=0, ge=0)
     disease: int = Field(default=0, ge=0)
     variant: int = Field(default=0, ge=0)
