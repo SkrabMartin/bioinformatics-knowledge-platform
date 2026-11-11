@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
+import { VariantPlacements } from "../components/VariantPlacements";
 import { RelationshipPanel } from "../components/RelationshipPanel";
 import { ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
@@ -46,6 +47,9 @@ export function VariantDetailPage() {
               { label: "NCBI taxonomy ID", value: variant.organism.taxonomy_id },
             ]}
           />
+        </DetailSection>
+        <DetailSection title="Genomic placements">
+          <VariantPlacements key={variant.id} variantId={variant.id} />
         </DetailSection>
         <RelationshipPanel key={variant.id} entityType="variant" entityId={variant.id} />
         <DetailSection title="Source provenance">

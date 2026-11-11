@@ -6,7 +6,7 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.14.0 — Sourced phenotype terms and qualified disease annotations.**
+**Release 0.15.0 — Sourced assembly-aware literal variant placements.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
@@ -22,7 +22,11 @@ Pathways and GO biological-process/molecular-function terms now extend that navi
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
-The new [phenotype catalogue and disease annotations](docs/PHENOTYPES.md) preserve
+The new [variant placement model](docs/VARIANT_PLACEMENTS.md) preserves explicit
+assemblies, versioned reference sequences, coordinate conventions, alleles and source
+observations. Placement collections start empty; automatic variant import is not enabled.
+
+The [phenotype catalogue and disease annotations](docs/PHENOTYPES.md) preserve
 explicit present/excluded qualifiers and source evidence. New collections start
 empty; automatic HPO import is not enabled.
 

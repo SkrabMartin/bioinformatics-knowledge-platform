@@ -19,6 +19,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.15.0] - 2026-11-11
+
+### Added
+
+- Source-backed literal variant placements with explicit assembly, versioned sequence, forward-strand one-based closed coordinates, bounded REF/ALT alleles and provenance.
+- Protected administrator creation, paginated public reads and a genomic placement panel on variant detail. Duplicate source observations are constrained without indexing large allele strings.
+- Parent variant identity/organism and organism-taxonomy guards once placements exist; additive migration 20261111_0012 preserves prior data.
+- No automatic variant import, reference verification, liftover, normalization or clinical inference is added; the placement collection starts empty.
+
+### Verified
+
+- 195 backend tests on isolated PostgreSQL, fresh and restored migrations, Alembic model comparison, Ruff and strict mypy passed. Frontend passed 48 tests, formatting, lint, typecheck and build.
+- Restored data counts remained unchanged after upgrade, the new placement table was empty and TP53 search still returned 42 results. The previous 0.14 backend successfully read the upgraded clone for application rollback.
+
+- Deployed 0.15 via existing VPS/Compose; migration head 20261111_0012, public route/validation/search/quality checks, original catalogue totals, SPA asset and blocked writes passed.
+
 ## [0.14.0] - 2026-11-11
 
 ### Added

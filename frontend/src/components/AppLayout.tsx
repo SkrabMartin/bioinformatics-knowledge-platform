@@ -58,7 +58,7 @@ export function AppLayout() {
           <strong>BioKnowledge Platform</strong>
           <p>Open infrastructure for traceable biological knowledge.</p>
         </div>
-        <p>v0.14 · Diseases and phenotypes</p>
+        <p>v0.15 · Assembly-aware variants</p>
       </footer>
     </div>
   );

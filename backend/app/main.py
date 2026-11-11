@@ -37,7 +37,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
-        version="0.14.0",
+        version="0.15.0",
         description="Biological entity API with ingestion, search, and sourced relationships.",
         lifespan=lifespan,
     )

@@ -30,6 +30,7 @@ from app.models.relationships import (
 )
 from app.models.transcript import Transcript
 from app.models.variant import Variant
+from app.models.variant_placement import VariantPlacement
 
 __all__ = [
     "BiologicalProcess",
@@ -62,4 +63,5 @@ __all__ = [
     "Variant",
     "VariantDiseaseAssociation",
     "VariantGeneLocation",
+    "VariantPlacement",
 ]

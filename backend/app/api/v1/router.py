@@ -14,6 +14,7 @@ from app.api.v1 import (
     relationships,
     search,
     transcripts,
+    variant_placements,
     variants,
 )
 
@@ -36,3 +37,5 @@ router.include_router(transcripts.router)
 router.include_router(data_quality.router)
 
 router.include_router(phenotypes.router)
+
+router.include_router(variant_placements.router)

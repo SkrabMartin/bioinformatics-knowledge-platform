@@ -18,6 +18,7 @@ from app.models import (
     Transcript,
     Variant,
     VariantGeneLocation,
+    VariantPlacement,
 )
 from app.repositories.base import Repository
 from app.repositories.diseases import DiseaseRepository
@@ -89,7 +90,21 @@ class OrganismService(EntityService[Organism]):
         return self.persist(Organism(**model_values(data)))
 
     def update(self, entity_id: int, data: OrganismUpdate) -> Organism:
-        return self.update_fields(self.get(entity_id), model_values(data, exclude_unset=True))
+        entity = self.get(entity_id)
+        self.session.refresh(entity, with_for_update=True)
+        values = model_values(data, exclude_unset=True)
+        if "taxonomy_id" in values and values["taxonomy_id"] != entity.taxonomy_id:
+            placed = self.session.scalar(
+                select(VariantPlacement.id)
+                .join(Variant, VariantPlacement.variant_id == Variant.id)
+                .where(Variant.organism_id == entity_id)
+                .limit(1)
+            )
+            if placed is not None:
+                raise ConflictError(
+                    "Cannot change organism taxonomy while variant placements exist."
+                )
+        return self.update_fields(entity, values)
 
 
 class GeneService(EntityService[Gene]):
@@ -269,6 +284,7 @@ class VariantService(EntityService[Variant]):
 
     def update(self, entity_id: int, data: VariantUpdate) -> Variant:
         entity = self.get(entity_id)
+        self.session.refresh(entity, with_for_update=True)
         values = model_values(data, exclude_unset=True)
         if (
             "organism_id" in values
@@ -283,6 +299,17 @@ class VariantService(EntityService[Variant]):
             )
             if linked_gene is not None:
                 raise ConflictError("Cannot change a variant's organism while gene links exist.")
+        if (
+            any(
+                field in values and values[field] != getattr(entity, field)
+                for field in ("organism_id", "rsid", "hgvs")
+            )
+            and self.session.scalar(
+                select(VariantPlacement.id).where(VariantPlacement.variant_id == entity_id).limit(1)
+            )
+            is not None
+        ):
+            raise ConflictError("Cannot change variant identity while sourced placements exist.")
         if not values.get("rsid", entity.rsid) and not values.get("hgvs", entity.hgvs):
             raise InvalidInputError("A variant requires an rsID or HGVS expression.")
         return self.update_fields(entity, values)

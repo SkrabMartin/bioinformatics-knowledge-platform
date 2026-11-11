@@ -1,5 +1,10 @@
 # Architecture
 
+[Variant placements](docs/VARIANT_PLACEMENTS.md) add immutable sourced literal
+representations with explicit assemblies, sequence versions and coordinate semantics.
+Parent identity/taxonomy guards preserve source context under application updates.
+
+
 [Phenotypes](docs/PHENOTYPES.md) add sourced HPO identities and qualified
 disease assertions through additive tables and protected administrative writes.
 
@@ -17,7 +22,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.14.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.15.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).

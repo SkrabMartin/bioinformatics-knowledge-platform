@@ -71,3 +71,11 @@ Release 0.14 introduces phenotype terms and sourced disease assertions. Those
 collections start empty; no synthetic examples or unverified biological claims are
 loaded during deployment. The existing real starter records remain the source of
 public gene/protein/transcript data. See [phenotype operations](PHENOTYPES.md).
+
+## Variant placement availability
+
+Release 0.15 introduces source-supplied assembly/sequence/allele observations for
+existing variants. The new table starts empty and no synthetic variants or inferred
+coordinates are loaded. Real variant/placement imports require their own source
+adapter or administrator-supplied, traceable observations.
+See [placement operations](VARIANT_PLACEMENTS.md).
