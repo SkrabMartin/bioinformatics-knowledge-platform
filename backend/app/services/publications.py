@@ -11,6 +11,8 @@ from app.models import (
     PublicationDisease,
     PublicationGene,
     PublicationProtein,
+    PublicationVariant,
+    Variant,
 )
 from app.repositories.publications import PublicationRepository
 from app.schemas.common import Page
@@ -53,21 +55,32 @@ class PublicationService(EntityService[Publication]):
     def link(
         self,
         publication_id: int,
-        entity_type: Literal["gene", "protein", "disease"],
+        entity_type: Literal["gene", "protein", "disease", "variant"],
         data: PublicationLinkCreate,
     ) -> RelationshipRead:
         self.get(publication_id)
-        model = {"gene": Gene, "protein": Protein, "disease": Disease}[entity_type]
-        if self.session.get(model, data.entity_id) is None:
+        model = {"gene": Gene, "protein": Protein, "disease": Disease, "variant": Variant}[
+            entity_type
+        ]
+        target = self.session.get(model, data.entity_id)
+        if target is None:
             raise NotFoundError(f"{entity_type} {data.entity_id} was not found.")
+        if entity_type == "variant":
+            # Serialize with identity updates guarded by source assertions.
+            self.session.refresh(target, with_for_update=True)
         values = model_values(data)
         values[f"{entity_type}_id"] = values.pop("entity_id")
         edge_models: dict[
-            str, type[PublicationGene] | type[PublicationProtein] | type[PublicationDisease]
+            str,
+            type[PublicationGene]
+            | type[PublicationProtein]
+            | type[PublicationDisease]
+            | type[PublicationVariant],
         ] = {
             "gene": PublicationGene,
             "protein": PublicationProtein,
             "disease": PublicationDisease,
+            "variant": PublicationVariant,
         }
         edge_model = edge_models[entity_type]
         edge = edge_model(publication_id=publication_id, **values)

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
 import { CitationLinks } from "../components/PublicationCard";
@@ -57,6 +57,25 @@ export function PublicationDetailPage() {
           <p className="long-form">
             {data.authors.join("; ") || "No author names supplied by the source."}
           </p>
+        </DetailSection>
+        <DetailSection title="Source keywords">
+          <p className="context-note">
+            Keywords supplied in the publication metadata. These are not inferred topics or
+            automatically assigned ontology terms.
+          </p>
+          {data.keywords?.length ? (
+            <ul className="related-list">
+              {data.keywords.map((keyword) => (
+                <li key={keyword}>
+                  <Link to={`/search?q=${encodeURIComponent(keyword)}&type=publication`}>
+                    {keyword}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No source keywords are stored for this record.</p>
+          )}
         </DetailSection>
         <DetailSection title="Abstract">
           <p className="long-form publication-abstract">

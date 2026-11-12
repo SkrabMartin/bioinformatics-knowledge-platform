@@ -18,8 +18,23 @@ class PublicationFields(ProvenanceFields):
     abstract: str | None = Field(default=None, max_length=500000)
     journal: str | None = Field(default=None, max_length=512)
     authors: list[str] = Field(default_factory=list, max_length=10000)
+    keywords: list[str] = Field(default_factory=list, max_length=256)
     publication_date: str | None = None
     publication_date_text: str | None = Field(default=None, max_length=255)
+
+    @field_validator("keywords")
+    @classmethod
+    def validate_keywords(cls, values: list[str]) -> list[str]:
+        result: list[str] = []
+        seen: set[str] = set()
+        for value in values:
+            normalized = " ".join(value.split())
+            if not normalized or len(normalized) > 256:
+                raise ValueError("Keywords require 1-256 nonblank characters.")
+            if normalized.casefold() not in seen:
+                result.append(normalized)
+                seen.add(normalized.casefold())
+        return result
 
     @field_validator("doi", mode="before")
     @classmethod

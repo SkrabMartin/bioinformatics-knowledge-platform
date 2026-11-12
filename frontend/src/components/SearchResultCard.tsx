@@ -38,6 +38,7 @@ const fieldLabels: Record<string, string> = {
   title: "Title",
   journal: "Journal",
   abstract: "Abstract",
+  keywords: "Source keywords",
   transcript_identifier: "Transcript identifier",
   biotype: "Biotype",
   assembly: "Assembly",

@@ -27,6 +27,7 @@ from app.models import (
     PublicationDisease,
     PublicationGene,
     PublicationProtein,
+    PublicationVariant,
     Variant,
     VariantDiseaseAssociation,
     VariantGeneLocation,
@@ -55,6 +56,7 @@ RelationshipRecord = (
     | Protein
     | PublicationGene
     | PublicationProtein
+    | PublicationVariant
     | PublicationDisease
     | GenePathway
     | GeneBiologicalProcess
@@ -67,6 +69,7 @@ PUBLICATION_RELATIONS: tuple[tuple[str, Any, Any], ...] = (
     ("publication_gene", PublicationGene, PublicationGene.gene),
     ("publication_protein", PublicationProtein, PublicationProtein.protein),
     ("publication_disease", PublicationDisease, PublicationDisease.disease),
+    ("publication_variant", PublicationVariant, PublicationVariant.variant),
 )
 
 
@@ -122,7 +125,9 @@ class RelationshipService:
         return self._persist(edge, "gene_disease")
 
     def create_publication_link(
-        self, edge: PublicationGene | PublicationProtein | PublicationDisease, kind: str
+        self,
+        edge: PublicationGene | PublicationProtein | PublicationDisease | PublicationVariant,
+        kind: str,
     ) -> RelationshipRead:
         return self._persist(edge, kind)
 
@@ -171,6 +176,7 @@ class RelationshipService:
             ("publication_gene", PublicationGene, PublicationGene.gene_id),
             ("publication_protein", PublicationProtein, PublicationProtein.protein_id),
             ("publication_disease", PublicationDisease, PublicationDisease.disease_id),
+            ("publication_variant", PublicationVariant, PublicationVariant.variant_id),
         ):
             if entity_type == "publication" or entity_type == kind.removeprefix("publication_"):
                 condition = (
@@ -367,12 +373,16 @@ class RelationshipService:
             else:
                 subject = knowledge.knowledge_node(first)
             object_ = knowledge.knowledge_node(second)
-        elif isinstance(record, (PublicationGene, PublicationProtein, PublicationDisease)):
+        elif isinstance(
+            record, (PublicationGene, PublicationProtein, PublicationDisease, PublicationVariant)
+        ):
             subject = _publication_node(record.publication)
             if isinstance(record, PublicationGene):
                 object_, predicate = _gene_node(record.gene), "mentions"
             elif isinstance(record, PublicationProtein):
                 object_, predicate = _protein_node(record.protein), "discusses"
+            elif isinstance(record, PublicationVariant):
+                object_, predicate = _variant_node(record.variant), "mentions"
             else:
                 object_, predicate = _disease_node(record.disease), "studies"
         elif isinstance(record, GeneDiseaseAssociation):
@@ -410,6 +420,7 @@ class RelationshipService:
                     PublicationGene,
                     PublicationProtein,
                     PublicationDisease,
+                    PublicationVariant,
                     GenePathway,
                     GeneBiologicalProcess,
                     ProteinMolecularFunction,

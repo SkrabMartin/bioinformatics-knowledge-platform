@@ -51,6 +51,7 @@ export const relationshipLabels: Record<RelationshipType, string> = {
   protein_interaction: "Protein interaction",
   publication_gene: "Publication mentions gene",
   publication_protein: "Publication discusses protein",
+  publication_variant: "Publication mentions variant (source assertion)",
   publication_disease: "Publication studies disease",
   gene_pathway: "Gene participates in pathway",
   gene_biological_process: "Gene involved in biological process",

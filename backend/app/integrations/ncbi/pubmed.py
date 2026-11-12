@@ -183,6 +183,12 @@ def parse_publication(xml: str, pubmed_id: str) -> NormalizedPublication:
                 day = _text(date_node.find("Day"))
                 if day and day.isdigit():
                     partial_date += f"-{int(day):02d}"
+    keyword_nodes = entry.findall("MedlineCitation/KeywordList/Keyword")
+    if len(keyword_nodes) > 256:
+        raise UpstreamResponseError(
+            "NCBI PubMed", "PubMed keyword count exceeds the supported bound."
+        )
+    keywords = [value for node in keyword_nodes if (value := _text(node))]
     try:
         return NormalizedPublication(
             pubmed_id=pubmed_id,
@@ -191,6 +197,7 @@ def parse_publication(xml: str, pubmed_id: str) -> NormalizedPublication:
             abstract="\n\n".join(abstract_parts) or None,
             journal=_text(article.find("Journal/Title")),
             authors=authors,
+            keywords=keywords,
             publication_date=partial_date,
             publication_date_text=raw_date,
             source="NCBI PubMed",

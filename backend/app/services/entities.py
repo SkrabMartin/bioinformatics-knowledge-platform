@@ -15,6 +15,7 @@ from app.models import (
     GenePathway,
     Organism,
     Protein,
+    PublicationVariant,
     Transcript,
     Variant,
     VariantGeneLocation,
@@ -299,17 +300,24 @@ class VariantService(EntityService[Variant]):
             )
             if linked_gene is not None:
                 raise ConflictError("Cannot change a variant's organism while gene links exist.")
-        if (
-            any(
-                field in values and values[field] != getattr(entity, field)
-                for field in ("organism_id", "rsid", "hgvs")
-            )
-            and self.session.scalar(
+        if any(
+            field in values and values[field] != getattr(entity, field)
+            for field in ("organism_id", "rsid", "hgvs")
+        ) and (
+            self.session.scalar(
                 select(VariantPlacement.id).where(VariantPlacement.variant_id == entity_id).limit(1)
             )
             is not None
+            or self.session.scalar(
+                select(PublicationVariant.id)
+                .where(PublicationVariant.variant_id == entity_id)
+                .limit(1)
+            )
+            is not None
         ):
-            raise ConflictError("Cannot change variant identity while sourced placements exist.")
+            raise ConflictError(
+                "Cannot change variant identity while sourced observations or citations exist."
+            )
         if not values.get("rsid", entity.rsid) and not values.get("hgvs", entity.hgvs):
             raise InvalidInputError("A variant requires an rsID or HGVS expression.")
         return self.update_fields(entity, values)

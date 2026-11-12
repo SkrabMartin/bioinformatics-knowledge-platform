@@ -39,7 +39,7 @@ def get_publication(publication_id: int, session: DatabaseSession) -> object:
 )
 def link_publication(
     publication_id: int,
-    entity_type: Literal["gene", "protein", "disease"],
+    entity_type: Literal["gene", "protein", "disease", "variant"],
     payload: PublicationLinkCreate,
     session: DatabaseSession,
 ) -> RelationshipRead:

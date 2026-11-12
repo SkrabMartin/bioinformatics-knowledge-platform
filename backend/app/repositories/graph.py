@@ -17,6 +17,7 @@ from app.models import (
     PublicationDisease,
     PublicationGene,
     PublicationProtein,
+    PublicationVariant,
     VariantDiseaseAssociation,
     VariantGeneLocation,
 )
@@ -146,6 +147,14 @@ SPECS = (
         PublicationDisease.publication_id,
         "disease",
         PublicationDisease.disease_id,
+    ),
+    EdgeSpec(
+        "publication_variant",
+        PublicationVariant,
+        "publication",
+        PublicationVariant.publication_id,
+        "variant",
+        PublicationVariant.variant_id,
     ),
 )
 

@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from app.models.disease import Disease
     from app.models.gene import Gene
     from app.models.protein import Protein
+    from app.models.variant import Variant
 
 
 class Publication(ProvenanceMixin, Base):
@@ -52,6 +53,9 @@ class Publication(ProvenanceMixin, Base):
     abstract: Mapped[str | None] = mapped_column(Text)
     journal: Mapped[str | None] = mapped_column(String(512))
     authors: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    keywords: Mapped[list[str]] = mapped_column(
+        JSON, nullable=False, default=list, server_default=text("'[]'")
+    )
     # ISO partial date: YYYY, YYYY-MM, or YYYY-MM-DD. Never fabricate missing components.
     publication_date: Mapped[str | None] = mapped_column(String(10), index=True)
     publication_date_text: Mapped[str | None] = mapped_column(String(255))
@@ -128,3 +132,25 @@ class PublicationDisease(PublicationEvidenceMixin, Base):
     )
     publication: Mapped[Publication] = relationship()
     disease: Mapped["Disease"] = relationship()
+
+
+class PublicationVariant(PublicationEvidenceMixin, Base):
+    __tablename__ = "publication_variants"
+    __table_args__ = (
+        UniqueConstraint(
+            "publication_id",
+            "variant_id",
+            "source",
+            "source_identifier",
+            name="uq_publication_variants_source",
+        ),
+        CheckConstraint(
+            "evidence_kind IN ('structured_metadata', 'curated')", name="evidence_kind"
+        ),
+    )
+    id: Mapped[int] = mapped_column(BIGINT_PK, primary_key=True, autoincrement=True)
+    variant_id: Mapped[int] = mapped_column(
+        ForeignKey("variants.id", ondelete="RESTRICT"), index=True
+    )
+    publication: Mapped[Publication] = relationship()
+    variant: Mapped["Variant"] = relationship()

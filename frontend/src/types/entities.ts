@@ -161,6 +161,7 @@ export interface Publication extends ProvenanceFields {
   abstract: string | null;
   journal: string | null;
   authors: string[];
+  keywords?: string[];
   publication_date: string | null;
   publication_date_text: string | null;
 }
@@ -182,6 +183,7 @@ export interface EntityRelationship {
     | "publication_gene"
     | "publication_protein"
     | "publication_disease"
+    | "publication_variant"
     | "gene_pathway"
     | "gene_biological_process"
     | "protein_molecular_function"

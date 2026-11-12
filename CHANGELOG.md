@@ -19,6 +19,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.17.0] - 2026-11-12
+
+### Added
+
+- PubMed-supplied keywords, bounded normalization/refresh, decoded Unicode keyword matching and keyword links on publication detail.
+- Sourced publication–variant references through protected administrator writes, bidirectional relationships and graph traversal; mentions do not infer clinical significance.
+- Additive migration 20261112_0014 retains prior data. No variant links or topics are inferred from article text.
+
+### Verified
+
+- 208 backend tests on isolated PostgreSQL, fresh/restored migrations, Alembic model comparison, Ruff and strict mypy passed; frontend passed 52 tests, formatting, lint, typecheck and build.
+- A restored live backup successfully imported two real PubMed citations with five keywords each and zero inferred local gene links. Existing biological counts remained intact; retained 0.16 backend reads on the upgraded clone passed.
+
+- Citation link creation serializes with variant identity updates; existing source placements or citations protect variant identity. The full PostgreSQL suite was rerun after this safeguard.
+- Deployed 0.17 with migration 20261112_0014; two real PubMed citations with five keywords each are public. HTTPS keyword/search/graph checks, original biological totals, SPA asset and blocked writes passed.
+
 ## [0.16.0] - 2026-11-12
 
 ### Added

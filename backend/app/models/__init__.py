@@ -23,6 +23,7 @@ from app.models.publication import (
     PublicationDisease,
     PublicationGene,
     PublicationProtein,
+    PublicationVariant,
 )
 from app.models.relationships import (
     GeneDiseaseAssociation,
@@ -63,6 +64,7 @@ __all__ = [
     "PublicationDisease",
     "PublicationGene",
     "PublicationProtein",
+    "PublicationVariant",
     "Transcript",
     "Variant",
     "VariantDiseaseAssociation",

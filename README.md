@@ -6,7 +6,7 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.16.0 — GO cellular components across protein annotations, search and graph.**
+**Release 0.17.0 — PubMed keywords and sourced variant literature references.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
@@ -22,7 +22,10 @@ Pathways and all three supported GO aspects now extend that navigation with dire
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
-The new [cellular component support](docs/CELLULAR_COMPONENTS.md) completes the three
+The new [literature metadata](docs/LITERATURE_METADATA.md) retains supplied PubMed
+keywords for search/detail and adds explicit sourced publication–variant references.
+
+The [cellular component support](docs/CELLULAR_COMPONENTS.md) completes the three
 GO aspect categories in browsing, direct annotations, search and graph navigation.
 The catalogue remains empty until source-backed records are explicitly supplied.
 
@@ -46,7 +49,7 @@ source assertions, conflict handling and transcript import prerequisites.
 ## Data availability
 
 The public instance now contains an explicitly imported NCBI/UniProt starter set:
-three genes, three proteins and 128 Ensembl transcript annotations. See [current data and refresh behavior](docs/DATA_STATUS.md).
+three genes, three proteins, 128 Ensembl transcript annotations and two real PubMed citations with source keywords. See [current data and refresh behavior](docs/DATA_STATUS.md).
 Imports and queued jobs load records explicitly; scheduled synchronization is not enabled.
 
 ## What works

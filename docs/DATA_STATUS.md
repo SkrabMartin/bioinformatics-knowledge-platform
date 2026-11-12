@@ -86,3 +86,24 @@ Release 0.16 adds the third GO aspect and direct protein annotations. The CC
 catalogue and annotation table start empty; deployment does not copy synthetic
 terms or infer localizations for the starter proteins. Source ingestion remains
 explicit future work. See [cellular components](CELLULAR_COMPONENTS.md).
+
+## Literature starter records — 2026-11-12 / 0.17.0
+
+Two real PubMed citations were explicitly imported through the existing adapter
+following staged validation on a restored live database:
+
+| PMID | Source | Stored keywords |
+|---|---|---:|
+| 40524430 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/40524430/) | 5 |
+| 39688918 | [PubMed](https://pubmed.ncbi.nlm.nih.gov/39688918/) | 5 |
+
+Citation metadata, available source abstracts and keywords are visible in the
+publication catalogue. Keyword search is available in both the catalogue and
+unified search. These imports created zero gene links because their structured
+ELink responses supplied none for local records. No links were inferred from titles
+or keywords. No variant or publication–variant assertions were created.
+
+The original three genes, three proteins and 128 transcripts remain available.
+This is a bounded starter sample, not an exhaustive gene literature bibliography;
+scheduled citation refresh and automatic variant linkage remain disabled.
+See [literature metadata](LITERATURE_METADATA.md).

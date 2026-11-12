@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.16.0
+## Coverage updated through 0.17.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -30,7 +30,7 @@ take priority over code volume or premature infrastructure.
 | 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Sourced phenotype terms and qualified disease annotations are implemented; automatic HPO ingestion, disease ontology term modeling and broader phenotype annotation scope remain. |
 | 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Sourced assembly-aware literal placements and parent identity/taxonomy guards are implemented. Clinical significance/frequency, protein/publication links, reference validation and biological normalization remain absent. |
 | 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular components, sourced direct protein annotations and same-aspect hierarchy/graph/search are supported; automatic ontology ingestion and enrichment remain absent. |
-| 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. No full-text corpus, keyword layer or variant/drug/dataset literature links. |
+| 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. Source-supplied keywords and variant literature links are implemented. No full-text corpus, drug/dataset links, NLP extraction or complete source snapshot history. |
 | 11 | Dataset Discovery | Not implemented. |
 | 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations. No general coverage of all future node/edge kinds. |
 | 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; production-scale performance and additional entity types remain. |
@@ -129,3 +129,10 @@ Phase 9 now includes GO cellular components with direct sourced protein annotati
 same-aspect hierarchy, unified search and bounded graph navigation. No annotation
 propagation, ontology import or enrichment is implied; this is not completion of
 the phase. See [cellular components](CELLULAR_COMPONENTS.md).
+
+## Release 0.17 follow-up
+
+Phase 10 adds bounded PubMed keyword metadata and explicit variant literature
+references through existing search, detail, relationships and graph. Bounded
+real PubMed imports are tested on a restored database before public loading.
+See [literature metadata](LITERATURE_METADATA.md).
