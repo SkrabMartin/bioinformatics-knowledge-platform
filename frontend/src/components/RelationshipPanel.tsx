@@ -19,6 +19,7 @@ const predicateLabels = {
   participates_in: "participates in",
   involved_in: "involved in",
   has_function: "has function",
+  annotated_to: "annotated to (source assertion)",
   is_a: "is a (broader term)",
 };
 

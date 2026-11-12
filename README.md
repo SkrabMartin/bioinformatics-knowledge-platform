@@ -6,23 +6,27 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.15.0 — Sourced assembly-aware literal variant placements.**
+**Release 0.16.0 — GO cellular components across protein annotations, search and graph.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
 advance parts of long-term Phases 2–3, independently of the historical milestone numbers.
 
-The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO biological processes and molecular functions, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
+The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO biological processes, molecular functions and cellular components, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
 The application still ships explicitly marked Phase 1 demo fixtures for local startup. Real gene/protein imports are opt-in CLI operations. Phase 4 does **not** automatically import disease or variant assertions: those collections start empty until source-backed records are supplied through the API. Search never invents results for absent records.
 
 The interactive graph explorer now navigates stored gene, protein, disease, variant, and publication assertions with bounded traversal, node expansion, branch collapse, and source inspection. It does not infer missing relationships or treat source assertions as confirmed scientific conclusions.
 
-Pathways and GO biological-process/molecular-function terms now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
+Pathways and all three supported GO aspects now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
-The new [variant placement model](docs/VARIANT_PLACEMENTS.md) preserves explicit
+The new [cellular component support](docs/CELLULAR_COMPONENTS.md) completes the three
+GO aspect categories in browsing, direct annotations, search and graph navigation.
+The catalogue remains empty until source-backed records are explicitly supplied.
+
+The [variant placement model](docs/VARIANT_PLACEMENTS.md) preserves explicit
 assemblies, versioned reference sequences, coordinate conventions, alleles and source
 observations. Placement collections start empty; automatic variant import is not enabled.
 

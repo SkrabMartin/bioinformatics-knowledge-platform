@@ -79,3 +79,10 @@ existing variants. The new table starts empty and no synthetic variants or infer
 coordinates are loaded. Real variant/placement imports require their own source
 adapter or administrator-supplied, traceable observations.
 See [placement operations](VARIANT_PLACEMENTS.md).
+
+## Cellular component availability
+
+Release 0.16 adds the third GO aspect and direct protein annotations. The CC
+catalogue and annotation table start empty; deployment does not copy synthetic
+terms or infer localizations for the starter proteins. Source ingestion remains
+explicit future work. See [cellular components](CELLULAR_COMPONENTS.md).

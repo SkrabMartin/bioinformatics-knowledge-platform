@@ -19,6 +19,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.16.0] - 2026-11-12
+
+### Added
+
+- GO cellular-component terms, direct sourced protein annotations, same-aspect `is_a` hierarchy and restrictive composite keys via migration 20261112_0013.
+- Cellular-component catalogue/detail, relationship and graph projections/filters, plus a twelfth unified search category.
+- Existing GO contracts, cycle checks, source/evidence display and protected writes remain in use. No automatic ontology import, annotation propagation or enrichment is added; new collections start empty.
+
+### Verified
+
+- 202 backend tests on isolated PostgreSQL, fresh/restored migrations, Alembic model comparison, Ruff and strict mypy passed. Frontend passed 50 tests, formatting, lint, typecheck and build.
+- Original biological/ontology counts were preserved after upgrading a restored live backup. The previous 0.15 backend successfully read that clone for application rollback.
+
+- Deployed 0.16 via existing VPS/Compose; migration 20261112_0013, public CC/search/relationship/graph checks, original catalogue totals, SPA asset and blocked writes passed.
+
 ## [0.15.0] - 2026-11-11
 
 ### Added

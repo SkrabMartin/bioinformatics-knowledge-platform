@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models import (
     BiologicalProcess,
+    CellularComponent,
     Disease,
     Gene,
     GeneBiologicalProcess,
@@ -19,6 +20,7 @@ from app.models import (
     OntologyTerm,
     Pathway,
     Protein,
+    ProteinCellularComponent,
     ProteinInteraction,
     ProteinMolecularFunction,
     Publication,
@@ -56,6 +58,7 @@ RelationshipRecord = (
     | PublicationDisease
     | GenePathway
     | GeneBiologicalProcess
+    | ProteinCellularComponent
     | ProteinMolecularFunction
     | OntologyParent
 )
@@ -83,6 +86,7 @@ class RelationshipService:
             "pathway": Pathway,
             "biological_process": BiologicalProcess,
             "molecular_function": MolecularFunction,
+            "cellular_component": CellularComponent,
         }[entity_type]
         record = self._require(model, entity_id)
         if isinstance(record, (Pathway, OntologyTerm)):
@@ -158,6 +162,7 @@ class RelationshipService:
             "pathway": Pathway,
             "biological_process": BiologicalProcess,
             "molecular_function": MolecularFunction,
+            "cellular_component": CellularComponent,
         }[entity_type]
         self._require(model, entity_id)
         statements = self._index_statements(entity_type, entity_id)
@@ -345,7 +350,14 @@ class RelationshipService:
     def _serialize(self, kind: str, record: RelationshipRecord) -> RelationshipRead:
         predicate: Predicate
         if isinstance(
-            record, (GenePathway, GeneBiologicalProcess, ProteinMolecularFunction, OntologyParent)
+            record,
+            (
+                GenePathway,
+                GeneBiologicalProcess,
+                ProteinMolecularFunction,
+                ProteinCellularComponent,
+                OntologyParent,
+            ),
         ):
             first, second, predicate = knowledge.endpoints(record)
             if isinstance(first, Gene):
@@ -401,6 +413,7 @@ class RelationshipService:
                     GenePathway,
                     GeneBiologicalProcess,
                     ProteinMolecularFunction,
+                    ProteinCellularComponent,
                 ),
             )
             else None,

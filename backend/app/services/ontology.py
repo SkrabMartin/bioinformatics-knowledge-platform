@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.models import (
     BiologicalProcess,
+    CellularComponent,
     Gene,
     GeneBiologicalProcess,
     GenePathway,
@@ -16,6 +17,7 @@ from app.models import (
     Organism,
     Pathway,
     Protein,
+    ProteinCellularComponent,
     ProteinMolecularFunction,
 )
 from app.repositories.ontology import KnowledgeRepository
@@ -45,6 +47,7 @@ class KnowledgeService:
             "pathway": Pathway,
             "biological_process": BiologicalProcess,
             "molecular_function": MolecularFunction,
+            "cellular_component": CellularComponent,
         }
         record = cast(Pathway | OntologyTerm | None, self.session.get(models[kind], identifier))
         if record is None:
@@ -76,7 +79,11 @@ class KnowledgeService:
         return record
 
     def create_term(self, data: TermCreate) -> OntologyTerm:
-        model = BiologicalProcess if data.kind == "biological_process" else MolecularFunction
+        model = {
+            "biological_process": BiologicalProcess,
+            "molecular_function": MolecularFunction,
+            "cellular_component": CellularComponent,
+        }[data.kind]
         record = model(**model_values(data))
         self._persist(record)
         return record
@@ -88,7 +95,8 @@ class KnowledgeService:
         | OntologyParent
         | GenePathway
         | GeneBiologicalProcess
-        | ProteinMolecularFunction,
+        | ProteinMolecularFunction
+        | ProteinCellularComponent,
     ) -> None:
         try:
             self.session.add(record)
@@ -103,7 +111,9 @@ class KnowledgeService:
         self, kind: KnowledgeKind, identifier: int, data: AnnotationCreate
     ) -> RelationshipRead:
         target = self.get(kind, identifier)
-        entity_model: type[Protein] | type[Gene] = Protein if kind == "molecular_function" else Gene
+        entity_model: type[Protein] | type[Gene] = (
+            Protein if kind in ("molecular_function", "cellular_component") else Gene
+        )
         entity = cast(Gene | Protein | None, self.session.get(entity_model, data.entity_id))
         if entity is None:
             raise NotFoundError(f"{entity_model.__name__} {data.entity_id} was not found.")
@@ -115,13 +125,19 @@ class KnowledgeService:
             self.session.refresh(entity, with_for_update=True)
             if target.organism_id is not None and entity.organism_id != target.organism_id:
                 raise ConflictError("Gene and organism-specific pathway must share an organism.")
-            edge: GenePathway | GeneBiologicalProcess | ProteinMolecularFunction = GenePathway(
-                gene_id=entity.id, pathway_id=identifier, **values
-            )
+            edge: (
+                GenePathway
+                | GeneBiologicalProcess
+                | ProteinMolecularFunction
+                | ProteinCellularComponent
+            ) = GenePathway(gene_id=entity.id, pathway_id=identifier, **values)
             relation = "gene_pathway"
         elif kind == "biological_process":
             edge = GeneBiologicalProcess(gene_id=entity.id, term_id=identifier, **values)
             relation = "gene_biological_process"
+        elif kind == "cellular_component":
+            edge = ProteinCellularComponent(protein_id=entity.id, term_id=identifier, **values)
+            relation = "protein_cellular_component"
         else:
             edge = ProteinMolecularFunction(protein_id=entity.id, term_id=identifier, **values)
             relation = "protein_molecular_function"
@@ -153,7 +169,9 @@ class KnowledgeService:
         edge = OntologyParent(child_id=identifier, parent_id=data.parent_id, kind=kind, **values)
         self._persist(edge)
         relation: RelationshipType = (
-            "biological_process_parent"
+            "cellular_component_parent"
+            if kind == "cellular_component"
+            else "biological_process_parent"
             if kind == "biological_process"
             else "molecular_function_parent"
         )

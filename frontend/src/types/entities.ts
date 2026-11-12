@@ -132,9 +132,11 @@ export type RelatedEntityType =
   | "publication"
   | "pathway"
   | "biological_process"
-  | "molecular_function";
+  | "molecular_function"
+  | "cellular_component";
 
-export type KnowledgeKind = "pathway" | "biological_process" | "molecular_function";
+export type KnowledgeKind =
+  "pathway" | "biological_process" | "molecular_function" | "cellular_component";
 export interface Pathway extends ProvenanceFields {
   id: number;
   name: string;
@@ -146,7 +148,7 @@ export interface OntologyTerm extends ProvenanceFields {
   id: number;
   name: string;
   description: string | null;
-  kind: "biological_process" | "molecular_function";
+  kind: "biological_process" | "molecular_function" | "cellular_component";
   go_id: string;
   source_release: string;
 }
@@ -184,7 +186,9 @@ export interface EntityRelationship {
     | "gene_biological_process"
     | "protein_molecular_function"
     | "biological_process_parent"
-    | "molecular_function_parent";
+    | "molecular_function_parent"
+    | "protein_cellular_component"
+    | "cellular_component_parent";
   relationship_id: number;
   predicate:
     | "associated_with"
@@ -196,6 +200,7 @@ export interface EntityRelationship {
     | "studies"
     | "participates_in"
     | "involved_in"
+    | "annotated_to"
     | "has_function"
     | "is_a";
   source_release?: string | null;
@@ -232,7 +237,8 @@ export type SearchEntityType =
   | "variant"
   | "pathway"
   | "biological_process"
-  | "molecular_function";
+  | "molecular_function"
+  | "cellular_component";
 
 export interface SearchMatchedField {
   field: string;
@@ -263,6 +269,7 @@ export interface SearchCounts {
   pathway?: number;
   biological_process?: number;
   molecular_function?: number;
+  cellular_component?: number;
 
   gene: number;
   protein: number;

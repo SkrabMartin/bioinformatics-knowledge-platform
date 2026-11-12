@@ -94,3 +94,6 @@ and 128 transcripts remained available, and public write methods stayed blocked.
 Release 0.14 additionally includes the `phenotype` category (eleven categories in
 total). HPO ID/name/description matching, counts, suggestions and numeric detail
 links follow the same search contract. See [phenotypes](PHENOTYPES.md).
+
+Release 0.16 additionally includes `cellular_component` GO terms, increasing the
+supported search categories to twelve. See [cellular components](CELLULAR_COMPONENTS.md).

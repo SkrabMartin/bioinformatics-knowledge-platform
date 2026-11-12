@@ -5,12 +5,14 @@ from app.models.gene_identifier import GeneExternalIdentifier, GeneIdentifierEvi
 from app.models.import_job import ImportJob, ImportJobItem
 from app.models.ontology import (
     BiologicalProcess,
+    CellularComponent,
     GeneBiologicalProcess,
     GenePathway,
     MolecularFunction,
     OntologyParent,
     OntologyTerm,
     Pathway,
+    ProteinCellularComponent,
     ProteinMolecularFunction,
 )
 from app.models.organism import Organism
@@ -34,6 +36,7 @@ from app.models.variant_placement import VariantPlacement
 
 __all__ = [
     "BiologicalProcess",
+    "CellularComponent",
     "Disease",
     "DiseasePhenotype",
     "Gene",
@@ -53,6 +56,7 @@ __all__ = [
     "Pathway",
     "Phenotype",
     "Protein",
+    "ProteinCellularComponent",
     "ProteinInteraction",
     "ProteinMolecularFunction",
     "Publication",

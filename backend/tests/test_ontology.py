@@ -62,7 +62,7 @@ def test_new_schemas_reject_blank_ids_wrong_go_and_unsupported_negation() -> Non
         {"name": " "},
         {"source_release": " "},
         {"source_identifier": " "},
-        {"kind": "cellular_component"},
+        {"kind": "unsupported_aspect"},
     ):
         with pytest.raises(ValidationError):
             TermCreate.model_validate(
@@ -263,7 +263,7 @@ def test_knowledge_api_admin_validation_pagination_and_empty_state(
     )
     assert client.get("/api/v1/pathways?q=demo-api-pathway&page_size=1").json()["total"] == 1
     assert client.get("/api/v1/pathways?page_size=101").status_code == 422
-    assert client.get("/api/v1/ontology/cellular_component").status_code == 422
+    assert client.get("/api/v1/ontology/unsupported_aspect").status_code == 422
     assert client.post("/api/v1/pathways", json=payload, headers=headers).status_code == 409
     bp = client.post(
         "/api/v1/ontology",

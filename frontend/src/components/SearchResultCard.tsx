@@ -17,6 +17,7 @@ const entityLabels = {
   pathway: "Pathway",
   biological_process: "Biological process",
   molecular_function: "Molecular function",
+  cellular_component: "Cellular component",
 };
 
 const fieldLabels: Record<string, string> = {

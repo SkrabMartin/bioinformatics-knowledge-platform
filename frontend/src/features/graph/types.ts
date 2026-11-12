@@ -41,6 +41,7 @@ export const entityTypes: RelatedEntityType[] = [
   "pathway",
   "biological_process",
   "molecular_function",
+  "cellular_component",
 ];
 export const relationshipLabels: Record<RelationshipType, string> = {
   gene_protein: "Gene encodes protein",
@@ -55,6 +56,8 @@ export const relationshipLabels: Record<RelationshipType, string> = {
   gene_biological_process: "Gene involved in biological process",
   protein_molecular_function: "Protein has molecular function",
   biological_process_parent: "Biological process is a broader process",
+  protein_cellular_component: "Protein annotated to cellular component",
+  cellular_component_parent: "Cellular component is a broader component",
   molecular_function_parent: "Molecular function is a broader function",
 };
 export const truncationLabels: Record<TruncationReason, string> = {

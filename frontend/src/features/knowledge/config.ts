@@ -37,4 +37,13 @@ export const knowledgeCollections: Record<
     description:
       "Browse GO molecular functions, direct protein annotations and sourced is_a hierarchy.",
   },
+  cellular_component: {
+    title: "Cellular components",
+    singular: "Cellular component",
+    path: "/cellular-components",
+    detail: "/cellular-component",
+    resource: "ontology/cellular_component",
+    description:
+      "Browse GO cellular components, direct protein annotations and sourced is_a hierarchy.",
+  },
 };

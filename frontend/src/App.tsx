@@ -65,6 +65,14 @@ export function App() {
           path="molecular-function/:id"
           element={<KnowledgeDetailPage kind="molecular_function" />}
         />
+        <Route
+          path="cellular-components"
+          element={<KnowledgeBrowserPage kind="cellular_component" />}
+        />
+        <Route
+          path="cellular-component/:id"
+          element={<KnowledgeDetailPage kind="cellular_component" />}
+        />
         <Route path="publication/:id" element={<PublicationDetailPage />} />
         <Route
           path="graph"

@@ -23,6 +23,7 @@ const categories: {
   { value: "variant", label: "Variants", countKey: "variant" },
   { value: "pathway", label: "Pathways", countKey: "pathway" },
   { value: "biological_process", label: "Biological processes", countKey: "biological_process" },
+  { value: "cellular_component", label: "Cellular components", countKey: "cellular_component" },
   { value: "molecular_function", label: "Molecular functions", countKey: "molecular_function" },
 ];
 

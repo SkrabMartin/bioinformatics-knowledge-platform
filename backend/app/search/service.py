@@ -26,6 +26,7 @@ from sqlalchemy.sql import ColumnElement, Select
 
 from app.models import (
     BiologicalProcess,
+    CellularComponent,
     Disease,
     Gene,
     GeneAlias,
@@ -64,6 +65,7 @@ ENTITY_ORDER = (
     SearchEntityType.PATHWAY,
     SearchEntityType.BIOLOGICAL_PROCESS,
     SearchEntityType.MOLECULAR_FUNCTION,
+    SearchEntityType.CELLULAR_COMPONENT,
 )
 SearchField = ColumnElement[Any] | InstrumentedAttribute[Any]
 
@@ -531,6 +533,7 @@ class SearchService:
         for kind, model in [
             (SearchEntityType.BIOLOGICAL_PROCESS, BiologicalProcess),
             (SearchEntityType.MOLECULAR_FUNCTION, MolecularFunction),
+            (SearchEntityType.CELLULAR_COMPONENT, CellularComponent),
         ]:
             result[kind] = self._catalog_statement(
                 kind,
@@ -721,6 +724,7 @@ def _result_from_row(row: RowMapping, query: str, terms: Sequence[str]) -> Searc
                 SearchEntityType.PATHWAY,
                 SearchEntityType.BIOLOGICAL_PROCESS,
                 SearchEntityType.MOLECULAR_FUNCTION,
+                SearchEntityType.CELLULAR_COMPONENT,
             )
             else _entity_href(entity_type, primary_label, row["organism_taxonomy_id"])
         ),

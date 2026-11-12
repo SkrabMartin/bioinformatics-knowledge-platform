@@ -79,6 +79,10 @@ export function GraphCanvas({
           style: { "background-color": "#9a6c36", shape: "vee" },
         },
         {
+          selector: "node[type='cellular_component']",
+          style: { "background-color": "#935a90", shape: "rectangle" },
+        },
+        {
           selector: "edge",
           style: {
             label: "data(label)",

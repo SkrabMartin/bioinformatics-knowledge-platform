@@ -17,6 +17,7 @@ class SearchEntityType(StrEnum):
     PATHWAY = "pathway"
     BIOLOGICAL_PROCESS = "biological_process"
     MOLECULAR_FUNCTION = "molecular_function"
+    CELLULAR_COMPONENT = "cellular_component"
 
 
 class SearchMatchedField(ApiModel):
@@ -54,6 +55,7 @@ class SearchCounts(ApiModel):
     pathway: int = Field(default=0, ge=0)
     biological_process: int = Field(default=0, ge=0)
     molecular_function: int = Field(default=0, ge=0)
+    cellular_component: int = Field(default=0, ge=0)
     total: int = Field(ge=0)
 
 

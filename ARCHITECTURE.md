@@ -1,5 +1,9 @@
 # Architecture
 
+[Cellular components](docs/CELLULAR_COMPONENTS.md) extend the existing shared GO
+term/hierarchy model and typed protein assertions, with search and graph projections.
+
+
 [Variant placements](docs/VARIANT_PLACEMENTS.md) add immutable sourced literal
 representations with explicit assemblies, sequence versions and coordinate semantics.
 Parent identity/taxonomy guards preserve source context under application updates.
@@ -9,7 +13,7 @@ Parent identity/taxonomy guards preserve source context under application update
 disease assertions through additive tables and protected administrative writes.
 
 
-[Unified search](docs/UNIFIED_SEARCH.md) projects eleven entity categories into a
+[Unified search](docs/UNIFIED_SEARCH.md) projects twelve entity categories into a
 common SQL result shape, with per-type counts, bounded paging and query deadlines.
 
 
@@ -22,7 +26,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.15.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.16.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).

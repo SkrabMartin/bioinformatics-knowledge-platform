@@ -14,6 +14,7 @@ EntityType = Literal[
     "pathway",
     "biological_process",
     "molecular_function",
+    "cellular_component",
 ]
 RelationshipType = Literal[
     "gene_disease",
@@ -29,6 +30,8 @@ RelationshipType = Literal[
     "protein_molecular_function",
     "biological_process_parent",
     "molecular_function_parent",
+    "protein_cellular_component",
+    "cellular_component_parent",
 ]
 Predicate = Literal[
     "associated_with",
@@ -41,6 +44,7 @@ Predicate = Literal[
     "participates_in",
     "involved_in",
     "has_function",
+    "annotated_to",
     "is_a",
 ]
 

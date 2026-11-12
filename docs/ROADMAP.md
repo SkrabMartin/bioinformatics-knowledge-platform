@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.15.0
+## Coverage updated through 0.16.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -26,10 +26,10 @@ take priority over code volume or premature infrastructure.
 | 3 | External Data Integration Framework | Partial: NCBI Gene, UniProt, PubMed adapters, bounded retries, normalization, request pacing. A bounded Ensembl transcript adapter now exists; no general bulk source-version/pagination framework. |
 | 4 | Data Ingestion Engine | Partial: idempotent single-record and bounded queued imports, record status/results and crash replay. No large-scale incremental source synchronization or full checkpoint framework. |
 | 5 | Provenance and Data Quality System | Partial: record/assertion provenance, identity and namespace constraints, safe errors. Initial bounded metadata/consistency/refresh dashboard for genes/proteins/transcripts/identifiers; no comprehensive quality coverage, immutable payload/source snapshots or claim history. |
-| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and eleven stored entity categories, including phenotypes, transcripts, diseases, variants, pathways and two GO kinds. Future entity coverage and fuzzy/synonym expansion remain. |
+| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and twelve stored entity categories, including phenotypes, transcripts, diseases, variants, pathways and three GO kinds. Future entity coverage and fuzzy/synonym expansion remain. |
 | 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Sourced phenotype terms and qualified disease annotations are implemented; automatic HPO ingestion, disease ontology term modeling and broader phenotype annotation scope remain. |
 | 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Sourced assembly-aware literal placements and parent identity/taxonomy guards are implemented. Clinical significance/frequency, protein/publication links, reference validation and biological normalization remain absent. |
-| 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular component and automatic ontology ingestion absent. |
+| 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular components, sourced direct protein annotations and same-aspect hierarchy/graph/search are supported; automatic ontology ingestion and enrichment remain absent. |
 | 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. No full-text corpus, keyword layer or variant/drug/dataset literature links. |
 | 11 | Dataset Discovery | Not implemented. |
 | 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations. No general coverage of all future node/edge kinds. |
@@ -122,3 +122,10 @@ Phase 8 gains explicit assembly/sequence/coordinate/allele source observations f
 existing variants. This is not a VCF importer, full variant normalization or clinical
 annotation engine. New placement collections start empty.
 See [variant placements](VARIANT_PLACEMENTS.md).
+
+## Release 0.16 follow-up
+
+Phase 9 now includes GO cellular components with direct sourced protein annotations,
+same-aspect hierarchy, unified search and bounded graph navigation. No annotation
+propagation, ontology import or enrichment is implied; this is not completion of
+the phase. See [cellular components](CELLULAR_COMPONENTS.md).

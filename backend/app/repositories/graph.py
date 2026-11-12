@@ -11,6 +11,7 @@ from app.models import (
     GenePathway,
     OntologyParent,
     Protein,
+    ProteinCellularComponent,
     ProteinInteraction,
     ProteinMolecularFunction,
     PublicationDisease,
@@ -55,6 +56,14 @@ SPECS = (
         ProteinMolecularFunction.term_id,
     ),
     EdgeSpec(
+        "protein_cellular_component",
+        ProteinCellularComponent,
+        "protein",
+        ProteinCellularComponent.protein_id,
+        "cellular_component",
+        ProteinCellularComponent.term_id,
+    ),
+    EdgeSpec(
         "biological_process_parent",
         OntologyParent,
         "biological_process",
@@ -71,6 +80,15 @@ SPECS = (
         "molecular_function",
         OntologyParent.parent_id,
         OntologyParent.kind == "molecular_function",
+    ),
+    EdgeSpec(
+        "cellular_component_parent",
+        OntologyParent,
+        "cellular_component",
+        OntologyParent.child_id,
+        "cellular_component",
+        OntologyParent.parent_id,
+        OntologyParent.kind == "cellular_component",
     ),
     EdgeSpec("gene_protein", Protein, "gene", Protein.gene_id, "protein", Protein.id),
     EdgeSpec(
