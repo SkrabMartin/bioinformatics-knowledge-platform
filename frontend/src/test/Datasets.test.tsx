@@ -41,7 +41,11 @@ test("dataset catalogue uses stored metadata and honest empty states", async () 
   expect(await screen.findByText(/No datasets match this view/)).toBeInTheDocument();
 });
 test("dataset detail preserves source counts, dates and external references without inferring patients", async () => {
-  vi.spyOn(globalThis, "fetch").mockImplementation(async () => response(dataset));
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (input) =>
+    String(input).includes("relationships/")
+      ? response({ items: [], total: 0, pages: 0, page: 1, page_size: 20 })
+      : response(dataset),
+  );
   open("/dataset/1");
   expect(
     await screen.findByRole("heading", { name: "Synthetic discovery study" }),
@@ -57,4 +61,43 @@ test("dataset detail preserves source counts, dates and external references with
     "https://example.test/dataset",
   );
   expect(screen.getByText(/not downloaded or analyzed/)).toBeInTheDocument();
+});
+
+test("dataset detail exposes sourced local citation, observation date and graph navigation", async () => {
+  const citation = {
+    relationship_type: "dataset_publication",
+    relationship_id: 1,
+    predicate: "cites",
+    subject: { entity_type: "dataset", entity_id: 1, label: "GSE999999", href: "/dataset/1" },
+    object: {
+      entity_type: "publication",
+      entity_id: 7,
+      label: "Test citation",
+      href: "/publication/7",
+    },
+    source: "NCBI GEO",
+    source_identifier: "GSE999999",
+    source_url: "https://example.test/series",
+    source_record_date: "2020-01-02",
+    evidence_kind: "structured_metadata",
+    evidence_text: "First observed test-only source citation.",
+    provenance_basis: "relationship_assertion",
+  };
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (input) =>
+    String(input).includes("relationships/")
+      ? response({ items: [citation], total: 1, pages: 1, page: 1, page_size: 20 })
+      : response(dataset),
+  );
+  open("/dataset/1");
+  expect(await screen.findByRole("link", { name: "Test citation" })).toHaveAttribute(
+    "href",
+    "/publication/7",
+  );
+  expect(screen.getByText("Source record updated: 2020-01-02")).toBeInTheDocument();
+  expect(screen.getByText("cites (first observed source reference)")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Explore graph/ })).toHaveAttribute(
+    "href",
+    "/graph?type=dataset&id=1",
+  );
+  expect(screen.getByText(/remain available if later metadata change/)).toBeInTheDocument();
 });

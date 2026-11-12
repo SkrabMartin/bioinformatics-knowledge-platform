@@ -131,6 +131,12 @@ export function GraphWorkspace({ resource }: { resource: string }) {
                 <dd>{edge.assertion.evidence_kind?.replaceAll("_", " ") ?? "Not classified"}</dd>
                 <dt>Retrieved</dt>
                 <dd>{edge.assertion.imported_at ?? "Not supplied"}</dd>
+                {edge.assertion.source_record_date && (
+                  <>
+                    <dt>Source record updated</dt>
+                    <dd>{edge.assertion.source_record_date}</dd>
+                  </>
+                )}
                 {edge.assertion.source_release && (
                   <>
                     <dt>Source release</dt>
@@ -160,7 +166,8 @@ export function GraphWorkspace({ resource }: { resource: string }) {
           )}
           <p className="context-note">
             A literature mention or sourced association is not proof of causation. This graph
-            reflects only the local database.
+            reflects only the local database. Dataset citations preserve the first observed source
+            reference, even if later source metadata change.
           </p>
         </aside>
       </div>

@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import AwareDatetime, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
-from app.schemas.common import ProvenanceFields, StoredProvenanceFields
+from app.schemas.common import ApiModel, ProvenanceFields, StoredProvenanceFields
 
 
 class DatasetCreate(ProvenanceFields):
@@ -58,3 +58,10 @@ class DatasetCreate(ProvenanceFields):
 
 class DatasetRead(DatasetCreate, StoredProvenanceFields):
     imported_at: datetime
+
+
+class DatasetResolveResult(ApiModel):
+    dataset_id: int
+    created: int = Field(ge=0)
+    existing: int = Field(ge=0)
+    missing_pmids: list[str]

@@ -126,3 +126,24 @@ reference only. Scheduling is not enabled for dataset imports. See DATASETS.md.
 Public HTTPS checks verified dataset browse/detail, exact-accession unified
 search, suggestions, input bounds and blocked public writes. Existing totals
 remain three genes, three proteins, 128 transcripts and two publications.
+
+## Dataset citation graph — 2026-11-12 / release 0.19.0
+
+The source-reported citation [PMID 18297132](https://pubmed.ncbi.nlm.nih.gov/18297132/)
+was explicitly imported, then resolved locally from GSE10072's GEO metadata.
+The public instance now has three PubMed publications and one dataset citation
+assertion. No gene links were added by this import. Repeated citation resolution
+returned one existing assertion and created no duplicate.
+
+The directed GSE10072 → cites → publication edge preserves the GEO accession,
+URL, retrieval time and source record date 2018-08-10. Dataset and publication
+detail expose this link in both directions, with graph navigation and evidence
+inspection. First observed citations remain if later source metadata change;
+they are not a guarantee of current source membership or a biological conclusion.
+
+Public HTTPS checks passed relationship reads, both graph roots, relationship
+filters, node/depth bounds, source provenance, SPA assets and blocked resolution
+writes. All pre-existing table counts were preserved apart from the explicit
+additional publication: three genes, three proteins, 128 transcripts and one
+dataset remain. The two previous PubMed records remain present.
+See DATASET_GRAPH.md for contracts and limitations.

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import Field, HttpUrl
@@ -6,6 +6,7 @@ from pydantic import Field, HttpUrl
 from app.schemas.common import ApiModel
 
 EntityType = Literal[
+    "dataset",
     "gene",
     "protein",
     "variant",
@@ -17,6 +18,7 @@ EntityType = Literal[
     "cellular_component",
 ]
 RelationshipType = Literal[
+    "dataset_publication",
     "gene_disease",
     "variant_gene",
     "variant_disease",
@@ -35,6 +37,7 @@ RelationshipType = Literal[
     "cellular_component_parent",
 ]
 Predicate = Literal[
+    "cites",
     "associated_with",
     "located_in",
     "interacts_with",
@@ -97,6 +100,7 @@ class RelationshipRead(ApiModel):
     imported_at: datetime | None
     evidence_text: str | None
     evidence_kind: Literal["structured_metadata", "curated"] | None = None
+    source_record_date: date | None = None
     source_release: str | None = None
     evidence_code: str | None = None
     provenance_basis: Literal["relationship_assertion", "protein_record"]

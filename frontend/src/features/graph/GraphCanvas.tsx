@@ -62,6 +62,10 @@ export function GraphCanvas({
           style: { "background-color": "#bb7b32", shape: "triangle" },
         },
         {
+          selector: "node[type='dataset']",
+          style: { "background-color": "#0f766e", shape: "barrel" },
+        },
+        {
           selector: "node[type='publication']",
           style: { "background-color": "#7660a5", shape: "rectangle" },
         },

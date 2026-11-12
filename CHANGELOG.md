@@ -19,6 +19,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.19.0] - 2026-11-12
+
+### Added
+
+- Typed first observed GEO dataset publication citations with exact local PMID resolution, source dates, provenance and idempotent protected API/CLI operations. Missing citations are reported without fetching or fabricating records.
+- Dataset nodes and citation edges in bounded graph traversal and filters; bidirectional relationship reads, detail navigation and source inspection. Current metadata and retained first observed references are explicitly distinguished.
+- Additive migration 20261112_0016 with restrictive foreign keys and unique pair identity. Downgrade refuses to discard assertions.
+
+### Verified
+
+- 230 backend tests on isolated PostgreSQL, Ruff, strict mypy, fresh/restored migrations and Alembic model comparison passed. Frontend passed 55 tests, formatting, lint, typecheck and production build.
+- Restored live data accepted the real source-reported PMID 18297132 and one dataset citation, without additional gene links. Repeated resolution created no duplicate.
+
+- Deployed HTTPS checks verified both citation directions, graph bounds/filters, provenance, SPA assets and blocked writes. Original data remain; one real PubMed citation and one sourced dataset edge were added.
+
 ## [0.18.0] - 2026-11-12
 
 ### Added

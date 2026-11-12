@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
+import { RelationshipPanel } from "../components/RelationshipPanel";
 import { ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 import type { Dataset } from "../types/datasets";
@@ -81,6 +82,11 @@ export function DatasetDetailPage() {
             from the study title.
           </p>
         </DetailSection>
+        <p className="context-note">
+          Local citation links record the first observed GEO reference and remain available if later
+          metadata change. They do not establish biological or clinical conclusions.
+        </p>
+        <RelationshipPanel key={data.id} entityType="dataset" entityId={data.id} />
         <DetailSection title="Source provenance">
           <ProvenancePanel record={data} />
         </DetailSection>

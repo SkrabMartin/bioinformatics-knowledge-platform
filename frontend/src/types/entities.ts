@@ -125,6 +125,7 @@ export interface Variant extends ProvenanceFields {
 }
 
 export type RelatedEntityType =
+  | "dataset"
   | "gene"
   | "protein"
   | "variant"
@@ -175,6 +176,7 @@ export interface RelationshipNode {
 
 export interface EntityRelationship {
   relationship_type:
+    | "dataset_publication"
     | "gene_disease"
     | "variant_gene"
     | "variant_disease"
@@ -193,6 +195,7 @@ export interface EntityRelationship {
     | "cellular_component_parent";
   relationship_id: number;
   predicate:
+    | "cites"
     | "associated_with"
     | "located_in"
     | "interacts_with"
@@ -205,6 +208,7 @@ export interface EntityRelationship {
     | "annotated_to"
     | "has_function"
     | "is_a";
+  source_record_date?: string | null;
   source_release?: string | null;
   evidence_code?: string | null;
   evidence_kind?: "structured_metadata" | "curated" | null;

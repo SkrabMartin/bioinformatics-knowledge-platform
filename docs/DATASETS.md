@@ -96,3 +96,10 @@ source PubMed reference 18297132. These counts/IDs are source observations, not 
 clinical interpretation or a whole-repository coverage claim. No local publications,
 genes or disease entities are created by the dataset import. Public loading is
 recorded in DATA_STATUS.md after verification.
+
+## Follow-up in 0.19.0
+
+Explicit local PMID resolution and dataset graph navigation are now implemented;
+see [dataset citation graph](DATASET_GRAPH.md). Earlier limitations above describe
+the initial 0.18 release. Importing or refreshing a dataset still does not resolve
+local relationships automatically.

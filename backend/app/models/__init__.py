@@ -1,4 +1,4 @@
-from app.models.dataset import Dataset
+from app.models.dataset import Dataset, DatasetPublication
 from app.models.disease import Disease
 from app.models.gene import Gene
 from app.models.gene_context import GeneAlias, GeneGenomicLocation
@@ -40,6 +40,7 @@ __all__ = [
     "BiologicalProcess",
     "CellularComponent",
     "Dataset",
+    "DatasetPublication",
     "Disease",
     "DiseasePhenotype",
     "Gene",

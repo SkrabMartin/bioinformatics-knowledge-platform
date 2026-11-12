@@ -33,6 +33,7 @@ export interface GraphResponse {
 export type GraphSelection = { kind: "node" | "edge"; id: string };
 
 export const entityTypes: RelatedEntityType[] = [
+  "dataset",
   "gene",
   "protein",
   "disease",
@@ -44,6 +45,7 @@ export const entityTypes: RelatedEntityType[] = [
   "cellular_component",
 ];
 export const relationshipLabels: Record<RelationshipType, string> = {
+  dataset_publication: "Dataset cites publication (GEO source record)",
   gene_protein: "Gene encodes protein",
   gene_disease: "Gene–disease association",
   variant_gene: "Variant in gene",

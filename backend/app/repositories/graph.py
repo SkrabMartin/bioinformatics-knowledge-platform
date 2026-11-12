@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import ColumnElement
 
 from app.models import (
+    DatasetPublication,
     GeneBiologicalProcess,
     GeneDiseaseAssociation,
     GenePathway,
@@ -37,6 +38,14 @@ class EdgeSpec:
 
 
 SPECS = (
+    EdgeSpec(
+        "dataset_publication",
+        DatasetPublication,
+        "dataset",
+        DatasetPublication.dataset_id,
+        "publication",
+        DatasetPublication.publication_id,
+    ),
     EdgeSpec(
         "gene_pathway", GenePathway, "gene", GenePathway.gene_id, "pathway", GenePathway.pathway_id
     ),

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import httpx2
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import get_settings
 from app.core.database import get_engine, get_session_factory
@@ -44,6 +45,11 @@ def build_parser() -> argparse.ArgumentParser:
         "import-dataset", help="Import metadata for one public GEO Series; no data files"
     )
     dataset_parser.add_argument("accession")
+    resolve_parser = subparsers.add_parser(
+        "resolve-dataset-publications",
+        help="Resolve reported GEO PMIDs to already stored citations",
+    )
+    resolve_parser.add_argument("accession")
     gene_parser = subparsers.add_parser(
         "import-gene", help="Import or refresh one gene from NCBI Gene"
     )
@@ -104,6 +110,17 @@ def main() -> None:
                     print(service.items(job.id, 1, 100).model_dump_json())
         except (ApplicationError, ValueError):
             print('{"error":{"code":"invalid_job_request"}}', file=sys.stderr)
+            raise SystemExit(1) from None
+        return
+    if arguments.command == "resolve-dataset-publications":
+        try:
+            with get_session_factory()() as session:
+                dataset_service = DatasetService(session)
+                record = dataset_service.by_accession(arguments.accession)
+                resolved_citations = dataset_service.resolve_publications(record.id)
+                print(resolved_citations.model_dump_json())
+        except (ApplicationError, SQLAlchemyError, ValueError):
+            print('{"error":{"code":"dataset_resolution_failed"}}', file=sys.stderr)
             raise SystemExit(1) from None
         return
     if arguments.command == "import-worker":

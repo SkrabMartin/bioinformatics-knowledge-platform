@@ -1,5 +1,9 @@
 # Architecture
 
+[Dataset citation graph](docs/DATASET_GRAPH.md) adds a typed, sourced dataset-to-
+publication assertion to the bounded relational graph projection. Exact local PMID
+resolution remains a protected explicit operation; no graph database is required.
+
 [Dataset discovery](docs/DATASETS.md) introduces repository-scoped metadata identity,
 a bounded GEO Series adapter, atomic source refresh and search/catalogue views.
 
@@ -34,7 +38,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.18.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.19.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from app.api.dependencies import DatabaseSession
 from app.core.security import require_admin
 from app.schemas.common import Page
-from app.schemas.dataset import DatasetCreate, DatasetRead
+from app.schemas.dataset import DatasetCreate, DatasetRead, DatasetResolveResult
 from app.services.datasets import DatasetService
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -38,3 +38,14 @@ def detail(
 @router.post("", response_model=DatasetRead, status_code=201, dependencies=[Depends(require_admin)])
 def create(payload: DatasetCreate, session: DatabaseSession) -> object:
     return DatasetService(session).save(payload)[0]
+
+
+@router.post(
+    "/{identifier}/resolve-publications",
+    response_model=DatasetResolveResult,
+    dependencies=[Depends(require_admin)],
+)
+def resolve_publications(
+    identifier: Annotated[int, Path(gt=0, le=9223372036854775807)], session: DatabaseSession
+) -> DatasetResolveResult:
+    return DatasetService(session).resolve_publications(identifier)

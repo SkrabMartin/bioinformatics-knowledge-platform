@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session, selectinload
 from app.models import (
     BiologicalProcess,
     CellularComponent,
+    Dataset,
+    DatasetPublication,
     Disease,
     Gene,
     GeneBiologicalProcess,
@@ -49,7 +51,8 @@ from app.services.entities import model_values
 from app.services.errors import ConflictError, InvalidInputError, NotFoundError
 
 RelationshipRecord = (
-    GeneDiseaseAssociation
+    DatasetPublication
+    | GeneDiseaseAssociation
     | VariantGeneLocation
     | VariantDiseaseAssociation
     | ProteinInteraction
@@ -66,6 +69,7 @@ RelationshipRecord = (
 )
 
 PUBLICATION_RELATIONS: tuple[tuple[str, Any, Any], ...] = (
+    ("dataset_publication", DatasetPublication, DatasetPublication.dataset),
     ("publication_gene", PublicationGene, PublicationGene.gene),
     ("publication_protein", PublicationProtein, PublicationProtein.protein),
     ("publication_disease", PublicationDisease, PublicationDisease.disease),
@@ -81,6 +85,7 @@ class RelationshipService:
 
     def node_for(self, entity_type: EntityType, entity_id: int) -> RelationshipNode:
         model = {
+            "dataset": Dataset,
             "gene": Gene,
             "protein": Protein,
             "variant": Variant,
@@ -94,6 +99,8 @@ class RelationshipService:
         record = self._require(model, entity_id)
         if isinstance(record, (Pathway, OntologyTerm)):
             return knowledge.knowledge_node(record)
+        if isinstance(record, Dataset):
+            return _dataset_node(record)
         if isinstance(record, Gene):
             return _gene_node(record)
         if isinstance(record, Protein):
@@ -159,6 +166,7 @@ class RelationshipService:
         self, entity_type: EntityType, entity_id: int, *, page: int, page_size: int
     ) -> Page[RelationshipRead]:
         model = {
+            "dataset": Dataset,
             "gene": Gene,
             "protein": Protein,
             "variant": Variant,
@@ -191,6 +199,19 @@ class RelationshipService:
                         edge_model.created_at.label("created_at"),
                     ).where(condition)
                 )
+        if entity_type in {"dataset", "publication"}:
+            condition = (
+                DatasetPublication.dataset_id == entity_id
+                if entity_type == "dataset"
+                else DatasetPublication.publication_id == entity_id
+            )
+            statements.append(
+                select(
+                    literal("dataset_publication").label("kind"),
+                    DatasetPublication.id.label("relation_id"),
+                    DatasetPublication.created_at.label("created_at"),
+                ).where(condition)
+            )
         combined = union_all(*statements).subquery()
         total = self.session.scalar(select(func.count()).select_from(combined)) or 0
         rows = self.session.execute(
@@ -229,7 +250,7 @@ class RelationshipService:
         return entity
 
     def _index_statements(self, entity_type: EntityType, entity_id: int) -> list[Any]:
-        if entity_type == "publication" or entity_type in knowledge.KNOWLEDGE_KINDS:
+        if entity_type in {"publication", "dataset"} or entity_type in knowledge.KNOWLEDGE_KINDS:
             return []
 
         def indexed(kind: str, model: Any, condition: Any) -> Any:
@@ -373,6 +394,9 @@ class RelationshipService:
             else:
                 subject = knowledge.knowledge_node(first)
             object_ = knowledge.knowledge_node(second)
+        elif isinstance(record, DatasetPublication):
+            subject, object_ = _dataset_node(record.dataset), _publication_node(record.publication)
+            predicate = "cites"
         elif isinstance(
             record, (PublicationGene, PublicationProtein, PublicationDisease, PublicationVariant)
         ):
@@ -417,6 +441,7 @@ class RelationshipService:
             if isinstance(
                 record,
                 (
+                    DatasetPublication,
                     PublicationGene,
                     PublicationProtein,
                     PublicationDisease,
@@ -428,6 +453,7 @@ class RelationshipService:
                 ),
             )
             else None,
+            source_record_date=getattr(record, "source_record_date", None),
             source_release=getattr(record, "source_release", None),
             evidence_code=getattr(record, "evidence_code", None),
             provenance_basis=(
@@ -482,4 +508,13 @@ def _publication_node(publication: Publication) -> RelationshipNode:
         entity_id=publication.id,
         label=publication.title,
         href=f"/publication/{publication.id}",
+    )
+
+
+def _dataset_node(dataset: Dataset) -> RelationshipNode:
+    return RelationshipNode(
+        entity_type="dataset",
+        entity_id=dataset.id,
+        label=dataset.accession,
+        href=f"/dataset/{dataset.id}",
     )
