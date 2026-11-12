@@ -19,6 +19,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.18.0] - 2026-11-12
+
+### Added
+
+- Repository-scoped dataset metadata, a bounded public GEO Series self-record adapter and explicit idempotent CLI import with source-date regression protection.
+- Dataset catalogue/detail, source access/publication references and a thirteenth unified search category. No raw files, tissue/disease inference or automatic local citation linking.
+- Protected administrator creation and bounded reads; additive migration 20261112_0015 preserves prior data. Source contact fields are not stored.
+
+### Verified
+
+- 221 backend tests on isolated PostgreSQL, fresh and restored migrations, Alembic comparison, Ruff and strict mypy passed. Frontend passed 54 tests, formatting, lint, typecheck and production build.
+- Restored pre-release data survived the additive migration; the previous 0.17 backend read the upgraded schema successfully. A bounded GSE10072 metadata import was verified on the restored copy.
+
+- Public HTTPS verified the deployed catalogue/detail, GSE10072 metadata (107 sample records), search/suggestions, input bounds and blocked writes; all original entity totals remain unchanged.
+
 ## [0.17.0] - 2026-11-12
 
 ### Added

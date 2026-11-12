@@ -97,3 +97,6 @@ links follow the same search contract. See [phenotypes](PHENOTYPES.md).
 
 Release 0.16 additionally includes `cellular_component` GO terms, increasing the
 supported search categories to twelve. See [cellular components](CELLULAR_COMPONENTS.md).
+
+Release 0.18 adds `dataset` accession/title/summary matching, counts, suggestions and
+detail links (thirteen categories). See [dataset discovery](DATASETS.md).

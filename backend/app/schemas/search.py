@@ -6,6 +6,7 @@ from app.schemas.common import ApiModel
 
 
 class SearchEntityType(StrEnum):
+    DATASET = "dataset"
     GENE = "gene"
     PROTEIN = "protein"
     ORGANISM = "organism"
@@ -44,6 +45,7 @@ class SearchResult(ApiModel):
 
 
 class SearchCounts(ApiModel):
+    dataset: int = Field(default=0, ge=0)
     gene: int = Field(ge=0)
     protein: int = Field(ge=0)
     organism: int = Field(ge=0)

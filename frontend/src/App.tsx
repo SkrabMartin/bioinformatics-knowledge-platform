@@ -3,6 +3,8 @@ import { Route, Routes } from "react-router-dom";
 import { DataQualityPage } from "./pages/DataQualityPage";
 import { PhenotypesPage } from "./pages/PhenotypesPage";
 import { PhenotypeDetailPage } from "./pages/PhenotypeDetailPage";
+import { DatasetsPage } from "./pages/DatasetsPage";
+import { DatasetDetailPage } from "./pages/DatasetDetailPage";
 import { AppLayout } from "./components/AppLayout";
 import { TranscriptsPage } from "./pages/TranscriptsPage";
 import { TranscriptDetailPage } from "./pages/TranscriptDetailPage";
@@ -46,6 +48,8 @@ export function App() {
         <Route path="diseases" element={<DiseasesPage />} />
         <Route path="disease/:id" element={<DiseaseDetailPage />} />
         <Route path="variants" element={<VariantsPage />} />
+        <Route path="datasets" element={<DatasetsPage />} />
+        <Route path="dataset/:id" element={<DatasetDetailPage />} />
         <Route path="publications" element={<PublicationsPage />} />
         <Route path="pathways" element={<KnowledgeBrowserPage kind="pathway" />} />
         <Route path="pathway/:id" element={<KnowledgeDetailPage kind="pathway" />} />

@@ -107,3 +107,22 @@ The original three genes, three proteins and 128 transcripts remain available.
 This is a bounded starter sample, not an exhaustive gene literature bibliography;
 scheduled citation refresh and automatic variant linkage remain disabled.
 See [literature metadata](LITERATURE_METADATA.md).
+
+## Dataset discovery — 2026-11-12 / release 0.18.0
+
+The public instance contains one real GEO Series metadata record:
+[GSE10072](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10072).
+Its source reports 107 repository sample records, platform GPL96, Homo sapiens
+(taxonomy 9606), expression profiling by array and external publication PMID
+18297132. Sample records are not necessarily patients or independent observations.
+The provider last-update date is 2018-08-10; retrieval time is stored separately.
+
+This was an explicit, bounded metadata import, first verified on a restored copy
+of the database. No experimental files were downloaded and no local organism,
+disease, gene or publication relationships were inferred. The existing two
+imported publications remain unchanged; PMID 18297132 is an external source
+reference only. Scheduling is not enabled for dataset imports. See DATASETS.md.
+
+Public HTTPS checks verified dataset browse/detail, exact-accession unified
+search, suggestions, input bounds and blocked public writes. Existing totals
+remain three genes, three proteins, 128 transcripts and two publications.

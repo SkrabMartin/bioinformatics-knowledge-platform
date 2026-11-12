@@ -22,11 +22,13 @@ from app.ingestion.transcripts import TranscriptIngestionService
 from app.ingestion.worker import run_worker
 from app.integrations.ensembl import EnsemblTranscriptAdapter
 from app.integrations.errors import IntegrationError
+from app.integrations.geo import GeoSeriesAdapter
 from app.integrations.http import RetryingJsonClient
 from app.integrations.ncbi import NcbiGeneAdapter
 from app.integrations.ncbi.pubmed import PubMedAdapter
 from app.integrations.uniprot import UniProtAdapter
 from app.schemas.import_job import ImportJobCreate
+from app.services.datasets import DatasetService
 from app.services.errors import ApplicationError
 from app.services.import_jobs import ImportJobService
 
@@ -38,6 +40,10 @@ def build_parser() -> argparse.ArgumentParser:
         "load-fixtures", help="Load explicitly marked Phase 1 development demo data"
     )
     fixture_parser.add_argument("--path", type=Path, help="Override fixture JSON path")
+    dataset_parser = subparsers.add_parser(
+        "import-dataset", help="Import metadata for one public GEO Series; no data files"
+    )
+    dataset_parser.add_argument("accession")
     gene_parser = subparsers.add_parser(
         "import-gene", help="Import or refresh one gene from NCBI Gene"
     )
@@ -151,6 +157,27 @@ def main() -> None:
             follow_redirects=True,
             headers={"User-Agent": settings.external_api_user_agent, "Accept": "application/json"},
         ) as client:
+            if arguments.command == "import-dataset":
+                transport = RetryingJsonClient(
+                    client,
+                    provider="NCBI GEO",
+                    max_attempts=settings.external_api_max_attempts,
+                    backoff_seconds=settings.external_api_backoff_seconds,
+                )
+                payload = GeoSeriesAdapter(transport).fetch_dataset(arguments.accession)
+                with get_session_factory()() as session:
+                    record, action = DatasetService(session).save(payload, refresh=True)
+                    print(
+                        json.dumps(
+                            {
+                                "entity_type": "dataset",
+                                "entity_id": record.id,
+                                "identifier": record.accession,
+                                "action": action,
+                            }
+                        )
+                    )
+                return
             if arguments.command == "import-transcripts":
                 transport = RetryingJsonClient(
                     client,
@@ -223,7 +250,7 @@ def main() -> None:
                     result = ProteinIngestionService(session, protein_provider).import_protein(
                         arguments.accession
                     )
-    except (IntegrationError, IngestionPersistenceError, ValueError) as exc:
+    except (IntegrationError, IngestionPersistenceError, ApplicationError, ValueError) as exc:
         code = getattr(exc, "code", "ingestion_error")
         print(json.dumps({"error": {"code": code, "message": str(exc)}}), file=sys.stderr)
         raise SystemExit(1) from exc

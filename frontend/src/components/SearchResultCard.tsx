@@ -6,6 +6,7 @@ import type { SearchResult } from "../types/entities";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 
 const entityLabels = {
+  dataset: "Dataset",
   phenotype: "Phenotype",
   gene: "Gene",
   protein: "Protein",

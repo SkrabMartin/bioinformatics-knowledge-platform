@@ -6,13 +6,13 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.17.0 — PubMed keywords and sourced variant literature references.**
+**Release 0.18.0 — GEO dataset discovery metadata and source access.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
 advance parts of long-term Phases 2–3, independently of the historical milestone numbers.
 
-The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO biological processes, molecular functions and cellular components, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
+The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO biological processes, molecular functions and cellular components, organisms, publications, and datasets. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
 The application still ships explicitly marked Phase 1 demo fixtures for local startup. Real gene/protein imports are opt-in CLI operations. Phase 4 does **not** automatically import disease or variant assertions: those collections start empty until source-backed records are supplied through the API. Search never invents results for absent records.
 
@@ -22,7 +22,10 @@ Pathways and all three supported GO aspects now extend that navigation with dire
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
 
-The new [literature metadata](docs/LITERATURE_METADATA.md) retains supplied PubMed
+The new [dataset discovery catalogue](docs/DATASETS.md) imports bounded public GEO
+Series metadata and exposes source access links without downloading experimental files.
+
+The [literature metadata](docs/LITERATURE_METADATA.md) retains supplied PubMed
 keywords for search/detail and adds explicit sourced publication–variant references.
 
 The [cellular component support](docs/CELLULAR_COMPONENTS.md) completes the three
@@ -596,7 +599,7 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 - Existing gene→protein linkage inherits protein-record provenance; it has no separate relationship-evidence row. Clinical significance, assembly-aware coordinates, variant normalization, and evidence ontologies are not stored.
 - The relationship listing uses bounded offset pagination. Large-corpus query plans and association counts have not been benchmarked. Cross-organism integrity for variant→gene links is enforced by services, not a cross-table database constraint.
 - The UI is read-only for disease/variant and relationship creation; controlled-development writes use the API. Write endpoints remain unauthenticated and must not be internet-exposed.
-- Search covers locally stored genes, proteins, organisms, and publications. Diseases/variants are not yet part of unified search. Gene aliases now participate in search. Fuzzy typo correction, ontology-wide synonym expansion and cross-provider federated search remain absent.
+- Search covers locally stored genes, proteins, organisms, publications, and datasets. Diseases/variants are not yet part of unified search. Gene aliases now participate in search. Fuzzy typo correction, ontology-wide synonym expansion and cross-provider federated search remain absent.
 - Search uses offset pagination and synchronous count queries. Ranking weights and PostgreSQL index use have not been benchmarked on a large biological corpus.
 - Organism results have no detail page yet. Gene search links require taxonomy context; older bare `/gene/{symbol}` links still default to human (`9606`).
 - There are no hard-delete endpoints or entity deprecation workflow yet.
@@ -628,3 +631,8 @@ Enrichment calculations, OpenSearch/Elasticsearch, background processing, and la
 ## License
 
 A license has not yet been selected. The project intends to be open source, but distribution and reuse terms are not established until a `LICENSE` file is added.
+
+Release 0.18.0 adds [dataset discovery](docs/DATASETS.md). The public starter
+catalogue contains one real GEO Series metadata record (GSE10072, 107 source
+sample records); experimental files and automatic dataset scheduling are outside
+this release. See [current imported data](docs/DATA_STATUS.md).

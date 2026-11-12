@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.17.0
+## Coverage updated through 0.18.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -26,12 +26,12 @@ take priority over code volume or premature infrastructure.
 | 3 | External Data Integration Framework | Partial: NCBI Gene, UniProt, PubMed adapters, bounded retries, normalization, request pacing. A bounded Ensembl transcript adapter now exists; no general bulk source-version/pagination framework. |
 | 4 | Data Ingestion Engine | Partial: idempotent single-record and bounded queued imports, record status/results and crash replay. No large-scale incremental source synchronization or full checkpoint framework. |
 | 5 | Provenance and Data Quality System | Partial: record/assertion provenance, identity and namespace constraints, safe errors. Initial bounded metadata/consistency/refresh dashboard for genes/proteins/transcripts/identifiers; no comprehensive quality coverage, immutable payload/source snapshots or claim history. |
-| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and twelve stored entity categories, including phenotypes, transcripts, diseases, variants, pathways and three GO kinds. Future entity coverage and fuzzy/synonym expansion remain. |
+| 6 | Unified Search | Partial: PostgreSQL ranking, filters, suggestions, gene aliases and thirteen stored entity categories, including phenotypes, transcripts, diseases, variants, pathways and three GO kinds. Future entity coverage and fuzzy/synonym expansion remain. |
 | 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Sourced phenotype terms and qualified disease annotations are implemented; automatic HPO ingestion, disease ontology term modeling and broader phenotype annotation scope remain. |
 | 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Sourced assembly-aware literal placements and parent identity/taxonomy guards are implemented. Clinical significance/frequency, protein/publication links, reference validation and biological normalization remain absent. |
 | 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular components, sourced direct protein annotations and same-aspect hierarchy/graph/search are supported; automatic ontology ingestion and enrichment remain absent. |
 | 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. Source-supplied keywords and variant literature links are implemented. No full-text corpus, drug/dataset links, NLP extraction or complete source snapshot history. |
-| 11 | Dataset Discovery | Not implemented. |
+| 11 | Dataset Discovery | Initial GEO Series metadata model, catalogue, detail, source references and bounded explicit import. Additional repositories, source-backed tissue/disease annotations, local publication links and broader discovery remain. |
 | 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations. No general coverage of all future node/edge kinds. |
 | 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; production-scale performance and additional entity types remain. |
 | 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries and monitoring through CLI/protected API. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
@@ -136,3 +136,10 @@ Phase 10 adds bounded PubMed keyword metadata and explicit variant literature
 references through existing search, detail, relationships and graph. Bounded
 real PubMed imports are tested on a restored database before public loading.
 See [literature metadata](LITERATURE_METADATA.md).
+
+## Release 0.18 follow-up
+
+Phase 11 begins with public GEO Series metadata discovery, explicit bounded import,
+source access and unified search. No experimental files or sample-level/clinical
+analyses are fetched or inferred. Other repositories and graph integration remain.
+See [datasets](DATASETS.md).

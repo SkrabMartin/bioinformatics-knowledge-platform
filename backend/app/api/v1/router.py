@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     data_quality,
+    datasets,
     diseases,
     genes,
     graph,
@@ -39,3 +40,5 @@ router.include_router(data_quality.router)
 router.include_router(phenotypes.router)
 
 router.include_router(variant_placements.router)
+
+router.include_router(datasets.router)

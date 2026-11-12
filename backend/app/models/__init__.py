@@ -1,3 +1,4 @@
+from app.models.dataset import Dataset
 from app.models.disease import Disease
 from app.models.gene import Gene
 from app.models.gene_context import GeneAlias, GeneGenomicLocation
@@ -38,6 +39,7 @@ from app.models.variant_placement import VariantPlacement
 __all__ = [
     "BiologicalProcess",
     "CellularComponent",
+    "Dataset",
     "Disease",
     "DiseasePhenotype",
     "Gene",

@@ -27,6 +27,7 @@ from sqlalchemy.sql import ColumnElement, Select
 from app.models import (
     BiologicalProcess,
     CellularComponent,
+    Dataset,
     Disease,
     Gene,
     GeneAlias,
@@ -54,6 +55,7 @@ from app.services.errors import ApplicationError, InvalidInputError
 MAX_QUERY_LENGTH = 200
 MAX_DESCRIPTION_LENGTH = 320
 ENTITY_ORDER = (
+    SearchEntityType.DATASET,
     SearchEntityType.GENE,
     SearchEntityType.PROTEIN,
     SearchEntityType.ORGANISM,
@@ -523,7 +525,24 @@ class SearchService:
             ),
             identifiers=(Phenotype.hpo_id,),
         )
+        dataset = self._catalog_statement(
+            SearchEntityType.DATASET,
+            query,
+            terms,
+            identity=Dataset.id,
+            primary=Dataset.accession,
+            secondary=Dataset.title,
+            description=Dataset.description,
+            source=Dataset.source,
+            fields=(
+                ("accession", Dataset.accession),
+                ("title", Dataset.title),
+                ("description", Dataset.description),
+            ),
+            identifiers=(Dataset.accession,),
+        )
         result = {
+            SearchEntityType.DATASET: dataset,
             SearchEntityType.PHENOTYPE: phenotype,
             SearchEntityType.TRANSCRIPT: transcript,
             SearchEntityType.DISEASE: disease,
@@ -717,6 +736,7 @@ def _result_from_row(row: RowMapping, query: str, terms: Sequence[str]) -> Searc
             f"/{entity_type.value.replace('_', '-')}/{row['entity_id']}"
             if entity_type
             in (
+                SearchEntityType.DATASET,
                 SearchEntityType.PHENOTYPE,
                 SearchEntityType.PUBLICATION,
                 SearchEntityType.DISEASE,

@@ -1,5 +1,9 @@
 # Architecture
 
+[Dataset discovery](docs/DATASETS.md) introduces repository-scoped metadata identity,
+a bounded GEO Series adapter, atomic source refresh and search/catalogue views.
+
+
 [Literature metadata](docs/LITERATURE_METADATA.md) adds bounded source keywords and
 typed publication–variant assertions to existing ingestion/search/graph layers.
 
@@ -17,7 +21,7 @@ Parent identity/taxonomy guards preserve source context under application update
 disease assertions through additive tables and protected administrative writes.
 
 
-[Unified search](docs/UNIFIED_SEARCH.md) projects twelve entity categories into a
+[Unified search](docs/UNIFIED_SEARCH.md) projects thirteen entity categories into a
 common SQL result shape, with per-type counts, bounded paging and query deadlines.
 
 
@@ -30,7 +34,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.17.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.18.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).
