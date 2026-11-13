@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.19.0
+## Coverage updated through 0.20.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -30,10 +30,10 @@ take priority over code volume or premature infrastructure.
 | 7 | Diseases and Phenotypes | Partial: diseases and explicit gene/variant disease assertions. Sourced phenotype terms and qualified disease annotations are implemented; automatic HPO ingestion, disease ontology term modeling and broader phenotype annotation scope remain. |
 | 8 | Genetic Variants | Partial: basic variants and gene/disease assertions. Sourced assembly-aware literal placements and parent identity/taxonomy guards are implemented. Clinical significance/frequency, protein/publication links, reference validation and biological normalization remain absent. |
 | 9 | Pathways and Biological Ontologies | Partial: pathways, GO biological process/molecular function and sourced direct annotations/is_a. Cellular components, sourced direct protein annotations and same-aspect hierarchy/graph/search are supported; automatic ontology ingestion and enrichment remain absent. |
-| 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. Source-supplied keywords and variant literature links are implemented. No full-text corpus, drug/dataset links, NLP extraction or complete source snapshot history. |
+| 10 | Publication and Literature System | Partial: PubMed metadata and explicit gene/protein/disease links. Source-supplied keywords and variant literature links are implemented. No full-text corpus or drug links; exact dataset citation links now exist, but no NLP extraction or complete source snapshot history. |
 | 11 | Dataset Discovery | Initial GEO Series metadata model, catalogue, detail, source references and bounded explicit import. Additional repositories, source-backed tissue/disease annotations, broader discovery remain. Exact source-reported local publication links are supported. |
 | 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations, now including first observed GEO dataset citation links. No general coverage of all future node/edge kinds. |
-| 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; production-scale performance and additional entity types remain. |
+| 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; visible JSON/GraphML view exports preserve source evidence and partial-view context. Production-scale performance and additional entity types remain. |
 | 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries and monitoring through CLI/protected API. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
 | 15 | Advanced Search Infrastructure | Not implemented; PostgreSQL remains the search backend. |
 | 16 | Bioinformatics Analysis Engine | Not implemented; no fabricated statistics. |
@@ -49,7 +49,7 @@ take priority over code volume or premature infrastructure.
 | 26 | User Accounts and Personal Workspace | Not implemented; a server admin bearer token is not a user-account system. |
 | 27 | Alerts and Research Monitoring | Not implemented. |
 | 28 | Programmatic API | Partial: versioned REST API and local CLI. No public SDK/R package or full programmatic product. |
-| 29 | Export and Interoperability | Partial JSON API only; no dedicated export subsystem. |
+| 29 | Export and Interoperability | Partial JSON API and visible graph JSON/GraphML downloads; no general bulk export subsystem. |
 | 30 | Workflow and Analysis System | Not implemented. |
 | 31 | Reproducible Research | Partial source context only; no reproducible analysis runs or complete source snapshots. |
 | 32 | Machine Learning Foundation | Not implemented. |
@@ -151,3 +151,10 @@ citations resolved by exact local PMID. First observed evidence is retained acro
 metadata refresh; catalogue detail and graph allow navigation in both directions.
 This does not complete Phase 12 or add inferred gene/disease/organism edges, graph
 analytics, scheduling or a general graph storage engine. See DATASET_GRAPH.md.
+
+## Release 0.20.0 — Phase 13 explorer follow-up
+
+The visible graph can be downloaded as JSON/GraphML with provenance, traversal
+limits and partial-view notes. This also advances a small part of Phase 29,
+without implementing general exports or reproducible analysis history.
+See GRAPH_EXPORT.md.

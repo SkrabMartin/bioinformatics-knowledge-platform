@@ -147,3 +147,17 @@ writes. All pre-existing table counts were preserved apart from the explicit
 additional publication: three genes, three proteins, 128 transcripts and one
 dataset remain. The two previous PubMed records remain present.
 See DATASET_GRAPH.md for contracts and limitations.
+
+## Visible graph export — 2026-11-13 / release 0.20.0
+
+The graph explorer now downloads the visible graph as JSON/GraphML with complete
+source assertions and partial-view metadata. No records were imported or changed
+for this release: three genes, three proteins, 128 transcripts, three publications,
+one dataset and one dataset citation remain. All checked table counts matched
+the pre-deployment backup. Schema remains 20261112_0016.
+
+The application exporter serialized the real GSE10072 citation graph to both
+formats; a separate XML parser confirmed its two nodes, one edge and provenance.
+Public HTTPS checks verified updated frontend/chunk assets, existing reads, graph
+filters/bounds and blocked writes. This is not a claim of a browser download E2E
+test or universal external graph-tool compatibility. See GRAPH_EXPORT.md.

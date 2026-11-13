@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { ProvenanceBadge } from "../../components/ProvenanceBadge";
 import { ErrorState, LoadingState } from "../../components/States";
+import { captureGraph, downloadGraph } from "./export";
 import { GraphCanvas } from "./GraphCanvas";
 import { entityTypes, truncationLabels } from "./types";
 import type { GraphSelection } from "./types";
@@ -11,6 +12,7 @@ import { useGraphExplorer } from "./useGraphExplorer";
 export function GraphWorkspace({ resource }: { resource: string }) {
   const { graph, loading, error, retry, expand, collapse, expanding, expansionError } =
     useGraphExplorer(resource);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [selected, setSelected] = useState<GraphSelection | null>(null);
   if (loading) return <LoadingState label="Loading sourced graph" />;
   if (error) return <ErrorState message={error} onRetry={retry} />;
@@ -22,6 +24,15 @@ export function GraphWorkspace({ resource }: { resource: string }) {
   const edge =
     selected?.kind === "edge" ? graph.edges.find((item) => item.id === selected.id) : null;
   const activeSelection = edge ? selected : node ? { kind: "node" as const, id: node.id } : null;
+  function exportView(format: "json" | "graphml") {
+    if (!graph || expanding) return;
+    try {
+      downloadGraph(captureGraph(graph, resource), format);
+      setExportError(null);
+    } catch (reason) {
+      setExportError(reason instanceof Error ? reason.message : "Unable to export this view.");
+    }
+  }
   return (
     <section className="graph-workspace" aria-label="Knowledge graph workspace">
       <div className="graph-summary" aria-live="polite">
@@ -32,6 +43,20 @@ export function GraphWorkspace({ resource }: { resource: string }) {
           Reset view
         </button>
       </div>
+      <div className="graph-summary" aria-label="Export visible graph">
+        <button type="button" disabled={!!expanding} onClick={() => exportView("json")}>
+          Download JSON
+        </button>
+        <button type="button" disabled={!!expanding} onClick={() => exportView("graphml")}>
+          Download GraphML
+        </button>
+      </div>
+      <p className="context-note">
+        Downloads include only visible nodes and relationships, their source evidence and view
+        limits. Expanded or collapsed views may differ from the initial request. This is a partial
+        research view, not a complete database export or a replayable analysis.
+      </p>
+      {exportError && <p role="alert">{exportError}</p>}
       <div className="graph-legend" aria-label="Graph node type legend">
         {entityTypes.map((type) => (
           <span key={type} className={`graph-type graph-type--${type}`}>

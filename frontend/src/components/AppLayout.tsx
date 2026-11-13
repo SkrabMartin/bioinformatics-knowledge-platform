@@ -59,7 +59,7 @@ export function AppLayout() {
           <strong>BioKnowledge Platform</strong>
           <p>Open infrastructure for traceable biological knowledge.</p>
         </div>
-        <p>v0.19 · Dataset citation graph</p>
+        <p>v0.20 · Graph view export</p>
       </footer>
     </div>
   );

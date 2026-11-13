@@ -19,6 +19,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.20.0] - 2026-11-13
+
+### Added
+
+- Local JSON/GraphML downloads of the visible explored graph, preserving typed identities, complete source assertions, direction and partial-view context.
+- Explicit scope, browser export timestamp, application version and initial request metadata; source dates remain distinct and collapse omits hidden branches.
+- Accessible failure reporting, expansion-aware controls, escaped namespaced XML and JSON fallback for unsupported XML text. No database schema changes or additional dependencies.
+
+### Verified
+
+- 230 backend tests on isolated PostgreSQL, fresh/restored migrations, Alembic comparison, Ruff and strict mypy passed; schema head remains 20261112_0016.
+- Frontend passed 62 tests, formatting, lint, typecheck and production build, including evidence/XML round trips, collapsed scope, partial status, download lifecycle and accessible errors.
+- Restored backup counts matched live data and retained 0.19 rollback images passed smoke checks.
+
+- The real public dataset citation graph exported to JSON/GraphML and passed an independent XML parse with source evidence preserved. Deployed frontend/chunk assets, API/graph behavior and blocked writes passed HTTPS checks; checked database totals stayed identical.
+
 ## [0.19.0] - 2026-11-12
 
 ### Added
