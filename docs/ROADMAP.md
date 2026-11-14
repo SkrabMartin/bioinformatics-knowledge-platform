@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.23.0
+## Coverage updated through 0.24.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -37,7 +37,7 @@ take priority over code volume or premature infrastructure.
 | 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries, queued GEO metadata and public aggregate monitoring; detailed jobs remain protected. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
 | 15 | Advanced Search Infrastructure | Initial opt-in PostgreSQL indexed name hints; no separate search engine/index, scale infrastructure or semantic retrieval. |
 | 16 | Bioinformatics Analysis Engine | Initial exact local gene-list overlap with coverage, set counts and descriptive Jaccard index. Enrichment/statistical testing remain absent. |
-| 17 | Genomics Toolkit | Not implemented; placement metadata is a prerequisite, not a genome browser or file-analysis toolkit. |
+| 17 | Genomics Toolkit | Initial indexed local transcript-span interval browser with explicit coordinate/reference identity. No sequence/file processing, exon model, liftover or full genome browser. |
 | 18 | Transcriptomics | Not implemented. |
 | 19 | Proteomics and Protein Interactions | Partial: proteins and sourced protein interactions. Abundance, families, domains and PTMs absent. |
 | 20 | Structural Biology | Not implemented. |
@@ -178,3 +178,9 @@ A bounded read-only comparison resolves gene lists exactly within one organism
 and reports intersection, unique sets and Jaccard over resolved records. Unknowns,
 method version and current provenance are explicit. No enrichment or p-values are
 fabricated from the small catalogue. See GENE_OVERLAP.md.
+
+## Release 0.24.0 — Phase 17 foundation
+
+Stored transcript spans can be browsed against exact assembly/region/taxonomy
+with explicit coordinate conversion, source evidence and bounded pagination.
+Sequence/exon analysis and general file tools remain absent. See GENOMIC_INTERVALS.md.

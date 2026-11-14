@@ -6,6 +6,7 @@ from app.api.v1 import (
     datasets,
     diseases,
     genes,
+    genomics,
     graph,
     import_jobs,
     import_status,
@@ -48,3 +49,5 @@ router.include_router(datasets.router)
 router.include_router(import_status.router)
 
 router.include_router(analysis.router)
+
+router.include_router(genomics.router)

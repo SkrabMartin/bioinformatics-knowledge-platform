@@ -26,6 +26,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.24.0] - 2026-11-14
+
+### Added
+
+- Exact organism/assembly/sequence transcript interval queries, normalized from explicit 1-based closed or 0-based half-open input, with strand filters, pagination and source/version context.
+- Flat interval-browser page with examples from stored transcripts, clear span/coordinate interpretation and honest empty coverage states. No reference, exon, sequence, liftover or variant effect is inferred.
+- Additive composite transcript span index through migration 20261114_0018; no biological records or identifiers are changed. No new dependency or source import.
+
+### Verified
+
+- 283 backend tests on isolated PostgreSQL, Ruff, strict mypy, fresh/restored migrations and Alembic comparison passed. Frontend passed 76 tests, formatting, lint, typecheck and production build.
+- A restored real transcript matched equivalent coordinate queries identically; wrong reference context was excluded. Original row counts and previous application reads remained compatible with index migration 20261114_0018.
+
+- Public HTTPS checks passed real interval equivalence, reference isolation, bounds, prior API reads and blocked writes. Live original table counts are preserved; deployed schema is 20261114_0018. Backup restore and previous application reads were verified.
+
 ## [0.23.0] - 2026-11-14
 
 ### Added

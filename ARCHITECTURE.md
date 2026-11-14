@@ -1,5 +1,9 @@
 # Architecture
 
+[Transcript interval queries](docs/GENOMIC_INTERVALS.md) add explicit coordinate
+normalization, exact reference filtering and a composite span index. Bounded
+read-only queries preserve source annotations and infer no sequence/exon effects.
+
 [Gene overlap analysis](docs/GENE_OVERLAP.md) adds a read-only, bounded exact
 identity query and deterministic set operations. Current-record reports include
 input mappings, method/software version and source context without stored runs.
@@ -53,7 +57,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.23.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.24.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).

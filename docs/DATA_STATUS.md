@@ -203,3 +203,22 @@ required taxonomy/version validation, frontend assets and prior API behavior.
 All checked original table counts and schema 20261114_0017 remain unchanged.
 No biological import, stored analysis run or background job was created.
 See GENE_OVERLAP.md for coverage, exact identity and GET-input visibility.
+
+## Local transcript intervals — 2026-11-14 / release 0.24.0
+
+The initial Phase 17 page queries existing Ensembl transcript spans using exact
+organism, assembly and sequence-region labels. Public HTTPS checks confirmed
+that equivalent closed and half-open queries return identical stored matches
+and overlap lengths; a different assembly returns no matches. Results describe
+whole transcript spans, including introns, rather than exon or RNA lengths.
+
+Migration 20261114_0018 adds only an index. All checked original table counts
+remain unchanged: three genes, three proteins, 128 transcripts, three
+publications, one dataset and its one citation. No import or background worker
+was enabled. The pre-deployment backup was restored and verified on an isolated
+database; the previous application can still read the upgraded schema.
+
+Public checks passed the new route, coordinate and pagination validation,
+existing catalogue/search/graph/analysis reads and blocked writes. Deployed CSS
+matches the retained research frontend. This is API/asset verification and DOM
+testing, not a manual browser E2E claim. See GENOMIC_INTERVALS.md.

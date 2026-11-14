@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import { GenomicIntervalsPage } from "./pages/GenomicIntervalsPage";
 import { GeneOverlapPage } from "./pages/GeneOverlapPage";
 import { ImportStatusPage } from "./pages/ImportStatusPage";
 import { DataQualityPage } from "./pages/DataQualityPage";
@@ -95,6 +96,7 @@ export function App() {
           }
         />
         <Route path="variant/:id" element={<VariantDetailPage />} />
+        <Route path="genomics/intervals" element={<GenomicIntervalsPage />} />
         <Route path="analysis/gene-overlap" element={<GeneOverlapPage />} />
         <Route path="import-status" element={<ImportStatusPage />} />
         <Route path="data-quality" element={<DataQualityPage />} />

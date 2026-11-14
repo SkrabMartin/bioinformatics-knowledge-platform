@@ -1,6 +1,14 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -14,6 +22,13 @@ if TYPE_CHECKING:
 class Transcript(ProvenanceMixin, Base):
     __tablename__ = "transcripts"
     __table_args__ = (
+        Index(
+            "ix_transcripts_interval",
+            "assembly_name",
+            "sequence_region",
+            "start_position",
+            "end_position",
+        ),
         UniqueConstraint("ensembl_transcript_id", name="uq_transcripts_ensembl_id"),
         CheckConstraint("start_position >= 1", name="start_positive"),
         CheckConstraint("end_position >= start_position", name="position_order"),

@@ -15,6 +15,7 @@ const navigation = [
   ["/pathways", "Pathways"],
   ["/graph", "Graph"],
   ["/analysis/gene-overlap", "Gene overlap"],
+  ["/genomics/intervals", "Genomic intervals"],
   ["/data-quality", "Data quality"],
   ["/import-status", "Import activity"],
   ["/about", "About"],
@@ -68,7 +69,7 @@ export function AppLayout() {
       </main>
       <footer>
         <div>
-          <span>BioKnowledge Platform v0.23</span>
+          <span>BioKnowledge Platform v0.24</span>
           <Link to="/about">Scope and data policy</Link>
         </div>
       </footer>
