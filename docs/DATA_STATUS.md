@@ -176,3 +176,16 @@ The deployed migration is 20261114_0017. All checked original table counts remai
 unchanged. Public HTTPS verified aggregate status/privacy, protected detailed
 jobs, existing graph/catalogue reads and blocked writes. The deployed CSS matches
 the retained flat research frontend. See DATASET_IMPORT_JOBS.md.
+
+## Similar stored names — 2026-11-14 / release 0.22.0
+
+Optional name hints now use existing PostgreSQL trigram indexes over stored
+gene/protein names, organism names and publication titles. The real stored
+Homo sapiens record is offered for the text typo Homo sapines; the original
+search query/counts are not rewritten. Identifiers are outside the hint matcher.
+
+Public HTTPS checks passed name hints, scope/limit validation, ordinary search,
+prior catalogue/graph/import-activity behavior and blocked writes. Checked table
+counts and schema revision 20261114_0017 are unchanged. No biological import,
+new worker or external search cluster was enabled; deployed CSS matches the
+retained research frontend. See NAME_HINTS.md.

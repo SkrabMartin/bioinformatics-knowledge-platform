@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.21.0
+## Coverage updated through 0.22.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -35,7 +35,7 @@ take priority over code volume or premature infrastructure.
 | 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations, now including first observed GEO dataset citation links. No general coverage of all future node/edge kinds. |
 | 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; visible JSON/GraphML view exports preserve source evidence and partial-view context. Production-scale performance and additional entity types remain. |
 | 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries, queued GEO metadata and public aggregate monitoring; detailed jobs remain protected. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
-| 15 | Advanced Search Infrastructure | Not implemented; PostgreSQL remains the search backend. |
+| 15 | Advanced Search Infrastructure | Initial opt-in PostgreSQL indexed name hints; no separate search engine/index, scale infrastructure or semantic retrieval. |
 | 16 | Bioinformatics Analysis Engine | Not implemented; no fabricated statistics. |
 | 17 | Genomics Toolkit | Not implemented; placement metadata is a prerequisite, not a genome browser or file-analysis toolkit. |
 | 18 | Transcriptomics | Not implemented. |
@@ -165,3 +165,9 @@ GEO Series metadata now uses existing durable jobs with cancellation, retry and
 idempotent replay. Read-only aggregate monitoring is exposed in the retained new
 frontend. No heartbeat, scheduler or distributed processing is introduced.
 See DATASET_IMPORT_JOBS.md.
+
+## Release 0.22.0 — initial Phase 15 follow-up
+
+Opt-in lexical name hints use existing PostgreSQL trigram indexes and keep
+ordinary search and identifier matching unchanged. A separate search cluster
+remains unjustified for the current small catalogue. See NAME_HINTS.md.

@@ -26,6 +26,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.22.0] - 2026-11-14
+
+### Added
+
+- Explicit similar-name hints for gene/protein names, organism names and publication titles through existing PostgreSQL pg_trgm indexes, with type filters, deduplication, source labels and bounded query time.
+- Opt-in search-page control with conservative name-only validation, separate lexical scores and safe errors. Normal search counts, identifier lookup and autocomplete remain unchanged.
+- No schema change, external search service, data import or additional dependency; the flat research frontend is retained.
+
+### Verified
+
+- The complete 254-test backend suite passed on isolated PostgreSQL, followed by all three PostgreSQL name-hint checks including an additional GIN-plan eligibility test (255 distinct backend tests). Ruff, strict mypy, fresh/restored migrations and model comparison passed; schema remains 20261114_0017.
+- Frontend passed 68 tests, formatting, lint, typecheck and build. A restored real-data clone returned the stored Homo sapiens record for Homo sapines while normal search remained unchanged. Original table counts and previous application reads were preserved.
+
+- Deployed HTTPS checks verified real name hints, identifier/scope/limit rejection, unchanged regular search and prior graph/catalogue/import status. Checked table counts/schema stayed unchanged and deployed CSS matched the retained frontend.
+
 ## [0.21.0] - 2026-11-14
 
 ### Added

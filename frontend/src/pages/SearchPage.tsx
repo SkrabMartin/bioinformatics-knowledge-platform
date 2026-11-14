@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 
+import { SimilarNames } from "../components/SimilarNames";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { SearchResultCard } from "../components/SearchResultCard";
@@ -52,6 +53,8 @@ export function SearchPage() {
         description="Find locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO terms, organisms, publications and datasets. Results retain their source context."
         searchValue={query}
       />
+
+      {query && <SimilarNames key={`${query}:${category}`} query={query} category={category} />}
 
       {!query && (
         <section className="search-intro">
