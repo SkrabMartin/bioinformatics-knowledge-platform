@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.22.0
+## Coverage updated through 0.23.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -36,7 +36,7 @@ take priority over code volume or premature infrastructure.
 | 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; visible JSON/GraphML view exports preserve source evidence and partial-view context. Production-scale performance and additional entity types remain. |
 | 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries, queued GEO metadata and public aggregate monitoring; detailed jobs remain protected. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
 | 15 | Advanced Search Infrastructure | Initial opt-in PostgreSQL indexed name hints; no separate search engine/index, scale infrastructure or semantic retrieval. |
-| 16 | Bioinformatics Analysis Engine | Not implemented; no fabricated statistics. |
+| 16 | Bioinformatics Analysis Engine | Initial exact local gene-list overlap with coverage, set counts and descriptive Jaccard index. Enrichment/statistical testing remain absent. |
 | 17 | Genomics Toolkit | Not implemented; placement metadata is a prerequisite, not a genome browser or file-analysis toolkit. |
 | 18 | Transcriptomics | Not implemented. |
 | 19 | Proteomics and Protein Interactions | Partial: proteins and sourced protein interactions. Abundance, families, domains and PTMs absent. |
@@ -171,3 +171,10 @@ See DATASET_IMPORT_JOBS.md.
 Opt-in lexical name hints use existing PostgreSQL trigram indexes and keep
 ordinary search and identifier matching unchanged. A separate search cluster
 remains unjustified for the current small catalogue. See NAME_HINTS.md.
+
+## Release 0.23.0 — Phase 16 foundation
+
+A bounded read-only comparison resolves gene lists exactly within one organism
+and reports intersection, unique sets and Jaccard over resolved records. Unknowns,
+method version and current provenance are explicit. No enrichment or p-values are
+fabricated from the small catalogue. See GENE_OVERLAP.md.

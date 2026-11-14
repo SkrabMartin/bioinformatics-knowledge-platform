@@ -26,6 +26,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.23.0] - 2026-11-14
+
+### Added
+
+- Exact local gene-list overlap through a read-only bounded API and analysis page: intersection, left/right-only sets, resolved union and descriptive Jaccard index.
+- Explicit organism/identifier namespaces, case-sensitive symbol/registry matching, duplicate counts, unresolved inputs and partial coverage. Empty resolved unions return an undefined index; no enrichment, p-value or biological relationship is inferred.
+- Full JSON report downloads with inputs/mappings, method/software version and current gene source metadata. Existing controls/tables are retained; textarea styling extends the flat frontend.
+- No schema change, biological import or additional dependency. A shared application version constant keeps analysis metadata and API version aligned.
+
+### Verified
+
+- 268 backend tests on isolated PostgreSQL, Ruff, strict mypy, fresh/restored migrations and Alembic model comparison passed; frontend passed 72 tests, formatting, lint, typecheck and production build.
+- Restored real data returned BRCA1 as the shared gene, union size three and Jaccard 1/3 in symbol, NCBI and Ensembl namespaces. Original table counts and prior application reads were preserved. Schema remains 20261114_0017.
+
+- Deployed HTTPS verified real overlap, registry resolution, empty/unknown handling, bounds, frontend assets and existing catalogue/graph/search/import activity. Checked database totals and schema stayed unchanged; public writes remain blocked.
+
 ## [0.22.0] - 2026-11-14
 
 ### Added

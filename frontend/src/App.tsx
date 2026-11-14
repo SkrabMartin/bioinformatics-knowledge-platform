@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import { GeneOverlapPage } from "./pages/GeneOverlapPage";
 import { ImportStatusPage } from "./pages/ImportStatusPage";
 import { DataQualityPage } from "./pages/DataQualityPage";
 import { PhenotypesPage } from "./pages/PhenotypesPage";
@@ -94,6 +95,7 @@ export function App() {
           }
         />
         <Route path="variant/:id" element={<VariantDetailPage />} />
+        <Route path="analysis/gene-overlap" element={<GeneOverlapPage />} />
         <Route path="import-status" element={<ImportStatusPage />} />
         <Route path="data-quality" element={<DataQualityPage />} />
         <Route path="about" element={<AboutPage />} />

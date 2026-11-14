@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    analysis,
     data_quality,
     datasets,
     diseases,
@@ -45,3 +46,5 @@ router.include_router(variant_placements.router)
 router.include_router(datasets.router)
 
 router.include_router(import_status.router)
+
+router.include_router(analysis.router)

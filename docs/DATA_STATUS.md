@@ -189,3 +189,17 @@ prior catalogue/graph/import-activity behavior and blocked writes. Checked table
 counts and schema revision 20261114_0017 are unchanged. No biological import,
 new worker or external search cluster was enabled; deployed CSS matches the
 retained research frontend. See NAME_HINTS.md.
+
+## Gene overlap analysis — 2026-11-14 / release 0.23.0
+
+The public analysis page now compares explicitly submitted exact local gene lists.
+The TP53/BRCA1 vs BRCA1/PINK1 example has shared BRCA1, union size three and a
+descriptive Jaccard index of 1/3. These are set operations over stored identities,
+not a new biological relationship or statistical enrichment result.
+
+Public HTTPS checks verified the real example, registered NCBI/Ensembl resolution,
+unknown identifiers yielding an undefined index for an empty resolved union,
+required taxonomy/version validation, frontend assets and prior API behavior.
+All checked original table counts and schema 20261114_0017 remain unchanged.
+No biological import, stored analysis run or background job was created.
+See GENE_OVERLAP.md for coverage, exact identity and GET-input visibility.

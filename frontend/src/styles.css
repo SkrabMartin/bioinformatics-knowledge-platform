@@ -81,6 +81,7 @@ code,
 /* Controls */
 button,
 input,
+textarea,
 select {
   font: inherit;
   color: inherit;
@@ -139,6 +140,7 @@ button:disabled {
   cursor: not-allowed;
 }
 input:not([type="checkbox"]),
+textarea,
 select {
   min-height: 36px;
   width: 100%;
@@ -1467,4 +1469,8 @@ mark {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+textarea {
+  resize: vertical;
 }

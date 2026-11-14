@@ -1,5 +1,9 @@
 # Architecture
 
+[Gene overlap analysis](docs/GENE_OVERLAP.md) adds a read-only, bounded exact
+identity query and deterministic set operations. Current-record reports include
+input mappings, method/software version and source context without stored runs.
+
 [Similar-name hints](docs/NAME_HINTS.md) reuse existing PostgreSQL trigram indexes
 through a separate bounded endpoint. Ordinary search/identifier resolution are
 unchanged; no external index is introduced for the small current catalogue.
@@ -49,7 +53,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.22.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.23.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).
