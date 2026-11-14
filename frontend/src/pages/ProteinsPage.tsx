@@ -15,7 +15,7 @@ const columns: Column<Protein>[] = [
     heading: "Protein",
     render: (protein) => (
       <div className="primary-cell">
-        <Link className="entity-link" to={`/protein/${encodeURIComponent(protein.accession)}`}>
+        <Link className="entity-link mono" to={`/protein/${encodeURIComponent(protein.accession)}`}>
           {protein.accession}
         </Link>
         <span>{protein.name}</span>

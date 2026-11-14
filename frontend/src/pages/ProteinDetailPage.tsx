@@ -33,6 +33,7 @@ export function ProteinDetailPage() {
         title={protein.accession}
         subtitle={protein.name}
         organism={protein.organism.scientific_name}
+        mono
       />
       <div className="detail-content">
         <DetailSection title="Overview">

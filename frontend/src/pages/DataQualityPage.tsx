@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 
 type QualityReport = {
@@ -41,7 +41,7 @@ export function DataQualityPage() {
         external lookups run here.
       </p>
       <form
-        className="publication-controls"
+        className="form-row"
         onSubmit={(event) => {
           event.preventDefault();
           setParams({ refresh_after_days: String(new FormData(event.currentTarget).get("days")) });
@@ -65,24 +65,24 @@ export function DataQualityPage() {
       {error && <ErrorState message={error} onRetry={retry} />}
       {!loading && !error && data && (
         <>
-          <p>
+          <p className="context-note">
             {data.scope} {data.fixture_policy}
           </p>
-          <p>
+          <p className="context-note">
             Review interval: {new Date(data.started_at).toLocaleString()} –{" "}
             {new Date(data.completed_at).toLocaleString()}. Concurrent imports may change counts
             during the review.
           </p>
           {!data.checks.some((check) => check.assessed > 0) && (
-            <p className="empty-inline">
-              No records assessed. An empty catalogue does not establish data quality.
-            </p>
+            <EmptyState title="No records assessed">
+              An empty catalogue does not establish data quality.
+            </EmptyState>
           )}
           <ul className="related-list">
             {data.checks.map((check) => (
               <li key={check.code}>
                 <h2>{check.title}</h2>
-                <p>
+                <p className="mono">
                   {check.affected} affected / {check.assessed} assessed ·{" "}
                   {check.severity === "info"
                     ? "Coverage / review"

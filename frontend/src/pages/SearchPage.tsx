@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { SearchResultCard } from "../components/SearchResultCard";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useSearchResults } from "../hooks/useSearchResults";
 import type { SearchCounts, SearchEntityType } from "../types/entities";
 
@@ -48,15 +48,14 @@ export function SearchPage() {
     <div className="page-container search-page">
       <PageHeader
         eyebrow="Search workspace"
-        title={query ? `Search: ${query}` : "Search biological knowledge"}
+        title={query ? `Search: ${query}` : "Search"}
         description="Find locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO terms, organisms, publications and datasets. Results retain their source context."
         searchValue={query}
       />
 
       {!query && (
         <section className="search-intro">
-          <span className="eyebrow">Start with a known identifier</span>
-          <h2>Follow the evidence from a single query.</h2>
+          <h2>Example queries</h2>
           <p>
             Try a gene symbol, UniProt accession, NCBI Gene ID, Ensembl ID, or organism name. Search
             only returns records currently stored in this platform.
@@ -64,7 +63,7 @@ export function SearchPage() {
           <div className="example-queries">
             {["TP53", "P04637", "Homo sapiens"].map((example) => (
               <Link key={example} to={`/search?q=${encodeURIComponent(example)}`}>
-                {example} <span aria-hidden="true">↗</span>
+                {example}
               </Link>
             ))}
           </div>
@@ -128,17 +127,12 @@ export function SearchPage() {
                       />
                     </>
                   ) : (
-                    <div className="search-empty">
-                      <span className="state-symbol" aria-hidden="true">
-                        ∅
-                      </span>
-                      <div>
-                        <h3>No matching {category ?? "biological"} records</h3>
-                        <p>
-                          Try a different symbol, accession, or name. Only records in the local
-                          database can appear here.
-                        </p>
-                        {category && (
+                    <EmptyState title={`No matching ${category ?? "biological"} records`}>
+                      Try a different symbol, accession, or name. Only records in the local database
+                      can appear here.
+                      {category && (
+                        <>
+                          <br />
                           <button
                             className="button button--small"
                             onClick={() => updateLocation(null, 1)}
@@ -146,9 +140,9 @@ export function SearchPage() {
                           >
                             View all categories
                           </button>
-                        )}
-                      </div>
-                    </div>
+                        </>
+                      )}
+                    </EmptyState>
                   )}
                 </div>
               </div>

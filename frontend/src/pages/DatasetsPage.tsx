@@ -1,11 +1,49 @@
 import { Link, useSearchParams } from "react-router-dom";
+import { DataTable, type Column } from "../components/DataTable";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { ProvenanceBadge } from "../components/ProvenanceBadge";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 import type { Page } from "../types/entities";
 import type { Dataset } from "../types/datasets";
+
+const columns: Column<Dataset>[] = [
+  {
+    key: "accession",
+    heading: "Accession",
+    render: (record) => <span className="mono">{record.accession}</span>,
+  },
+  {
+    key: "title",
+    heading: "Title",
+    render: (record) => (
+      <Link className="entity-link" to={`/dataset/${record.id}`}>
+        {record.title}
+      </Link>
+    ),
+  },
+  {
+    key: "experiment",
+    heading: "Experiment type",
+    render: (record) => record.experiment_types.join("; ") || "Not supplied",
+  },
+  {
+    key: "samples",
+    heading: "Repository samples",
+    render: (record) =>
+      record.sample_count === null ? (
+        "Unavailable"
+      ) : (
+        <span className="mono">{record.sample_count}</span>
+      ),
+  },
+  {
+    key: "source",
+    heading: "Source",
+    render: (record) => <ProvenanceBadge source={record.source} />,
+  },
+];
 
 export function DatasetsPage() {
   const [params, setParams] = useSearchParams();
@@ -24,7 +62,7 @@ export function DatasetsPage() {
         showSearch={false}
       />
       <form
-        className="publication-controls"
+        className="form-row"
         onSubmit={(event) => {
           event.preventDefault();
           const q = String(new FormData(event.currentTarget).get("q") ?? "").trim();
@@ -41,29 +79,18 @@ export function DatasetsPage() {
       {error && <ErrorState message={error} onRetry={retry} />}
       {!loading && !error && data && (
         <>
-          {!data.items.length && (
-            <p className="empty-inline">
-              No datasets match this view. Only explicitly imported repository metadata appear here.
-            </p>
+          {data.items.length ? (
+            <DataTable
+              caption="Dataset records"
+              columns={columns}
+              items={data.items}
+              getKey={(record) => record.id}
+            />
+          ) : (
+            <EmptyState title="No datasets match this view">
+              Only explicitly imported repository metadata appear here.
+            </EmptyState>
           )}
-          <ul className="related-list">
-            {data.items.map((record) => (
-              <li key={record.id}>
-                <Link to={`/dataset/${record.id}`}>
-                  <strong>
-                    {record.accession} · {record.title}
-                  </strong>
-                </Link>
-                <span>{record.experiment_types.join("; ") || "Experiment type not supplied"}</span>
-                <span>
-                  {record.sample_count === null
-                    ? "Repository sample count unavailable"
-                    : `${record.sample_count} repository sample records`}
-                </span>
-                <ProvenanceBadge source={record.source} />
-              </li>
-            ))}
-          </ul>
           <Pagination
             page={data.page}
             pages={data.pages}

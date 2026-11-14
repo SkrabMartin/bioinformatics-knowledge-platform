@@ -3,7 +3,7 @@ import { useEntity } from "../hooks/useEntity";
 import type { Page, ProvenanceFields } from "../types/entities";
 import { FactGrid, ProvenancePanel } from "./EntityDetail";
 import { Pagination } from "./Pagination";
-import { ErrorState, LoadingState } from "./States";
+import { EmptyState, ErrorState, LoadingState } from "./States";
 
 interface Placement extends ProvenanceFields {
   id: number;
@@ -40,15 +40,14 @@ export function VariantPlacements({ variantId }: { variantId: number }) {
       {!loading && !error && data && (
         <>
           {!data.items.length && (
-            <p className="empty-inline">
-              No sourced genomic placements have been stored for this variant. An rsID or HGVS label
-              alone does not establish an assembly or genomic position.
-            </p>
+            <EmptyState title="No sourced genomic placements have been stored for this variant">
+              An rsID or HGVS label alone does not establish an assembly or genomic position.
+            </EmptyState>
           )}
           <ul className="related-list">
             {data.items.map((record) => (
               <li key={record.id}>
-                <h3>
+                <h3 className="mono">
                   {record.assembly_name} · {record.sequence_accession}:{record.start_position}–
                   {record.end_position}
                 </h3>
@@ -62,16 +61,10 @@ export function VariantPlacements({ variantId }: { variantId: number }) {
                   ]}
                 />
                 <p>
-                  REF:{" "}
-                  <code className="long-form" style={{ overflowWrap: "anywhere" }}>
-                    {record.reference_allele}
-                  </code>
+                  REF: <code>{record.reference_allele}</code>
                 </p>
                 <p>
-                  ALT:{" "}
-                  <code className="long-form" style={{ overflowWrap: "anywhere" }}>
-                    {record.alternate_allele}
-                  </code>
+                  ALT: <code>{record.alternate_allele}</code>
                 </p>
                 <ProvenancePanel record={record} />
               </li>

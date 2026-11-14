@@ -51,7 +51,7 @@ export function DatasetDetailPage() {
         </DetailSection>
         <DetailSection title="Source-reported publications">
           {data.publication_pmids.length ? (
-            <ul>
+            <ul className="related-list mono">
               {data.publication_pmids.map((pmid) => (
                 <li key={pmid}>
                   <a
@@ -73,9 +73,11 @@ export function DatasetDetailPage() {
           </p>
         </DetailSection>
         <DetailSection title="Data access">
-          <a href={data.source_url ?? undefined} target="_blank" rel="noreferrer">
-            Open GEO record for files and access information
-          </a>
+          <p>
+            <a href={data.source_url ?? undefined} target="_blank" rel="noreferrer">
+              Open GEO record for files and access information
+            </a>
+          </p>
           <p className="context-note">
             BKP stores discovery metadata only. Experimental matrices and raw files are not
             downloaded or analyzed here. Tissue, disease and clinical conclusions are not inferred

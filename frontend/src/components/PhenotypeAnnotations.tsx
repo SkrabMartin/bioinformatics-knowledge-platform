@@ -5,7 +5,7 @@ import type { Page } from "../types/entities";
 import type { DiseasePhenotype } from "../types/phenotypes";
 import { ProvenancePanel } from "./EntityDetail";
 import { Pagination } from "./Pagination";
-import { ErrorState, LoadingState } from "./States";
+import { EmptyState, ErrorState, LoadingState } from "./States";
 
 export function PhenotypeAnnotations({ kind, id }: { kind: "disease" | "phenotype"; id: number }) {
   const [page, setPage] = useState(1);
@@ -24,9 +24,9 @@ export function PhenotypeAnnotations({ kind, id }: { kind: "disease" | "phenotyp
       {!loading && !error && data && (
         <>
           {!data.items.length && (
-            <p className="empty-inline">
+            <EmptyState>
               No sourced disease–phenotype annotations have been stored for this record.
-            </p>
+            </EmptyState>
           )}
           <ul className="related-list">
             {data.items.map((record) => (

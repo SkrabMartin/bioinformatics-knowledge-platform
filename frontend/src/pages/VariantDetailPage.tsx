@@ -32,6 +32,8 @@ export function VariantDetailPage() {
         title={variant.rsid ?? variant.hgvs ?? String(variant.id)}
         subtitle={variant.hgvs && variant.rsid ? variant.hgvs : "Sourced variant record"}
         organism={variant.organism.scientific_name}
+        mono
+        monoSubtitle={Boolean(variant.hgvs && variant.rsid)}
       />
       <div className="detail-content">
         <DetailSection title="Overview">

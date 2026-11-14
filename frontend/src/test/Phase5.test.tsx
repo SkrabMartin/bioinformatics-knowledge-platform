@@ -96,11 +96,8 @@ test("publication empty and failure states are actionable", async () => {
   open("/publications");
   expect(await screen.findByText("Unable to load this collection")).toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "Try again" }));
-  expect(
-    await screen.findByText(
-      "No publications match this view. Only imported citations appear here.",
-    ),
-  ).toBeInTheDocument();
+  expect(await screen.findByText("No publications match this view")).toBeInTheDocument();
+  expect(screen.getByText("Only imported citations appear here.")).toBeInTheDocument();
 });
 
 test("gene detail includes sourced publications without inferring claims", async () => {

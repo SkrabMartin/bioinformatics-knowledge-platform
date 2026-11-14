@@ -1,11 +1,39 @@
 import { Link, useSearchParams } from "react-router-dom";
+import { DataTable, type Column } from "../components/DataTable";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { ProvenanceBadge } from "../components/ProvenanceBadge";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 import type { Page } from "../types/entities";
 import type { Phenotype } from "../types/phenotypes";
+
+const columns: Column<Phenotype>[] = [
+  {
+    key: "hpo",
+    heading: "HPO ID",
+    render: (record) => <span className="mono">{record.hpo_id}</span>,
+  },
+  {
+    key: "name",
+    heading: "Term",
+    render: (record) => (
+      <Link className="entity-link" to={`/phenotype/${record.id}`}>
+        {record.name}
+      </Link>
+    ),
+  },
+  {
+    key: "release",
+    heading: "Source release",
+    render: (record) => <span className="mono">{record.source_release}</span>,
+  },
+  {
+    key: "source",
+    heading: "Source",
+    render: (record) => <ProvenanceBadge source={record.source} />,
+  },
+];
 
 export function PhenotypesPage() {
   const [params, setParams] = useSearchParams();
@@ -24,7 +52,7 @@ export function PhenotypesPage() {
         showSearch={false}
       />
       <form
-        className="publication-controls"
+        className="form-row"
         onSubmit={(event) => {
           event.preventDefault();
           const q = String(new FormData(event.currentTarget).get("q") ?? "").trim();
@@ -41,25 +69,19 @@ export function PhenotypesPage() {
       {error && <ErrorState message={error} onRetry={retry} />}
       {!loading && !error && data && (
         <>
-          {!data.items.length && (
-            <p className="empty-inline">
-              No phenotypes match this view. Only explicitly stored source terms appear here;
-              automatic HPO ingestion is not enabled.
-            </p>
+          {data.items.length ? (
+            <DataTable
+              caption="Phenotype records"
+              columns={columns}
+              items={data.items}
+              getKey={(record) => record.id}
+            />
+          ) : (
+            <EmptyState title="No phenotypes match this view">
+              Only explicitly stored source terms appear here; automatic HPO ingestion is not
+              enabled.
+            </EmptyState>
           )}
-          <ul className="related-list">
-            {data.items.map((record) => (
-              <li key={record.id}>
-                <Link to={`/phenotype/${record.id}`}>
-                  <strong>
-                    {record.hpo_id} · {record.name}
-                  </strong>
-                </Link>
-                <span>Release {record.source_release}</span>
-                <ProvenanceBadge source={record.source} />
-              </li>
-            ))}
-          </ul>
           <Pagination
             page={data.page}
             pages={data.pages}

@@ -35,21 +35,23 @@ export function GraphWorkspace({ resource }: { resource: string }) {
   }
   return (
     <section className="graph-workspace" aria-label="Knowledge graph workspace">
-      <div className="graph-summary" aria-live="polite">
-        <strong>
-          {graph.nodes.length} nodes · {graph.edges.length} relationships
-        </strong>
-        <button type="button" onClick={retry} disabled={!!expanding}>
-          Reset view
-        </button>
-      </div>
-      <div className="graph-summary" aria-label="Export visible graph">
-        <button type="button" disabled={!!expanding} onClick={() => exportView("json")}>
-          Download JSON
-        </button>
-        <button type="button" disabled={!!expanding} onClick={() => exportView("graphml")}>
-          Download GraphML
-        </button>
+      <div className="graph-toolbar">
+        <div className="graph-summary" aria-live="polite">
+          <strong>
+            {graph.nodes.length} nodes · {graph.edges.length} relationships
+          </strong>
+          <button type="button" onClick={retry} disabled={!!expanding}>
+            Reset view
+          </button>
+        </div>
+        <div className="graph-summary" aria-label="Export visible graph">
+          <button type="button" disabled={!!expanding} onClick={() => exportView("json")}>
+            Download JSON
+          </button>
+          <button type="button" disabled={!!expanding} onClick={() => exportView("graphml")}>
+            Download GraphML
+          </button>
+        </div>
       </div>
       <p className="context-note">
         Downloads include only visible nodes and relationships, their source evidence and view
@@ -80,7 +82,7 @@ export function GraphWorkspace({ resource }: { resource: string }) {
       <div className="graph-layout">
         <GraphCanvas graph={graph} selected={activeSelection} onSelect={setSelected} />
         <aside className="graph-inspector" aria-label="Graph inspection">
-          <h2>Inspect the evidence</h2>
+          <h2>Inspector</h2>
           <label>
             Inspect node
             <select

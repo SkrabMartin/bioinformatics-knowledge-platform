@@ -28,6 +28,7 @@ export function PhenotypeDetailPage() {
         title={data.name}
         subtitle={data.hpo_id}
         organism="HPO-identified term"
+        monoSubtitle
       />
       <div className="detail-content">
         <DetailSection title="Overview">

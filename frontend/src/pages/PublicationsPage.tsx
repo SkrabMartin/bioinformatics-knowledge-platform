@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { PublicationCard } from "../components/PublicationCard";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 import type { Page, Publication } from "../types/entities";
 
@@ -38,7 +38,7 @@ export function PublicationsPage() {
         showSearch={false}
       />
       <form
-        className="publication-controls"
+        className="form-row"
         onSubmit={(event) => {
           event.preventDefault();
           const value = String(new FormData(event.currentTarget).get("q") ?? "").trim();
@@ -72,7 +72,11 @@ export function PublicationsPage() {
       {geneId && (
         <p className="context-note">
           Showing publications linked to gene #{geneId}.{" "}
-          <button type="button" onClick={() => update({ gene_id: "", page: "" })}>
+          <button
+            className="button--small"
+            type="button"
+            onClick={() => update({ gene_id: "", page: "" })}
+          >
             Clear gene filter
           </button>
         </p>
@@ -83,9 +87,9 @@ export function PublicationsPage() {
         {!loading && !error && data && (
           <>
             {data.items.length === 0 ? (
-              <p className="context-note">
-                No publications match this view. Only imported citations appear here.
-              </p>
+              <EmptyState title="No publications match this view">
+                Only imported citations appear here.
+              </EmptyState>
             ) : (
               <div className="publication-list">
                 {data.items.map((publication) => (

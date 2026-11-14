@@ -15,7 +15,7 @@ const columns: Column<Variant>[] = [
     heading: "Variant",
     render: (variant) => (
       <div className="primary-cell">
-        <Link className="entity-link" to={`/variant/${variant.id}`}>
+        <Link className="entity-link mono" to={`/variant/${variant.id}`}>
           {variant.rsid ?? variant.hgvs}
         </Link>
         <span>{variant.description ?? "No source description supplied"}</span>

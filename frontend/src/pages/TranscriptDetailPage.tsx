@@ -30,6 +30,7 @@ export function TranscriptDetailPage() {
         title={data.ensembl_transcript_id}
         subtitle={data.name ?? "No display name supplied by source"}
         organism={data.gene.organism.scientific_name}
+        mono
       />
       <div className="detail-content">
         <DetailSection title="Annotation context">

@@ -1,9 +1,40 @@
 import { Link, useSearchParams } from "react-router-dom";
+import { DataTable, type Column } from "../components/DataTable";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
 import type { Page, Transcript } from "../types/entities";
+
+const columns: Column<Transcript>[] = [
+  {
+    key: "transcript",
+    heading: "Transcript",
+    render: (record) => (
+      <div className="primary-cell">
+        <Link
+          className="entity-link mono"
+          to={"/transcript/" + encodeURIComponent(record.ensembl_transcript_id)}
+        >
+          {record.ensembl_transcript_id}
+          {record.version ? "." + record.version : ""}
+        </Link>
+        <span>{record.name ?? "No source display name"}</span>
+      </div>
+    ),
+  },
+  { key: "gene", heading: "Gene", render: (record) => record.gene.symbol },
+  {
+    key: "assembly",
+    heading: "Assembly",
+    render: (record) => <span className="mono">{record.assembly_name}</span>,
+  },
+  {
+    key: "release",
+    heading: "Ensembl release",
+    render: (record) => <span className="mono">{record.source_release}</span>,
+  },
+];
 
 export function TranscriptsPage() {
   const [params, setParams] = useSearchParams();
@@ -24,7 +55,7 @@ export function TranscriptsPage() {
         showSearch={false}
       />
       <form
-        className="publication-controls"
+        className="form-row"
         onSubmit={(event) => {
           event.preventDefault();
           const next = new URLSearchParams(params);
@@ -46,28 +77,16 @@ export function TranscriptsPage() {
       {!loading && !error && data && (
         <>
           {data.items.length ? (
-            <ul className="related-list">
-              {data.items.map((record) => (
-                <li key={record.id}>
-                  <Link to={"/transcript/" + encodeURIComponent(record.ensembl_transcript_id)}>
-                    <strong>
-                      {record.ensembl_transcript_id}
-                      {record.version ? "." + record.version : ""}
-                    </strong>
-                    <span>
-                      {record.name ?? "No source display name"} · {record.gene.symbol}
-                    </span>
-                    <span>
-                      {record.assembly_name} · Ensembl release {record.source_release}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <DataTable
+              caption="Transcript records"
+              columns={columns}
+              items={data.items}
+              getKey={(record) => record.id}
+            />
           ) : (
-            <p className="empty-inline">
-              No transcripts match this view. Only imported source annotations appear here.
-            </p>
+            <EmptyState title="No transcripts match this view">
+              Only imported source annotations appear here.
+            </EmptyState>
           )}
           <Pagination
             page={data.page}

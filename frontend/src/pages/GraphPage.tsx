@@ -66,92 +66,97 @@ export function GraphPage() {
     <div className="page-container graph-page">
       <PageHeader
         eyebrow="Knowledge graph"
-        title="Explore connected evidence"
+        title="Relationship graph"
         description="Navigate stored biological relationships and inspect the source behind each connection."
         showSearch={false}
       />
-      <form
-        className="graph-root-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          const value = String(form.get("symbol") ?? "").trim();
-          if (value)
-            setParams({
-              symbol: value,
-              taxonomy_id: String(form.get("taxonomy_id") ?? "9606"),
-              depth: String(limits.depth),
-            });
-        }}
-      >
-        <label>
-          Gene symbol
-          <input
-            name="symbol"
-            aria-label="Gene symbol"
-            key={symbol ?? ""}
-            defaultValue={symbol ?? ""}
-            placeholder="TP53"
-            required
-            maxLength={64}
-          />
-        </label>
-        <label>
-          Taxonomy ID
-          <input
-            name="taxonomy_id"
-            aria-label="Taxonomy ID"
-            key={params.get("taxonomy_id") ?? "9606"}
-            defaultValue={params.get("taxonomy_id") ?? "9606"}
-            required
-            maxLength={32}
-          />
-        </label>
-        <button className="button" type="submit">
-          Explore gene
-        </button>
-      </form>
-      <div className="graph-query-controls">
-        <label>
-          Initial depth
-          <select value={limits.depth} onChange={(event) => update({ depth: event.target.value })}>
-            {[1, 2, 3].map((value) => (
-              <option key={value} value={value}>
-                {value} hop{value > 1 ? "s" : ""}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Node limit
-          <select
-            value={limits.max_nodes}
-            onChange={(event) => update({ max_nodes: event.target.value })}
-          >
-            {[...new Set([30, 60, 100, 150, limits.max_nodes])]
-              .sort((a, b) => a - b)
-              .map((value) => (
+      <div className="graph-controls">
+        <form
+          className="form-row form-row--narrow"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const value = String(form.get("symbol") ?? "").trim();
+            if (value)
+              setParams({
+                symbol: value,
+                taxonomy_id: String(form.get("taxonomy_id") ?? "9606"),
+                depth: String(limits.depth),
+              });
+          }}
+        >
+          <label>
+            Gene symbol
+            <input
+              name="symbol"
+              aria-label="Gene symbol"
+              key={symbol ?? ""}
+              defaultValue={symbol ?? ""}
+              placeholder="TP53"
+              required
+              maxLength={64}
+            />
+          </label>
+          <label>
+            Taxonomy ID
+            <input
+              name="taxonomy_id"
+              aria-label="Taxonomy ID"
+              key={params.get("taxonomy_id") ?? "9606"}
+              defaultValue={params.get("taxonomy_id") ?? "9606"}
+              required
+              maxLength={32}
+            />
+          </label>
+          <button className="button" type="submit">
+            Explore gene
+          </button>
+        </form>
+        <div className="form-row form-row--narrow">
+          <label>
+            Initial depth
+            <select
+              value={limits.depth}
+              onChange={(event) => update({ depth: event.target.value })}
+            >
+              {[1, 2, 3].map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {value} hop{value > 1 ? "s" : ""}
                 </option>
               ))}
-          </select>
-        </label>
-        <label>
-          Relationship limit
-          <select
-            value={limits.max_edges}
-            onChange={(event) => update({ max_edges: event.target.value })}
-          >
-            {[...new Set([60, 120, 200, 300, limits.max_edges])]
-              .sort((a, b) => a - b)
-              .map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-          </select>
-        </label>
+            </select>
+          </label>
+          <label>
+            Node limit
+            <select
+              value={limits.max_nodes}
+              onChange={(event) => update({ max_nodes: event.target.value })}
+            >
+              {[...new Set([30, 60, 100, 150, limits.max_nodes])]
+                .sort((a, b) => a - b)
+                .map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+            </select>
+          </label>
+          <label>
+            Relationship limit
+            <select
+              value={limits.max_edges}
+              onChange={(event) => update({ max_edges: event.target.value })}
+            >
+              {[...new Set([60, 120, 200, 300, limits.max_edges])]
+                .sort((a, b) => a - b)
+                .map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+            </select>
+          </label>
+        </div>
       </div>
       <details className="graph-filters">
         <summary>Filter node and relationship types</summary>

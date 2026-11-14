@@ -70,9 +70,6 @@ export function SearchBox({ initialValue = "", compact = false }: SearchBoxProps
         <label className="sr-only" htmlFor={compact ? "compact-search" : "main-search"}>
           Search biological entities
         </label>
-        <span aria-hidden="true" className="search-icon">
-          ⌕
-        </span>
         <input
           id={compact ? "compact-search" : "main-search"}
           value={query}
@@ -84,7 +81,7 @@ export function SearchBox({ initialValue = "", compact = false }: SearchBoxProps
           onKeyDown={(event) => {
             if (event.key === "Escape") setShowSuggestions(false);
           }}
-          placeholder="Search genes, proteins, identifiers…"
+          placeholder="Symbol, name, accession or identifier"
           type="search"
           maxLength={200}
           autoComplete="off"

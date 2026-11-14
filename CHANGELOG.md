@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Frontend restyled as a flat, high-contrast research interface: neutral background, 1px rules, square corners, one accent colour, and monospace for accessions, rsIDs, HGVS expressions, ontology IDs and coordinates. API contracts, routes, source notes and provenance are unchanged.
+- Search is the first element of the home page; the marketing hero, entity cards and principles section were replaced by the search box, one stored gene record and a compact collections table.
+- Datasets, phenotypes and transcripts use the shared data table. Filter forms, pagination and loading, error and empty states share one presentation. The primary navigation collapses behind a menu button on narrow screens.
+- Graph nodes are distinguished by shape instead of colour; the root node and the selection use the accent colour. A small graph no longer opens at maximum zoom.
+
 ### Added
 
 - Separate local staging Compose with a private PostgreSQL network, explicit migration service, static same-origin frontend, read-only API proxy, private configuration initializer and VPS/Tailscale handoff guide. No automatic fixtures.
