@@ -6,7 +6,7 @@ from pydantic import ConfigDict, Field, model_validator
 
 from app.schemas.common import ApiModel
 
-ImportEntityType = Literal["gene", "protein", "publication"]
+ImportEntityType = Literal["gene", "protein", "publication", "dataset"]
 JobStatus = Literal["queued", "running", "succeeded", "completed_with_errors", "cancelled"]
 ItemStatus = Literal["pending", "running", "retry_wait", "succeeded", "failed", "cancelled"]
 
@@ -28,6 +28,7 @@ class ImportJobCreate(ApiModel):
                 "gene": r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}",
                 "protein": r"[A-Za-z0-9]{6,10}",
                 "publication": r"[1-9][0-9]{0,11}",
+                "dataset": r"GSE[1-9][0-9]{0,15}",
             }[self.entity_type]
             if not re.fullmatch(pattern, identifier):
                 raise ValueError("Invalid import identifier format.")

@@ -26,6 +26,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Made frontend Compose startup populate or repair its Linux `node_modules` volume from the committed pnpm lockfile before launching Vite.
 - Excluded host `node_modules`, virtual environments, caches, build output, logs, and local environment secrets from Docker build contexts, preventing Windows dependency artifacts from overwriting container-installed packages.
 
+## [0.21.0] - 2026-11-14
+
+### Added
+
+- Durable GEO dataset metadata jobs through the existing protected batch API/CLI and singleton worker, with idempotence, bounded retries and terminal source-conflict handling.
+- A public read-only import activity endpoint/page with grouped job/item counts and queue timestamps. Worker availability remains explicitly unknown; direct CLI imports are outside queue history. Private identifiers/results/errors are not exposed.
+- Migration 20261114_0017 widens the queue type constraint without deleting data; downgrade refuses to discard dataset job compatibility. Old workers must not process dataset jobs.
+
+### Changed
+
+- Retained the new flat high-contrast research frontend and reused shared tables and states for import activity.
+
+### Verified
+
+- 240 backend tests on isolated PostgreSQL, Ruff, strict mypy, fresh/restored migrations and Alembic model comparison passed. Frontend passed 65 tests, formatting, lint, typecheck and production build.
+- A real GSE10072 metadata refresh completed through the queue on the restored clone with original biological counts preserved. Aggregate counts matched and downgrade was correctly refused while dataset history existed. The previous application read biological catalogues on the widened schema.
+
+- Deployed HTTPS verified aggregate privacy, protected job details, existing reads and blocked writes. Original table counts stayed unchanged; no live jobs were enqueued. Deployed CSS matches the retained research frontend.
+
 ## [0.20.0] - 2026-11-13
 
 ### Added

@@ -161,3 +161,18 @@ formats; a separate XML parser confirmed its two nodes, one edge and provenance.
 Public HTTPS checks verified updated frontend/chunk assets, existing reads, graph
 filters/bounds and blocked writes. This is not a claim of a browser download E2E
 test or universal external graph-tool compatibility. See GRAPH_EXPORT.md.
+
+## Dataset queue and import activity — 2026-11-14 / release 0.21.0
+
+GEO metadata can now be explicitly queued through the protected batch API/CLI.
+A real GSE10072 worker run was verified only on the restored test clone. No jobs
+were enqueued or run on the live database by this release: the public activity
+report currently has zero historical jobs for all four supported types. Existing
+biological records came from direct CLI imports and are not inferred from queue
+counts. Worker availability remains unknown in the public report; the optional
+worker and recurring synchronization were not enabled.
+
+The deployed migration is 20261114_0017. All checked original table counts remain
+unchanged. Public HTTPS verified aggregate status/privacy, protected detailed
+jobs, existing graph/catalogue reads and blocked writes. The deployed CSS matches
+the retained flat research frontend. See DATASET_IMPORT_JOBS.md.

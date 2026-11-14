@@ -12,7 +12,9 @@ from app.models.types import BIGINT_PK
 class ImportJob(TimestampMixin, Base):
     __tablename__ = "import_jobs"
     __table_args__ = (
-        CheckConstraint("entity_type IN ('gene', 'protein', 'publication')", name="entity_type"),
+        CheckConstraint(
+            "entity_type IN ('gene', 'protein', 'publication', 'dataset')", name="entity_type"
+        ),
         CheckConstraint(
             "status IN ('queued', 'running', 'succeeded', 'completed_with_errors', 'cancelled')",
             name="status",

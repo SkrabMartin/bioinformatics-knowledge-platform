@@ -6,7 +6,7 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Release 0.20.0 — visible graph export with provenance in JSON and GraphML.**
+**Release 0.21.0 — queued GEO metadata imports and read-only import activity.**
 
 The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
 numbering from the historical implementation milestones below. Releases 0.9–0.11
@@ -21,6 +21,9 @@ The interactive graph explorer now navigates stored gene, protein, disease, vari
 Pathways and all three supported GO aspects now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
 Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+
+The [dataset queue and import activity](docs/DATASET_IMPORT_JOBS.md) extend the
+existing durable worker to GEO metadata and expose safe aggregate queue counts.
 
 The [graph view exporter](docs/GRAPH_EXPORT.md) downloads the visible explored graph
 with source assertions, limits and partial-view context.

@@ -17,6 +17,7 @@ from app.integrations.errors import (
     UpstreamUnavailableError,
 )
 from app.models.import_job import ImportJob, ImportJobItem
+from app.services.errors import ConflictError
 from app.services.import_jobs import ImportJobService
 
 logger = logging.getLogger(__name__)
@@ -101,7 +102,7 @@ class ImportWorker:
                 retry_after = exc.retry_after_seconds or 0.0
         except IntegrationError as exc:
             error_code = exc.code
-        except IngestionPersistenceError:
+        except (IngestionPersistenceError, ConflictError):
             error_code = "ingestion_conflict"
         except ValueError:
             error_code = "invalid_record"

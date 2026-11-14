@@ -71,7 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     transcript_parser.add_argument("ensembl_gene_id")
     batch_parser = subparsers.add_parser("enqueue-import", help="Queue 1-100 explicit identifiers")
-    batch_parser.add_argument("entity_type", choices=["gene", "protein", "publication"])
+    batch_parser.add_argument("entity_type", choices=["gene", "protein", "publication", "dataset"])
     batch_parser.add_argument("identifiers", nargs="+")
     batch_parser.add_argument("--taxonomy-id")
     batch_parser.add_argument("--max-attempts", type=int, default=3)

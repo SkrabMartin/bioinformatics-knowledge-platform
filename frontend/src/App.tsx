@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import { ImportStatusPage } from "./pages/ImportStatusPage";
 import { DataQualityPage } from "./pages/DataQualityPage";
 import { PhenotypesPage } from "./pages/PhenotypesPage";
 import { PhenotypeDetailPage } from "./pages/PhenotypeDetailPage";
@@ -93,6 +94,7 @@ export function App() {
           }
         />
         <Route path="variant/:id" element={<VariantDetailPage />} />
+        <Route path="import-status" element={<ImportStatusPage />} />
         <Route path="data-quality" element={<DataQualityPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="*" element={<NotFoundPage />} />

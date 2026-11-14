@@ -139,3 +139,10 @@ per-attempt audit table, raw payload archive or enrichment engine.
 History is the current state/result, attempts and safe last error per item.
 Queue length/history retention and list counts are not production-scale benchmarked.
 The owner’s [long-term roadmap](ROADMAP.md) now supplies the broader direction; its phase numbering differs from this historical milestone.
+
+## Dataset jobs and aggregate activity (0.21.0)
+
+The existing queue now also accepts bounded GEO Series metadata jobs. Public
+aggregate counts are available at /import-status without exposing protected job
+details. See [dataset import jobs](DATASET_IMPORT_JOBS.md) for compatibility and
+worker upgrade requirements; older descriptions above cover the original types.

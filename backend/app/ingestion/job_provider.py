@@ -6,11 +6,13 @@ from sqlalchemy.orm import Session
 from app.core.config import Settings
 from app.ingestion.publications import PublicationIngestionService
 from app.ingestion.services import GeneIngestionService, ProteinIngestionService
+from app.integrations.geo import GeoSeriesAdapter
 from app.integrations.http import RetryingJsonClient
 from app.integrations.ncbi import NcbiGeneAdapter
 from app.integrations.ncbi.pubmed import PubMedAdapter
 from app.integrations.uniprot import UniProtAdapter
 from app.models.import_job import ImportJob, ImportJobItem
+from app.services.datasets import DatasetService
 
 
 class ProviderImporter:
@@ -29,6 +31,15 @@ class ProviderImporter:
     def __call__(self, session: Session, job: ImportJob, item: ImportJobItem) -> dict[str, object]:
         settings = self.settings
         api_key = settings.ncbi_api_key.get_secret_value() if settings.ncbi_api_key else None
+        if job.entity_type == "dataset":
+            payload = GeoSeriesAdapter(self.transport).fetch_dataset(item.identifier)
+            record, action = DatasetService(session).save(payload, refresh=True)
+            return {
+                "entity_type": "dataset",
+                "entity_id": record.id,
+                "identifier": record.accession,
+                "action": action,
+            }
         if job.entity_type == "gene":
             provider = NcbiGeneAdapter(
                 self.transport,
@@ -55,6 +66,8 @@ class ProviderImporter:
                 .import_publication(item.identifier)
                 .model_dump()
             )
+        if job.entity_type != "protein":
+            raise ValueError("Unsupported import entity type.")
         protein_provider = UniProtAdapter(self.transport, base_url=settings.uniprot_base_url)
         return (
             ProteinIngestionService(session, protein_provider)

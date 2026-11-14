@@ -16,7 +16,7 @@ bioinformatics analysis → scientific intelligence → AI-assisted research.
 Correctness, useful biology, provenance, reproducibility and justified complexity
 take priority over code volume or premature infrastructure.
 
-## Coverage updated through 0.20.0
+## Coverage updated through 0.21.0
 
 | Roadmap phase | Long-term scope | Current coverage / remaining work |
 |---|---|---|
@@ -34,7 +34,7 @@ take priority over code volume or premature infrastructure.
 | 11 | Dataset Discovery | Initial GEO Series metadata model, catalogue, detail, source references and bounded explicit import. Additional repositories, source-backed tissue/disease annotations, broader discovery remain. Exact source-reported local publication links are supported. |
 | 12 | Knowledge Graph Core | Partial: bounded projections over existing typed relations, now including first observed GEO dataset citation links. No general coverage of all future node/edge kinds. |
 | 13 | Interactive Knowledge Graph Explorer | Implemented for currently supported nodes/relations; visible JSON/GraphML view exports preserve source evidence and partial-view context. Production-scale performance and additional entity types remain. |
-| 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries and monitoring through CLI/protected API. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
+| 14 | Advanced Data Engineering Infrastructure | Partial: durable PostgreSQL singleton worker, retries, queued GEO metadata and public aggregate monitoring; detailed jobs remain protected. No scheduling, distributed workers, Redis/Celery or large-scale processing. |
 | 15 | Advanced Search Infrastructure | Not implemented; PostgreSQL remains the search backend. |
 | 16 | Bioinformatics Analysis Engine | Not implemented; no fabricated statistics. |
 | 17 | Genomics Toolkit | Not implemented; placement metadata is a prerequisite, not a genome browser or file-analysis toolkit. |
@@ -158,3 +158,10 @@ The visible graph can be downloaded as JSON/GraphML with provenance, traversal
 limits and partial-view notes. This also advances a small part of Phase 29,
 without implementing general exports or reproducible analysis history.
 See GRAPH_EXPORT.md.
+
+## Release 0.21.0 — Phase 14 follow-up
+
+GEO Series metadata now uses existing durable jobs with cancellation, retry and
+idempotent replay. Read-only aggregate monitoring is exposed in the retained new
+frontend. No heartbeat, scheduler or distributed processing is introduced.
+See DATASET_IMPORT_JOBS.md.

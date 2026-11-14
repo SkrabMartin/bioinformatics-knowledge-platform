@@ -1,5 +1,9 @@
 # Architecture
 
+[Dataset import jobs](docs/DATASET_IMPORT_JOBS.md) reuse the singleton durable
+queue and existing GEO adapter. Public activity is a bounded grouped SQL
+projection; individual job details and mutations remain administrator-only.
+
 [Visible graph export](docs/GRAPH_EXPORT.md) serializes the current browser view
 without server writes or schema changes, retaining assertions and traversal limits.
 
@@ -41,7 +45,7 @@ gene identities from provider evidence and preserves existing numeric API contra
 
 
 The phase descriptions below are historical through Phase 4. The implementation
-is now version 0.20.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+is now version 0.21.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
 Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
 The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
 with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).

@@ -7,6 +7,7 @@ from app.api.v1 import (
     genes,
     graph,
     import_jobs,
+    import_status,
     ontology,
     organisms,
     phenotypes,
@@ -42,3 +43,5 @@ router.include_router(phenotypes.router)
 router.include_router(variant_placements.router)
 
 router.include_router(datasets.router)
+
+router.include_router(import_status.router)
