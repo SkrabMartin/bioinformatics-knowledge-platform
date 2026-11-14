@@ -19,6 +19,7 @@ class UpstreamNotFoundError(IntegrationError):
 
 class UpstreamRateLimitError(IntegrationError):
     code = "upstream_rate_limited"
+    retry_after_seconds: float | None = None
 
 
 class UpstreamResponseError(IntegrationError):

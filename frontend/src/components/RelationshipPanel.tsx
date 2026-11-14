@@ -9,6 +9,7 @@ import { ProvenanceBadge } from "./ProvenanceBadge";
 import { ErrorState, LoadingState } from "./States";
 
 const predicateLabels = {
+  cites: "cites (first observed source reference)",
   associated_with: "associated with",
   located_in: "located in",
   interacts_with: "interacts with",
@@ -19,6 +20,7 @@ const predicateLabels = {
   participates_in: "participates in",
   involved_in: "involved in",
   has_function: "has function",
+  annotated_to: "annotated to (source assertion)",
   is_a: "is a (broader term)",
 };
 
@@ -61,6 +63,9 @@ export function RelationshipPanel({
                   <div className="relationship-meta">
                     <ProvenanceBadge source={relationship.source} />
                     <span>Source ID: {relationship.source_identifier ?? "Not supplied"}</span>
+                    {relationship.source_record_date && (
+                      <span>Source record updated: {relationship.source_record_date}</span>
+                    )}
                     {relationship.source_release && (
                       <span>Release: {relationship.source_release}</span>
                     )}

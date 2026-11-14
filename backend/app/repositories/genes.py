@@ -1,7 +1,7 @@
 from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import selectinload
 
-from app.models import Gene
+from app.models import Gene, GeneExternalIdentifier
 from app.repositories.base import Repository
 
 
@@ -12,12 +12,24 @@ class GeneRepository(Repository[Gene]):
         statement = (
             select(Gene)
             .where(Gene.id == entity_id)
-            .options(selectinload(Gene.organism), selectinload(Gene.proteins))
+            .options(
+                selectinload(Gene.organism),
+                selectinload(Gene.proteins),
+                selectinload(Gene.aliases),
+                selectinload(Gene.genomic_locations),
+                selectinload(Gene.transcripts),
+                selectinload(Gene.external_identifiers).selectinload(
+                    GeneExternalIdentifier.evidence
+                ),
+            )
         )
         return self.session.scalar(statement)
 
     def list_statement(self) -> Select[tuple[Gene]]:
         return select(Gene).options(selectinload(Gene.organism)).order_by(Gene.symbol, Gene.id)
+
+    def by_ncbi_identifier(self, identifier: str) -> Gene | None:
+        return self.session.scalar(select(Gene).where(Gene.ncbi_gene_id == identifier))
 
     def by_external_identifier(self, identifier: str) -> Gene | None:
         return self.session.scalar(
@@ -39,5 +51,14 @@ class GeneRepository(Repository[Gene]):
                 func.upper(Gene.symbol) == symbol.upper(),
                 Gene.organism.has(taxonomy_id=taxonomy_id),
             )
-            .options(selectinload(Gene.organism), selectinload(Gene.proteins))
+            .options(
+                selectinload(Gene.organism),
+                selectinload(Gene.proteins),
+                selectinload(Gene.aliases),
+                selectinload(Gene.genomic_locations),
+                selectinload(Gene.transcripts),
+                selectinload(Gene.external_identifiers).selectinload(
+                    GeneExternalIdentifier.evidence
+                ),
+            )
         )

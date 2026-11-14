@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import Field, HttpUrl, model_validator
 
-
-class NormalizedModel(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+from app.ingestion.identifier_models import NormalizedGeneIdentifier
+from app.ingestion.models_base import NormalizedModel as NormalizedModel
 
 
 class SourceProvenance(NormalizedModel):
@@ -22,6 +21,20 @@ class NormalizedOrganism(NormalizedModel):
     provenance: SourceProvenance
 
 
+class NormalizedGeneLocation(NormalizedModel):
+    sequence_accession: str = Field(min_length=1, max_length=64)
+    chromosome: str | None = Field(default=None, max_length=64)
+    start_position: int = Field(ge=1)
+    end_position: int = Field(ge=1)
+    strand: Literal["+", "-"]
+
+    @model_validator(mode="after")
+    def validate_order(self) -> "NormalizedGeneLocation":
+        if self.end_position < self.start_position:
+            raise ValueError("end_position precedes start_position")
+        return self
+
+
 class NormalizedGene(NormalizedModel):
     symbol: str = Field(min_length=1, max_length=64)
     name: str = Field(min_length=1, max_length=512)
@@ -33,10 +46,22 @@ class NormalizedGene(NormalizedModel):
     strand: Literal["+", "-"] | None = None
     ncbi_gene_id: str = Field(min_length=1, max_length=64)
     ensembl_gene_id: str | None = Field(default=None, max_length=64)
+    aliases: list[str] = Field(default_factory=list, max_length=100)
+    genomic_locations: list[NormalizedGeneLocation] = Field(default_factory=list, max_length=100)
     provenance: SourceProvenance
+
+    @model_validator(mode="after")
+    def validate_aliases(self) -> "NormalizedGene":
+        aliases = list(dict.fromkeys(alias.strip() for alias in self.aliases))
+        if any(not alias or len(alias) > 64 for alias in aliases):
+            raise ValueError("Alias must contain 1-64 characters.")
+        self.aliases = [alias for alias in aliases if alias != self.symbol]
+        return self
 
 
 class NormalizedProtein(NormalizedModel):
+    gene_identifiers: list[NormalizedGeneIdentifier] = Field(default_factory=list, max_length=20)
+    source_record_version: str | None = Field(default=None, max_length=32)
     accession: str = Field(min_length=1, max_length=64)
     name: str = Field(min_length=1, max_length=512)
     function: str | None = None

@@ -3,9 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Query, status
 
 from app.api.dependencies import GeneServiceDependency
+from app.core.identifiers import GeneIdentifierNamespace
 from app.models import Gene
 from app.schemas.common import ErrorResponse, Page
 from app.schemas.gene import GeneCreate, GeneDetail, GeneRead, GeneUpdate
+from app.services.gene_identifiers import resolve_gene_identifier
 
 router = APIRouter(prefix="/genes", tags=["genes"])
 
@@ -40,6 +42,13 @@ def get_gene_by_symbol(
     taxonomy_id: Annotated[str, Query(min_length=1, max_length=32)] = "9606",
 ) -> Gene:
     return service.get_by_symbol(symbol, taxonomy_id)
+
+
+@router.get("/by-identifier/{namespace}/{accession}", response_model=GeneDetail)
+def get_gene_by_identifier(
+    namespace: GeneIdentifierNamespace, accession: str, service: GeneServiceDependency
+) -> Gene:
+    return resolve_gene_identifier(service.gene_repository, namespace, accession)
 
 
 @router.get("/{gene_id}", response_model=GeneRead, responses={404: {"model": ErrorResponse}})

@@ -1,5 +1,69 @@
 # Architecture
 
+[Transcript interval queries](docs/GENOMIC_INTERVALS.md) add explicit coordinate
+normalization, exact reference filtering and a composite span index. Bounded
+read-only queries preserve source annotations and infer no sequence/exon effects.
+
+[Gene overlap analysis](docs/GENE_OVERLAP.md) adds a read-only, bounded exact
+identity query and deterministic set operations. Current-record reports include
+input mappings, method/software version and source context without stored runs.
+
+[Similar-name hints](docs/NAME_HINTS.md) reuse existing PostgreSQL trigram indexes
+through a separate bounded endpoint. Ordinary search/identifier resolution are
+unchanged; no external index is introduced for the small current catalogue.
+
+[Dataset import jobs](docs/DATASET_IMPORT_JOBS.md) reuse the singleton durable
+queue and existing GEO adapter. Public activity is a bounded grouped SQL
+projection; individual job details and mutations remain administrator-only.
+
+[Visible graph export](docs/GRAPH_EXPORT.md) serializes the current browser view
+without server writes or schema changes, retaining assertions and traversal limits.
+
+[Dataset citation graph](docs/DATASET_GRAPH.md) adds a typed, sourced dataset-to-
+publication assertion to the bounded relational graph projection. Exact local PMID
+resolution remains a protected explicit operation; no graph database is required.
+
+[Dataset discovery](docs/DATASETS.md) introduces repository-scoped metadata identity,
+a bounded GEO Series adapter, atomic source refresh and search/catalogue views.
+
+
+[Literature metadata](docs/LITERATURE_METADATA.md) adds bounded source keywords and
+typed publication–variant assertions to existing ingestion/search/graph layers.
+
+
+[Cellular components](docs/CELLULAR_COMPONENTS.md) extend the existing shared GO
+term/hierarchy model and typed protein assertions, with search and graph projections.
+
+
+[Variant placements](docs/VARIANT_PLACEMENTS.md) add immutable sourced literal
+representations with explicit assemblies, sequence versions and coordinate semantics.
+Parent identity/taxonomy guards preserve source context under application updates.
+
+
+[Phenotypes](docs/PHENOTYPES.md) add sourced HPO identities and qualified
+disease assertions through additive tables and protected administrative writes.
+
+
+[Unified search](docs/UNIFIED_SEARCH.md) projects thirteen entity categories into a
+common SQL result shape, with per-type counts, bounded paging and query deadlines.
+
+
+The [quality review service](docs/DATA_QUALITY.md) adds bounded read-only SQL
+diagnostics over current metadata, without upstream calls or schema changes.
+
+
+The [source-backed identifier registry](docs/GENE_IDENTIFIERS.md) separates canonical
+gene identities from provider evidence and preserves existing numeric API contracts.
+
+
+The phase descriptions below are historical through Phase 4. The implementation
+is now version 0.24.0; see README for the implemented Phase 5–8 architecture and [tracked import operations](docs/IMPORT_JOBS.md).
+Source-backed transcripts are described in [Transcript operations](docs/TRANSCRIPTS.md).
+The biological model follow-up is documented in [Gene context](docs/GENE_CONTEXT.md),
+with the owner’s numbering in the [long-term roadmap](docs/ROADMAP.md).
+The separate local staging topology and its read-only same-origin proxy boundary
+are documented in [Local staging](docs/LOCAL_STAGING.md).
+
 ## 1. Purpose and status
 
 This document describes the architecture implemented through Phase 4 of the Bioinformatics Knowledge Platform and identifies the boundaries reserved for later phases.

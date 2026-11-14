@@ -8,6 +8,18 @@ from app.models.publication import Publication
 from app.services.errors import InvalidInputError
 
 
+def keyword_text(*, postgresql: bool) -> ColumnElement[Any]:
+    if postgresql:
+        entries = func.json_array_elements_text(Publication.keywords).table_valued("value")
+        aggregate = func.string_agg(entries.c.value, literal(" "))
+    else:
+        entries = func.json_each(Publication.keywords).table_valued("key", "value")
+        aggregate = func.group_concat(entries.c.value, literal(" "))
+    return func.coalesce(
+        select(aggregate).select_from(entries).correlate(Publication).scalar_subquery(), literal("")
+    )
+
+
 def publication_match(
     query: str, *, postgresql: bool
 ) -> tuple[ColumnElement[bool], ColumnElement[Any]]:
@@ -20,6 +32,7 @@ def publication_match(
         Publication.title,
         Publication.journal,
         Publication.abstract,
+        keyword_text(postgresql=postgresql),
     )
     terms = re.findall(r"[\w.:-]+", query) or [query]
     conditions = []
@@ -55,6 +68,13 @@ def publication_match(
 
 def publication_statement(query: str, *, postgresql: bool) -> Select[Any]:
     condition, score = publication_match(query, postgresql=postgresql)
+    keywords = keyword_text(postgresql=postgresql)
+    terms = re.findall(r"[\w.:-]+", query) or [query]
+    keyword_hits = []
+    for term in terms:
+        escaped = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        keyword_hits.append(keywords.ilike(f"%{escaped}%", escape="\\"))
+    keyword_match = or_(*keyword_hits)
     columns: list[ColumnElement[Any]] = [
         literal("publication").label("entity_type"),
         Publication.id.label("entity_id"),
@@ -75,5 +95,7 @@ def publication_statement(query: str, *, postgresql: bool) -> Select[Any]:
         ),
         1,
     ):
-        columns.extend([literal(name).label(f"field_{i}_name"), value.label(f"field_{i}_value")])
+        field_name = case((keyword_match, "keywords"), else_=name) if i == 5 else literal(name)
+        field_value = case((keyword_match, keywords), else_=value) if i == 5 else value
+        columns.extend([field_name.label(f"field_{i}_name"), field_value.label(f"field_{i}_value")])
     return select(*columns, score.label("score")).where(condition)

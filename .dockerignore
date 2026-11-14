@@ -11,3 +11,9 @@ frontend/coverage
 *.log
 data/raw/*
 data/processed/*
+
+.env.*
+
+backups
+
+exports

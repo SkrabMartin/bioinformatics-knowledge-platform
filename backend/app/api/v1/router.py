@@ -1,15 +1,24 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    analysis,
+    data_quality,
+    datasets,
     diseases,
     genes,
+    genomics,
     graph,
+    import_jobs,
+    import_status,
     ontology,
     organisms,
+    phenotypes,
     proteins,
     publications,
     relationships,
     search,
+    transcripts,
+    variant_placements,
     variants,
 )
 
@@ -24,3 +33,21 @@ router.include_router(search.router)
 router.include_router(publications.router)
 router.include_router(graph.router)
 router.include_router(ontology.router)
+
+router.include_router(import_jobs.router)
+
+router.include_router(transcripts.router)
+
+router.include_router(data_quality.router)
+
+router.include_router(phenotypes.router)
+
+router.include_router(variant_placements.router)
+
+router.include_router(datasets.router)
+
+router.include_router(import_status.router)
+
+router.include_router(analysis.router)
+
+router.include_router(genomics.router)

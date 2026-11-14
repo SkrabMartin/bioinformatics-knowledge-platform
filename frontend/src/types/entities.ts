@@ -43,8 +43,56 @@ export interface ProteinSummary {
   name: string;
 }
 
+export interface GeneAlias extends ProvenanceFields {
+  id: number;
+  alias: string;
+}
+
+export interface GeneGenomicLocation extends ProvenanceFields {
+  id: number;
+  sequence_accession: string;
+  chromosome: string | null;
+  start_position: number;
+  end_position: number;
+  strand: "+" | "-";
+}
+
+export interface TranscriptSummary extends ProvenanceFields {
+  id: number;
+  ensembl_transcript_id: string;
+  version: number | null;
+  name: string | null;
+  biotype: string | null;
+  assembly_name: string;
+  sequence_region: string;
+  start_position: number;
+  end_position: number;
+  strand: "+" | "-";
+  source_release: string;
+}
+export interface Transcript extends TranscriptSummary {
+  gene_id: number;
+  gene: GeneSummary & { organism: OrganismSummary };
+}
+
+export interface GeneIdentifierEvidence extends ProvenanceFields {
+  id: number;
+  reported_accession: string;
+  source_record_version: string | null;
+}
+export interface GeneExternalIdentifier {
+  id: number;
+  namespace: "ncbi_gene" | "ensembl_gene";
+  accession: string;
+  evidence: GeneIdentifierEvidence[];
+}
+
 export interface GeneDetail extends Gene {
   proteins: ProteinSummary[];
+  aliases?: GeneAlias[];
+  genomic_locations?: GeneGenomicLocation[];
+  transcripts?: TranscriptSummary[];
+  external_identifiers?: GeneExternalIdentifier[];
 }
 
 export interface Protein extends ProvenanceFields {
@@ -77,6 +125,7 @@ export interface Variant extends ProvenanceFields {
 }
 
 export type RelatedEntityType =
+  | "dataset"
   | "gene"
   | "protein"
   | "variant"
@@ -84,9 +133,11 @@ export type RelatedEntityType =
   | "publication"
   | "pathway"
   | "biological_process"
-  | "molecular_function";
+  | "molecular_function"
+  | "cellular_component";
 
-export type KnowledgeKind = "pathway" | "biological_process" | "molecular_function";
+export type KnowledgeKind =
+  "pathway" | "biological_process" | "molecular_function" | "cellular_component";
 export interface Pathway extends ProvenanceFields {
   id: number;
   name: string;
@@ -98,7 +149,7 @@ export interface OntologyTerm extends ProvenanceFields {
   id: number;
   name: string;
   description: string | null;
-  kind: "biological_process" | "molecular_function";
+  kind: "biological_process" | "molecular_function" | "cellular_component";
   go_id: string;
   source_release: string;
 }
@@ -111,6 +162,7 @@ export interface Publication extends ProvenanceFields {
   abstract: string | null;
   journal: string | null;
   authors: string[];
+  keywords?: string[];
   publication_date: string | null;
   publication_date_text: string | null;
 }
@@ -124,6 +176,7 @@ export interface RelationshipNode {
 
 export interface EntityRelationship {
   relationship_type:
+    | "dataset_publication"
     | "gene_disease"
     | "variant_gene"
     | "variant_disease"
@@ -132,13 +185,17 @@ export interface EntityRelationship {
     | "publication_gene"
     | "publication_protein"
     | "publication_disease"
+    | "publication_variant"
     | "gene_pathway"
     | "gene_biological_process"
     | "protein_molecular_function"
     | "biological_process_parent"
-    | "molecular_function_parent";
+    | "molecular_function_parent"
+    | "protein_cellular_component"
+    | "cellular_component_parent";
   relationship_id: number;
   predicate:
+    | "cites"
     | "associated_with"
     | "located_in"
     | "interacts_with"
@@ -148,8 +205,10 @@ export interface EntityRelationship {
     | "studies"
     | "participates_in"
     | "involved_in"
+    | "annotated_to"
     | "has_function"
     | "is_a";
+  source_record_date?: string | null;
   source_release?: string | null;
   evidence_code?: string | null;
   evidence_kind?: "structured_metadata" | "curated" | null;
@@ -173,7 +232,20 @@ export interface Page<T> {
   pages: number;
 }
 
-export type SearchEntityType = "gene" | "protein" | "organism" | "publication";
+export type SearchEntityType =
+  | "dataset"
+  | "phenotype"
+  | "gene"
+  | "protein"
+  | "organism"
+  | "publication"
+  | "transcript"
+  | "disease"
+  | "variant"
+  | "pathway"
+  | "biological_process"
+  | "molecular_function"
+  | "cellular_component";
 
 export interface SearchMatchedField {
   field: string;
@@ -197,6 +269,16 @@ export interface SearchResult {
 }
 
 export interface SearchCounts {
+  dataset?: number;
+  phenotype?: number;
+  transcript?: number;
+  disease?: number;
+  variant?: number;
+  pathway?: number;
+  biological_process?: number;
+  molecular_function?: number;
+  cellular_component?: number;
+
   gene: number;
   protein: number;
   organism: number;

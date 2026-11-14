@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-bkp}
       POSTGRES_USER: ${POSTGRES_USER:-bkp}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bkp_development}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,6 +21,7 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       BKP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bkp}:${POSTGRES_PASSWORD:-bkp_development}@db:5432/${POSTGRES_DB:-bkp}
+      BKP_ENSEMBL_BASE_URL: ${BKP_ENSEMBL_BASE_URL:-https://rest.ensembl.org}
       BKP_ENVIRONMENT: development
       BKP_LOG_LEVEL: INFO
       BKP_LOG_JSON: "false"
@@ -31,7 +30,7 @@ services:
       BKP_EXTERNAL_API_TIMEOUT_SECONDS: ${BKP_EXTERNAL_API_TIMEOUT_SECONDS:-15}
       BKP_EXTERNAL_API_MAX_ATTEMPTS: ${BKP_EXTERNAL_API_MAX_ATTEMPTS:-3}
       BKP_EXTERNAL_API_BACKOFF_SECONDS: ${BKP_EXTERNAL_API_BACKOFF_SECONDS:-0.5}
-      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.7.0}
+      BKP_EXTERNAL_API_USER_AGENT: ${BKP_EXTERNAL_API_USER_AGENT:-bio-knowledge-platform/0.24.0}
       BKP_NCBI_BASE_URL: ${BKP_NCBI_BASE_URL:-https://eutils.ncbi.nlm.nih.gov/entrez/eutils}
       BKP_NCBI_TOOL: ${BKP_NCBI_TOOL:-bio_knowledge_platform}
       BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
@@ -48,7 +47,7 @@ services:
       - ./backend:/workspace/backend
       - ./data:/workspace/data:ro
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -58,6 +57,22 @@ services:
       timeout: 5s
       retries: 10
 
+  worker:
+    profiles: [imports]
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      BKP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bkp}:${POSTGRES_PASSWORD:-bkp_development}@db:5432/${POSTGRES_DB:-bkp}
+      BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
+      BKP_NCBI_API_KEY: ${BKP_NCBI_API_KEY:-}
+      BKP_IMPORT_REQUEST_INTERVAL_SECONDS: ${BKP_IMPORT_REQUEST_INTERVAL_SECONDS:-0.4}
+      BKP_IMPORT_RETRY_SECONDS: ${BKP_IMPORT_RETRY_SECONDS:-60}
+    command: ["python", "-m", "app.cli", "import-worker"]
+    stop_grace_period: 60s
+    depends_on:
+      backend:
+        condition: service_healthy
   frontend:
     build:
       context: frontend
@@ -73,7 +88,7 @@ services:
       - ./frontend:/workspace/frontend
       - frontend_node_modules:/workspace/frontend/node_modules
     ports:
-      - "5173:5173"
+      - "127.0.0.1:5173:5173"
     depends_on:
       backend:
         condition: service_healthy

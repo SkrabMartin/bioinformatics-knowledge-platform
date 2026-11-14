@@ -1,0 +1,2 @@
+class IngestionPersistenceError(RuntimeError):
+    pass

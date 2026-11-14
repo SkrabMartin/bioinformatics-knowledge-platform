@@ -5,8 +5,8 @@ from pydantic import ConfigDict, Field, field_validator
 from app.schemas.common import ProvenanceFields, StoredProvenanceFields
 from app.schemas.relationship import RelationshipProvenance
 
-TermKind = Literal["biological_process", "molecular_function"]
-KnowledgeKind = Literal["pathway", "biological_process", "molecular_function"]
+TermKind = Literal["biological_process", "molecular_function", "cellular_component"]
+KnowledgeKind = Literal["pathway", "biological_process", "molecular_function", "cellular_component"]
 
 
 class KnowledgeFields(ProvenanceFields):

@@ -6,17 +6,72 @@ The long-term product combines a biological knowledge graph, scientific search e
 
 ## Project status
 
-**Phase 7 — Pathways, Ontologies and Advanced Bioinformatics is implemented (0.7.0, work in progress).**
+**Release 0.24.0 — exact-reference transcript interval browsing.**
 
-The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, organisms, and publications. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
+The owner’s [long-term roadmap and coverage map](docs/ROADMAP.md) uses a different
+numbering from the historical implementation milestones below. Releases 0.9–0.11
+advance parts of long-term Phases 2–3, independently of the historical milestone numbers.
+
+The platform imports NCBI genes, UniProt proteins, and PubMed citations. Unified search covers locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO biological processes, molecular functions and cellular components, organisms, publications, and datasets. Explicit relationship tables preserve referential integrity and source context for biological and literature assertions. Publication pages offer citations, available abstracts, authors, partial publication dates, and links to related records. Previous entity APIs and development fixtures are preserved.
 
 The application still ships explicitly marked Phase 1 demo fixtures for local startup. Real gene/protein imports are opt-in CLI operations. Phase 4 does **not** automatically import disease or variant assertions: those collections start empty until source-backed records are supplied through the API. Search never invents results for absent records.
 
 The interactive graph explorer now navigates stored gene, protein, disease, variant, and publication assertions with bounded traversal, node expansion, branch collapse, and source inspection. It does not infer missing relationships or treat source assertions as confirmed scientific conclusions.
 
-Pathways and GO biological-process/molecular-function terms now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
+Pathways and all three supported GO aspects now extend that navigation with direct, source-backed annotations and `is_a` hierarchies. Functional collections start empty and are populated through protected administrator APIs. Statistical enrichment and automatic GO/pathway ingestion are not implemented. The home page replaces its decorative entity diagram with a live local-record starting point, provenance, a graph link and a brief research workflow.
 
-Current architecture, operation, and verification notes are maintained in this README. [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+Current architecture, operation, and verification notes are maintained in this README and [Phase 8 operations](docs/IMPORT_JOBS.md). [ARCHITECTURE.md](ARCHITECTURE.md) and [CHANGELOG.md](CHANGELOG.md) retain the historical Phase 0–4 design and change records.
+
+The [genomic interval browser](docs/GENOMIC_INTERVALS.md) finds stored transcript
+spans within explicit reference/coordinate context, with source provenance.
+
+The [gene-list overlap analysis](docs/GENE_OVERLAP.md) compares exactly resolved
+local genes with explicit coverage and downloadable method/provenance reports.
+
+The [similar stored-name hints](docs/NAME_HINTS.md) help explore spelling mistakes
+without changing identifier search or ordinary result counts.
+
+The [dataset queue and import activity](docs/DATASET_IMPORT_JOBS.md) extend the
+existing durable worker to GEO metadata and expose safe aggregate queue counts.
+
+The [graph view exporter](docs/GRAPH_EXPORT.md) downloads the visible explored graph
+with source assertions, limits and partial-view context.
+
+The [dataset citation graph](docs/DATASET_GRAPH.md) connects explicitly reported GEO
+PMIDs to locally stored publications with first observed provenance.
+
+The new [dataset discovery catalogue](docs/DATASETS.md) imports bounded public GEO
+Series metadata and exposes source access links without downloading experimental files.
+
+The [literature metadata](docs/LITERATURE_METADATA.md) retains supplied PubMed
+keywords for search/detail and adds explicit sourced publication–variant references.
+
+The [cellular component support](docs/CELLULAR_COMPONENTS.md) completes the three
+GO aspect categories in browsing, direct annotations, search and graph navigation.
+The catalogue remains empty until source-backed records are explicitly supplied.
+
+The [variant placement model](docs/VARIANT_PLACEMENTS.md) preserves explicit
+assemblies, versioned reference sequences, coordinate conventions, alleles and source
+observations. Placement collections start empty; automatic variant import is not enabled.
+
+The [phenotype catalogue and disease annotations](docs/PHENOTYPES.md) preserve
+explicit present/excluded qualifiers and source evidence. New collections start
+empty; automatic HPO import is not enabled.
+
+The expanded [unified search](docs/UNIFIED_SEARCH.md) adds six catalogue categories
+to matching, filters, counts and suggestions.
+
+The [data quality review](docs/DATA_QUALITY.md) exposes ten metadata and
+coverage checks at `/data-quality`, without modifying biological records.
+
+See [gene identifiers](docs/GENE_IDENTIFIERS.md) for explicit namespace resolution,
+source assertions, conflict handling and transcript import prerequisites.
+
+## Data availability
+
+The public instance now contains an explicitly imported NCBI/UniProt starter set:
+three genes, three proteins, 128 Ensembl transcript annotations and three real PubMed citations, plus one GEO dataset and its source-reported citation link. See [current data and refresh behavior](docs/DATA_STATUS.md).
+Imports and queued jobs load records explicitly; scheduled synchronization is not enabled.
 
 ## What works
 
@@ -39,6 +94,8 @@ Current architecture, operation, and verification notes are maintained in this R
 - Fail-closed administrator token protection for new literature HTTP writes and a baseline GitHub Actions workflow with PostgreSQL migration/runtime checks.
 - Docker Compose services for PostgreSQL, backend, and frontend.
 - Backend and frontend tests plus lint, formatting, typing, and build checks.
+
+- Durable administrator import batches (up to 100 identifiers), per-item progress, cancellation, bounded retries and a separately started PostgreSQL worker.
 
 ## Architecture at a glance
 
@@ -169,6 +226,29 @@ This is an enrichment-ready **data foundation**, not an enrichment engine: stabl
 
 GO has distinct relation semantics and permits multiple parents; this phase deliberately supports only direct same-aspect `is_a` hierarchy. It does not reinterpret `regulates`, `part_of`, negative (`NOT`) annotations, obsolete terms, or cellular-component terms as positive annotations. Unknown payload fields are rejected. The application predicates `involved_in` and `has_function` are its scoped source-assertion labels, not a claim to implement every GO annotation relation. See the [GO relations documentation](https://geneontology.org/docs/ontology-relations/) and [GO annotation principles](https://www.geneontology.org/docs/go-annotations/).
 
+### Transcript architecture (0.10.0)
+
+Explicit Ensembl parent/species/assembly annotations → bounded normalization →
+atomic transcript persistence for an existing mapped gene → paginated catalogue
+and gene/detail navigation. See [transcript operations](docs/TRANSCRIPTS.md).
+
+### Gene context architecture (0.9.0)
+
+NCBI explicit aliases and sequence placements → bounded normalization → atomic,
+source-backed gene context tables → alias-aware unified search and gene detail.
+Sequence identity is preserved; missing assemblies/transcripts are not inferred.
+See [gene context operations and limits](docs/GENE_CONTEXT.md).
+
+### Phase 8 architecture
+
+Administrator API / host CLI → PostgreSQL import_jobs + import_job_items →
+optional singleton worker → existing NCBI Gene / UniProt / PubMed adapters and
+idempotent ingestion services. No imports start automatically. The public preview
+keeps its read-only proxy; job APIs require a server-side administrator token.
+Crash recovery provides at-least-once processing within a bounded attempt budget.
+See [tracked import jobs](docs/IMPORT_JOBS.md) for commands, state transitions,
+provider pacing, cancellation semantics and operational limits.
+
 ## Repository layout
 
 ```text
@@ -213,12 +293,18 @@ GO has distinct relation semantics and permits multiple parents; this phase deli
 
 `backend/app/search/` owns ranking and result assembly; the API router only validates requests and returns typed responses.
 
+## Safe local staging
+
+For an isolated, read-only local staging stack with a static frontend and private
+database, follow [the local staging and VPS handoff guide](docs/LOCAL_STAGING.md).
+Do not expose the development stack publicly.
+
 ## Quick start with Docker Compose
 
 Requirements:
 
 - Docker with Docker Compose support
-- ports `5173`, `8000`, and `5432` available
+- localhost ports `5173` and `8000` available (database is Docker-internal)
 
 Create a local environment file and start the stack:
 
@@ -239,7 +325,7 @@ Open:
 - API documentation: <http://localhost:8000/docs>
 - health endpoint: <http://localhost:8000/api/health>
 
-Stop the stack with `docker compose down`. Add `--volumes` only when intentionally discarding the development database.
+Stop the stack with `docker compose down`; preserve database volumes.
 
 ### Frontend dependency-volume recovery
 
@@ -251,7 +337,7 @@ docker compose rm -f frontend
 docker volume ls --filter name=frontend_node_modules
 ```
 
-Remove the exact frontend dependency volume name shown by the last command, then restart with `docker compose up --build`. Do not run `docker compose down --volumes` unless the PostgreSQL development data should also be deleted.
+Remove the exact frontend dependency volume name shown by the last command, then restart with `docker compose up --build`. Preserve PostgreSQL volumes; do not use `docker compose down --volumes` for dependency recovery.
 
 ## Native development
 
@@ -272,7 +358,7 @@ python -m app.cli load-fixtures
 uvicorn app.main:app --app-dir backend --reload
 ```
 
-The default database URL expects PostgreSQL at `localhost:5432`. Override any setting with a `BKP_`-prefixed environment variable. Settings load the repository-root `.env` file automatically.
+Native development requires a separately managed local PostgreSQL instance at `localhost:5432`; the development Compose database is not published to the host. Override any setting with a `BKP_`-prefixed environment variable. Settings load the repository-root `.env` file automatically.
 
 The fixture loader is idempotent. A second run reports zero created records.
 
@@ -531,12 +617,12 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 - Existing gene→protein linkage inherits protein-record provenance; it has no separate relationship-evidence row. Clinical significance, assembly-aware coordinates, variant normalization, and evidence ontologies are not stored.
 - The relationship listing uses bounded offset pagination. Large-corpus query plans and association counts have not been benchmarked. Cross-organism integrity for variant→gene links is enforced by services, not a cross-table database constraint.
 - The UI is read-only for disease/variant and relationship creation; controlled-development writes use the API. Write endpoints remain unauthenticated and must not be internet-exposed.
-- Search covers locally stored genes, proteins, organisms, and publications. Diseases/variants are not yet part of unified search. There is no fuzzy typo correction, synonym expansion, alias handling, or cross-provider federated search.
+- Search covers locally stored genes, proteins, organisms, publications, and datasets. Diseases/variants are not yet part of unified search. Gene aliases now participate in search. Fuzzy typo correction, ontology-wide synonym expansion and cross-provider federated search remain absent.
 - Search uses offset pagination and synchronous count queries. Ranking weights and PostgreSQL index use have not been benchmarked on a large biological corpus.
 - Organism results have no detail page yet. Gene search links require taxonomy context; older bare `/gene/{symbol}` links still default to human (`9606`).
 - There are no hard-delete endpoints or entity deprecation workflow yet.
-- Entity provenance is record-level and relationship assertions have their own source fields. Multiple-provider claim history, raw payload retention, payload checksums, provider releases, parser versions, and import-job history are not yet modeled.
-- NCBI Gene summary coordinates are converted from zero-based positions to one-based inclusive coordinates, but the selected assembly/accession is not stored yet; the first provider placement is used.
+- Entity provenance is record-level and relationship assertions have their own source fields. Multiple-provider claim history, raw payload retention, payload checksums, provider releases and parser versions are not yet modeled. Phase 8 now tracks import-job/item status, attempts and safe results; raw payload and per-attempt archives remain deferred.
+- NCBI Gene summary coordinates are converted from zero-based positions to one-based inclusive coordinates, but the legacy fields still project the first provider placement. Release 0.9.0 additionally preserves explicit reference sequence accessions and all bounded placements; assembly identity remains unknown unless separately established.
 - Gene imports require a configured NCBI contact email. Phase 4 verification did not depend on live NCBI requests; its adapter remains covered by mocked contract tests.
 - Protein imports link only to genes already present locally and do not synthesize partial genes from UniProt data.
 - Publication imports support journal-style PubMed article records, not book citations, full texts, provider deletion feeds, retraction-status tracking, or corrected identity reconciliation. Author names are ordered text values, not researcher/ORCID entities. DOI is canonicalized and format-validated, not independently resolved.
@@ -548,7 +634,7 @@ Important Phase 7 files: `backend/app/models/ontology.py`, `schemas/ontology.py`
 
 ## Next phase
 
-Phase 8 will add justified background processing, tracked import jobs, retries and bounded batch workflows. It has not been started. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
+Phase 8 is implemented: [tracked imports and a bounded PostgreSQL worker](docs/IMPORT_JOBS.md). The owner’s [long-term roadmap](docs/ROADMAP.md) supersedes the earlier short implementation plan; its numbering is independent. Release 0.10.0 adds transcript annotations and a bounded Ensembl adapter; normalized assembly/chromosome and general identifier models remain future Phase 2 work. A statistical enrichment engine remains a separate future extension requiring an explicit background population and reproducible method.
 
 Enrichment calculations, OpenSearch/Elasticsearch, background processing, and later-phase infrastructure remain out of scope for Phase 7.
 
@@ -558,8 +644,13 @@ Enrichment calculations, OpenSearch/Elasticsearch, background processing, and la
 2. Include tests for behavior changes.
 3. Add migrations for schema changes; never rewrite applied migration history.
 4. Keep external payloads outside domain and persistence interfaces.
-5. Maintain current behavior, architecture, and verification records in `README.md`; historical architecture/changelog files are retained. Local roadmap, prompt, and report Markdown files are not release artifacts and are not included in commits.
+5. Maintain current behavior, architecture, and verification records in `README.md`; historical architecture/changelog files are retained. Local root-level planning, prompt and report Markdown files are not release artifacts. The owner-approved roadmap coverage reference is versioned in docs/ROADMAP.md.
 
 ## License
 
 A license has not yet been selected. The project intends to be open source, but distribution and reuse terms are not established until a `LICENSE` file is added.
+
+Release 0.18.0 adds [dataset discovery](docs/DATASETS.md). The public starter
+catalogue contains one real GEO Series metadata record (GSE10072, 107 source
+sample records); experimental files and automatic dataset scheduling are outside
+this release. See [current imported data](docs/DATA_STATUS.md).

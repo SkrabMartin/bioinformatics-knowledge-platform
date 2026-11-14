@@ -17,8 +17,11 @@ from app.models.base import ProvenanceMixin
 from app.models.types import BIGINT_PK
 
 if TYPE_CHECKING:
+    from app.models.gene_context import GeneAlias, GeneGenomicLocation
+    from app.models.gene_identifier import GeneExternalIdentifier
     from app.models.organism import Organism
     from app.models.protein import Protein
+    from app.models.transcript import Transcript
 
 
 class Gene(ProvenanceMixin, Base):
@@ -86,3 +89,18 @@ class Gene(ProvenanceMixin, Base):
 
     organism: Mapped["Organism"] = relationship(back_populates="genes")
     proteins: Mapped[list["Protein"]] = relationship(back_populates="gene")
+
+    aliases: Mapped[list["GeneAlias"]] = relationship(
+        back_populates="gene", order_by="GeneAlias.alias"
+    )
+    genomic_locations: Mapped[list["GeneGenomicLocation"]] = relationship(
+        back_populates="gene", order_by="GeneGenomicLocation.id"
+    )
+
+    transcripts: Mapped[list["Transcript"]] = relationship(
+        back_populates="gene", order_by="Transcript.ensembl_transcript_id"
+    )
+
+    external_identifiers: Mapped[list["GeneExternalIdentifier"]] = relationship(
+        back_populates="gene", order_by="GeneExternalIdentifier.namespace"
+    )

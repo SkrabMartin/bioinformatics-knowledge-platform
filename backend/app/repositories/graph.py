@@ -6,16 +6,19 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import ColumnElement
 
 from app.models import (
+    DatasetPublication,
     GeneBiologicalProcess,
     GeneDiseaseAssociation,
     GenePathway,
     OntologyParent,
     Protein,
+    ProteinCellularComponent,
     ProteinInteraction,
     ProteinMolecularFunction,
     PublicationDisease,
     PublicationGene,
     PublicationProtein,
+    PublicationVariant,
     VariantDiseaseAssociation,
     VariantGeneLocation,
 )
@@ -36,6 +39,14 @@ class EdgeSpec:
 
 SPECS = (
     EdgeSpec(
+        "dataset_publication",
+        DatasetPublication,
+        "dataset",
+        DatasetPublication.dataset_id,
+        "publication",
+        DatasetPublication.publication_id,
+    ),
+    EdgeSpec(
         "gene_pathway", GenePathway, "gene", GenePathway.gene_id, "pathway", GenePathway.pathway_id
     ),
     EdgeSpec(
@@ -55,6 +66,14 @@ SPECS = (
         ProteinMolecularFunction.term_id,
     ),
     EdgeSpec(
+        "protein_cellular_component",
+        ProteinCellularComponent,
+        "protein",
+        ProteinCellularComponent.protein_id,
+        "cellular_component",
+        ProteinCellularComponent.term_id,
+    ),
+    EdgeSpec(
         "biological_process_parent",
         OntologyParent,
         "biological_process",
@@ -71,6 +90,15 @@ SPECS = (
         "molecular_function",
         OntologyParent.parent_id,
         OntologyParent.kind == "molecular_function",
+    ),
+    EdgeSpec(
+        "cellular_component_parent",
+        OntologyParent,
+        "cellular_component",
+        OntologyParent.child_id,
+        "cellular_component",
+        OntologyParent.parent_id,
+        OntologyParent.kind == "cellular_component",
     ),
     EdgeSpec("gene_protein", Protein, "gene", Protein.gene_id, "protein", Protein.id),
     EdgeSpec(
@@ -128,6 +156,14 @@ SPECS = (
         PublicationDisease.publication_id,
         "disease",
         PublicationDisease.disease_id,
+    ),
+    EdgeSpec(
+        "publication_variant",
+        PublicationVariant,
+        "publication",
+        PublicationVariant.publication_id,
+        "variant",
+        PublicationVariant.variant_id,
     ),
 )
 

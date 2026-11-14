@@ -13,12 +13,19 @@ from app.models import (
     OntologyTerm,
     Pathway,
     Protein,
+    ProteinCellularComponent,
     ProteinMolecularFunction,
 )
 from app.schemas.relationship import EntityType, Predicate, RelationshipNode
 
-KnowledgeEdge = GenePathway | GeneBiologicalProcess | ProteinMolecularFunction | OntologyParent
-KNOWLEDGE_KINDS = {"pathway", "biological_process", "molecular_function"}
+KnowledgeEdge = (
+    GenePathway
+    | GeneBiologicalProcess
+    | ProteinMolecularFunction
+    | ProteinCellularComponent
+    | OntologyParent
+)
+KNOWLEDGE_KINDS = {"pathway", "biological_process", "molecular_function", "cellular_component"}
 
 
 def knowledge_node(record: Pathway | OntologyTerm) -> RelationshipNode:
@@ -62,6 +69,15 @@ def specs() -> list[tuple[str, Any, EntityType, Any, EntityType, Any, Any]]:
             None,
         ),
         (
+            "protein_cellular_component",
+            ProteinCellularComponent,
+            "protein",
+            ProteinCellularComponent.protein_id,
+            "cellular_component",
+            ProteinCellularComponent.term_id,
+            None,
+        ),
+        (
             "biological_process_parent",
             OntologyParent,
             "biological_process",
@@ -78,6 +94,15 @@ def specs() -> list[tuple[str, Any, EntityType, Any, EntityType, Any, Any]]:
             "molecular_function",
             OntologyParent.parent_id,
             OntologyParent.kind == "molecular_function",
+        ),
+        (
+            "cellular_component_parent",
+            OntologyParent,
+            "cellular_component",
+            OntologyParent.child_id,
+            "cellular_component",
+            OntologyParent.parent_id,
+            OntologyParent.kind == "cellular_component",
         ),
     ]
 
@@ -111,11 +136,19 @@ def load_records(session: Session, ids: dict[str, set[int]]) -> dict[str, dict[i
             selectinload(GeneBiologicalProcess.gene).selectinload(Gene.organism),
             selectinload(GeneBiologicalProcess.term),
         ],
+        "protein_cellular_component": [
+            selectinload(ProteinCellularComponent.protein),
+            selectinload(ProteinCellularComponent.term),
+        ],
         "protein_molecular_function": [
             selectinload(ProteinMolecularFunction.protein),
             selectinload(ProteinMolecularFunction.term),
         ],
         "biological_process_parent": [
+            selectinload(OntologyParent.child),
+            selectinload(OntologyParent.parent),
+        ],
+        "cellular_component_parent": [
             selectinload(OntologyParent.child),
             selectinload(OntologyParent.parent),
         ],
@@ -140,6 +173,8 @@ def endpoints(
         return record.gene, record.pathway, "participates_in"
     if isinstance(record, GeneBiologicalProcess):
         return record.gene, record.term, "involved_in"
+    if isinstance(record, ProteinCellularComponent):
+        return record.protein, record.term, "annotated_to"
     if isinstance(record, ProteinMolecularFunction):
         return record.protein, record.term, "has_function"
     return record.child, record.parent, "is_a"

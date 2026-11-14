@@ -55,7 +55,7 @@ test("homepage replaces decorative graph with a real local record and actionable
     ),
   );
   open("/");
-  expect(await screen.findByRole("link", { name: "Explore DEMO" })).toHaveAttribute(
+  expect(await screen.findByRole("link", { name: "Open DEMO in graph" })).toHaveAttribute(
     "href",
     "/graph?type=gene&id=3",
   );

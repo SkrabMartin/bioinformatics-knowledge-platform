@@ -41,7 +41,10 @@ class OntologyTerm(KnowledgeRecordMixin, Base):
     __table_args__ = (
         UniqueConstraint("go_id", name="uq_ontology_terms_go_id"),
         UniqueConstraint("id", "kind", name="uq_ontology_terms_id_kind"),
-        CheckConstraint("kind IN ('biological_process', 'molecular_function')", name="kind"),
+        CheckConstraint(
+            "kind IN ('biological_process', 'molecular_function', 'cellular_component')",
+            name="kind",
+        ),
     )
     id: Mapped[int] = mapped_column(BIGINT_PK, primary_key=True, autoincrement=True)
     go_id: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
@@ -58,6 +61,10 @@ class BiologicalProcess(OntologyTerm):
 
 class MolecularFunction(OntologyTerm):
     __mapper_args__ = {"polymorphic_identity": "molecular_function"}  # noqa: RUF012
+
+
+class CellularComponent(OntologyTerm):
+    __mapper_args__ = {"polymorphic_identity": "cellular_component"}  # noqa: RUF012
 
 
 class AnnotationMixin(RelationshipProvenanceMixin):
@@ -135,6 +142,34 @@ class ProteinMolecularFunction(AnnotationMixin, Base):
     term: Mapped[OntologyTerm] = relationship(viewonly=True)
 
 
+class ProteinCellularComponent(AnnotationMixin, Base):
+    __tablename__ = "protein_cellular_components"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["term_id", "kind"], ["ontology_terms.id", "ontology_terms.kind"], ondelete="RESTRICT"
+        ),
+        CheckConstraint("kind = 'cellular_component'", name="kind"),
+        CheckConstraint(
+            "evidence_kind IN ('curated', 'structured_metadata')", name="evidence_kind"
+        ),
+        UniqueConstraint(
+            "protein_id",
+            "term_id",
+            "source",
+            "source_identifier",
+            name="uq_protein_component_source",
+        ),
+    )
+    id: Mapped[int] = mapped_column(BIGINT_PK, primary_key=True, autoincrement=True)
+    protein_id: Mapped[int] = mapped_column(
+        ForeignKey("proteins.id", ondelete="RESTRICT"), index=True
+    )
+    term_id: Mapped[int] = mapped_column(BIGINT_PK, index=True)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False, default="cellular_component")
+    protein: Mapped["Protein"] = relationship()
+    term: Mapped[OntologyTerm] = relationship(viewonly=True)
+
+
 class OntologyParent(RelationshipProvenanceMixin, Base):
     __tablename__ = "ontology_parents"
     __table_args__ = (
@@ -145,7 +180,10 @@ class OntologyParent(RelationshipProvenanceMixin, Base):
             ["parent_id", "kind"], ["ontology_terms.id", "ontology_terms.kind"], ondelete="RESTRICT"
         ),
         CheckConstraint("child_id <> parent_id", name="not_self"),
-        CheckConstraint("kind IN ('biological_process', 'molecular_function')", name="kind"),
+        CheckConstraint(
+            "kind IN ('biological_process', 'molecular_function', 'cellular_component')",
+            name="kind",
+        ),
         UniqueConstraint(
             "child_id", "parent_id", "source", "source_identifier", name="uq_ontology_parent_source"
         ),

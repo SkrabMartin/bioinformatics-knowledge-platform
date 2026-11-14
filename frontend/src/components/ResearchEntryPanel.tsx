@@ -8,14 +8,11 @@ export function ResearchEntryPanel() {
   const { data, loading, error, retry } = useEntity<Page<Gene>>("genes?page=1&page_size=1");
   const gene = data?.items[0];
   return (
-    <aside className="research-entry" aria-labelledby="research-entry-title">
-      <div className="research-entry-heading">
-        <span className="eyebrow">A starting point, from your database</span>
-        <h2 id="research-entry-title">Follow a record. Inspect the evidence.</h2>
-      </div>
-      <div className="research-entry-record" aria-live="polite">
+    <aside className="local-record" aria-labelledby="research-entry-title">
+      <h2 id="research-entry-title">Stored gene record</h2>
+      <div className="local-record-body" aria-live="polite">
         {loading ? (
-          <p>Finding a local starting point…</p>
+          <p>Loading the first stored gene…</p>
         ) : error ? (
           <>
             <p>The local record preview is unavailable.</p>
@@ -25,56 +22,46 @@ export function ResearchEntryPanel() {
           </>
         ) : gene ? (
           <>
-            <div className="research-entry-record-top">
-              <span className="research-entry-type">Gene · local record</span>
+            <div className="local-record-top">
+              <span className="entity-type">Gene</span>
               <ProvenanceBadge source={gene.source} />
             </div>
             <h3>{gene.symbol}</h3>
             <p>{gene.name}</p>
-            <span className="research-entry-organism">{gene.organism.scientific_name}</span>
-            <Link className="research-entry-cta" to={`/graph?type=gene&id=${gene.id}`}>
-              Explore {gene.symbol} <span aria-hidden="true">↗</span>
+            <p>
+              <i>{gene.organism.scientific_name}</i>
+            </p>
+            <Link className="button" to={`/graph?type=gene&id=${gene.id}`}>
+              Open {gene.symbol} in graph
             </Link>
             {gene.source === "development_fixture" && (
-              <p className="research-entry-note">
+              <p className="context-note">
                 Development example — not authoritative scientific data.
               </p>
             )}
           </>
         ) : (
           <>
-            <h3>Your research starts with a record.</h3>
             <p>No genes are stored yet. Import a source-backed record to begin.</p>
-            <Link className="research-entry-cta" to="/about">
-              Understand the platform ↗
-            </Link>
+            <Link to="/about">Read scope and data policy</Link>
           </>
         )}
       </div>
-      <ol className="research-entry-steps">
+      <ol className="steps">
         <li>
-          <span>01</span>
-          <div>
-            <strong>Find the right entity</strong>
-            <p>Check its identifier and organism.</p>
-          </div>
+          <strong>Search</strong>
+          <span>Check the identifier and organism of a record.</span>
         </li>
         <li>
-          <span>02</span>
-          <div>
-            <strong>Follow stored connections</strong>
-            <p>Expand only relationships recorded locally.</p>
-          </div>
+          <strong>Graph</strong>
+          <span>Expand only relationships stored locally.</span>
         </li>
         <li>
-          <span>03</span>
-          <div>
-            <strong>Go back to the source</strong>
-            <p>Inspect where each assertion came from.</p>
-          </div>
+          <strong>Source</strong>
+          <span>Open the provider record behind each assertion.</span>
         </li>
       </ol>
-      <p className="research-entry-disclaimer">No connections are inferred from matching names.</p>
+      <p className="context-note">No connections are inferred from matching names.</p>
     </aside>
   );
 }

@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 import { DetailHeader, DetailSection, FactGrid, ProvenancePanel } from "../components/EntityDetail";
 import { RelationshipPanel } from "../components/RelationshipPanel";
+import { GeneIdentifierPanel } from "../components/GeneIdentifierPanel";
+import { GeneContextPanel } from "../components/GeneContextPanel";
 import { PublicationPanel } from "../components/PublicationPanel";
 import { ErrorState, LoadingState } from "../components/States";
 import { useEntity } from "../hooks/useEntity";
@@ -60,6 +62,7 @@ export function GeneDetailPage() {
             ]}
           />
         </DetailSection>
+        <GeneIdentifierPanel identifiers={gene.external_identifiers ?? []} />
         <DetailSection title="Genomic location">
           <FactGrid
             facts={[
@@ -69,7 +72,32 @@ export function GeneDetailPage() {
             ]}
           />
           <p className="context-note">
-            Coordinates are one-based and inclusive. Assembly metadata is not yet stored.
+            This is the legacy location summary. NCBI imports use one-based inclusive coordinates;
+            older manually entered values may have unspecified conventions. No assembly is inferred.
+          </p>
+        </DetailSection>
+        <GeneContextPanel aliases={gene.aliases ?? []} locations={gene.genomic_locations ?? []} />
+        <DetailSection title="Observed transcripts">
+          {gene.transcripts?.length ? (
+            <ul className="related-list">
+              {gene.transcripts.map((transcript) => (
+                <li key={transcript.id}>
+                  <Link to={"/transcript/" + encodeURIComponent(transcript.ensembl_transcript_id)}>
+                    <strong>{transcript.ensembl_transcript_id}</strong>
+                    <span>
+                      {transcript.assembly_name} · Ensembl release {transcript.source_release}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="context-note">
+              No source-backed transcript annotations have been imported.
+            </p>
+          )}
+          <p className="context-note">
+            These are retained source annotations, not an inferred complete set of current isoforms.
           </p>
         </DetailSection>
         <DetailSection title="Associated proteins">

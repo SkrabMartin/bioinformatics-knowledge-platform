@@ -4,7 +4,7 @@ import { KnowledgeNavigation } from "../components/KnowledgeNavigation";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { ProvenanceBadge } from "../components/ProvenanceBadge";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { knowledgeCollections } from "../features/knowledge/config";
 import { useEntity } from "../hooks/useEntity";
 import type { KnowledgeKind, OntologyTerm, Page, Pathway } from "../types/entities";
@@ -31,11 +31,17 @@ export function KnowledgeBrowserPage({ kind }: { kind: KnowledgeKind }) {
           <Link className="entity-link" to={`${collection.detail}/${record.id}`}>
             {record.name}
           </Link>
-          <span>{"go_id" in record ? record.go_id : record.source_identifier}</span>
+          <span className="mono">
+            {"go_id" in record ? record.go_id : record.source_identifier}
+          </span>
         </div>
       ),
     },
-    { key: "release", heading: "Source release", render: (record) => record.source_release },
+    {
+      key: "release",
+      heading: "Source release",
+      render: (record) => <span className="mono">{record.source_release}</span>,
+    },
     {
       key: "source",
       heading: "Source",
@@ -52,7 +58,7 @@ export function KnowledgeBrowserPage({ kind }: { kind: KnowledgeKind }) {
       />
       <KnowledgeNavigation />
       <form
-        className="knowledge-search"
+        className="form-row"
         onSubmit={(event) => {
           event.preventDefault();
           const q = String(new FormData(event.currentTarget).get("q") ?? "").trim();
@@ -102,13 +108,10 @@ export function KnowledgeBrowserPage({ kind }: { kind: KnowledgeKind }) {
             />
           </>
         ) : (
-          <div className="knowledge-empty">
-            <h2>No {collection.title.toLowerCase()} match this view</h2>
-            <p>
-              A fresh installation contains no pathway or GO assertions. Add source-backed records
-              using the administrator API; no biological data is invented.
-            </p>
-          </div>
+          <EmptyState title={`No ${collection.title.toLowerCase()} match this view`}>
+            A fresh installation contains no pathway or GO assertions. Add source-backed records
+            using the administrator API; no biological data is invented.
+          </EmptyState>
         ))}
     </div>
   );

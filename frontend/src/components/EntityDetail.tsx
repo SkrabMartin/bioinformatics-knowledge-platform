@@ -8,17 +8,22 @@ export function DetailHeader({
   title,
   subtitle,
   organism,
+  mono = false,
+  monoSubtitle = false,
 }: {
   type: string;
   title: string;
   subtitle: string;
   organism?: string;
+  /** Render the title in monospace: accessions, rsIDs, HGVS expressions. */
+  mono?: boolean;
+  monoSubtitle?: boolean;
 }) {
   return (
     <header className="detail-hero">
       <span className="eyebrow">{type}</span>
-      <h1>{title}</h1>
-      <p className="detail-subtitle">{subtitle}</p>
+      <h1 className={mono ? "mono" : undefined}>{title}</h1>
+      <p className={`detail-subtitle${monoSubtitle ? " mono" : ""}`}>{subtitle}</p>
       {organism && <p className="detail-organism">{organism}</p>}
     </header>
   );

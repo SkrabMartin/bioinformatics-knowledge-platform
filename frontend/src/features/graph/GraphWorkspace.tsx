@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { ProvenanceBadge } from "../../components/ProvenanceBadge";
 import { ErrorState, LoadingState } from "../../components/States";
+import { captureGraph, downloadGraph } from "./export";
 import { GraphCanvas } from "./GraphCanvas";
 import { entityTypes, truncationLabels } from "./types";
 import type { GraphSelection } from "./types";
@@ -11,6 +12,7 @@ import { useGraphExplorer } from "./useGraphExplorer";
 export function GraphWorkspace({ resource }: { resource: string }) {
   const { graph, loading, error, retry, expand, collapse, expanding, expansionError } =
     useGraphExplorer(resource);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [selected, setSelected] = useState<GraphSelection | null>(null);
   if (loading) return <LoadingState label="Loading sourced graph" />;
   if (error) return <ErrorState message={error} onRetry={retry} />;
@@ -22,16 +24,41 @@ export function GraphWorkspace({ resource }: { resource: string }) {
   const edge =
     selected?.kind === "edge" ? graph.edges.find((item) => item.id === selected.id) : null;
   const activeSelection = edge ? selected : node ? { kind: "node" as const, id: node.id } : null;
+  function exportView(format: "json" | "graphml") {
+    if (!graph || expanding) return;
+    try {
+      downloadGraph(captureGraph(graph, resource), format);
+      setExportError(null);
+    } catch (reason) {
+      setExportError(reason instanceof Error ? reason.message : "Unable to export this view.");
+    }
+  }
   return (
     <section className="graph-workspace" aria-label="Knowledge graph workspace">
-      <div className="graph-summary" aria-live="polite">
-        <strong>
-          {graph.nodes.length} nodes · {graph.edges.length} relationships
-        </strong>
-        <button type="button" onClick={retry} disabled={!!expanding}>
-          Reset view
-        </button>
+      <div className="graph-toolbar">
+        <div className="graph-summary" aria-live="polite">
+          <strong>
+            {graph.nodes.length} nodes · {graph.edges.length} relationships
+          </strong>
+          <button type="button" onClick={retry} disabled={!!expanding}>
+            Reset view
+          </button>
+        </div>
+        <div className="graph-summary" aria-label="Export visible graph">
+          <button type="button" disabled={!!expanding} onClick={() => exportView("json")}>
+            Download JSON
+          </button>
+          <button type="button" disabled={!!expanding} onClick={() => exportView("graphml")}>
+            Download GraphML
+          </button>
+        </div>
       </div>
+      <p className="context-note">
+        Downloads include only visible nodes and relationships, their source evidence and view
+        limits. Expanded or collapsed views may differ from the initial request. This is a partial
+        research view, not a complete database export or a replayable analysis.
+      </p>
+      {exportError && <p role="alert">{exportError}</p>}
       <div className="graph-legend" aria-label="Graph node type legend">
         {entityTypes.map((type) => (
           <span key={type} className={`graph-type graph-type--${type}`}>
@@ -55,7 +82,7 @@ export function GraphWorkspace({ resource }: { resource: string }) {
       <div className="graph-layout">
         <GraphCanvas graph={graph} selected={activeSelection} onSelect={setSelected} />
         <aside className="graph-inspector" aria-label="Graph inspection">
-          <h2>Inspect the evidence</h2>
+          <h2>Inspector</h2>
           <label>
             Inspect node
             <select
@@ -131,6 +158,12 @@ export function GraphWorkspace({ resource }: { resource: string }) {
                 <dd>{edge.assertion.evidence_kind?.replaceAll("_", " ") ?? "Not classified"}</dd>
                 <dt>Retrieved</dt>
                 <dd>{edge.assertion.imported_at ?? "Not supplied"}</dd>
+                {edge.assertion.source_record_date && (
+                  <>
+                    <dt>Source record updated</dt>
+                    <dd>{edge.assertion.source_record_date}</dd>
+                  </>
+                )}
                 {edge.assertion.source_release && (
                   <>
                     <dt>Source release</dt>
@@ -160,7 +193,8 @@ export function GraphWorkspace({ resource }: { resource: string }) {
           )}
           <p className="context-note">
             A literature mention or sourced association is not proof of causation. This graph
-            reflects only the local database.
+            reflects only the local database. Dataset citations preserve the first observed source
+            reference, even if later source metadata change.
           </p>
         </aside>
       </div>

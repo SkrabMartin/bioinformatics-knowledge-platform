@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 import type { Core, EventObject } from "cytoscape";
 import type { GraphResponse, GraphSelection } from "./types";
 
+const INK = "#121412";
+const ACCENT = "#1f4e79";
+
 export function GraphCanvas({
   graph,
   selected,
@@ -28,75 +31,58 @@ export function GraphCanvas({
       minZoom: 0.15,
       maxZoom: 3,
       wheelSensitivity: 0.25,
+      // Node types differ by shape only; the legend in styles.css mirrors these shapes.
       style: [
         {
           selector: "node",
           style: {
             label: "data(label)",
-            width: 48,
-            height: 48,
+            width: 34,
+            height: 34,
             "font-size": 11,
+            "font-family": "Helvetica Neue, Helvetica, Arial, sans-serif",
             "text-valign": "bottom",
-            "text-margin-y": 8,
+            "text-margin-y": 6,
             "text-wrap": "wrap",
             "text-max-width": "130px",
-            color: "#193a34",
-            "border-width": 2,
-            "border-color": "#fff",
+            "text-background-color": "#ffffff",
+            "text-background-opacity": 0.85,
+            color: INK,
+            "background-color": INK,
           },
         },
-        {
-          selector: "node[type='gene']",
-          style: { "background-color": "#24766a", shape: "ellipse" },
-        },
-        {
-          selector: "node[type='protein']",
-          style: { "background-color": "#467ab0", shape: "round-rectangle" },
-        },
-        {
-          selector: "node[type='disease']",
-          style: { "background-color": "#a25676", shape: "diamond" },
-        },
-        {
-          selector: "node[type='variant']",
-          style: { "background-color": "#bb7b32", shape: "triangle" },
-        },
-        {
-          selector: "node[type='publication']",
-          style: { "background-color": "#7660a5", shape: "rectangle" },
-        },
-        { selector: "node.root", style: { "border-color": "#163f36", "border-width": 5 } },
-        {
-          selector: "node[type='pathway']",
-          style: { "background-color": "#598038", shape: "hexagon" },
-        },
-        {
-          selector: "node[type='biological_process']",
-          style: { "background-color": "#278a91", shape: "pentagon" },
-        },
-        {
-          selector: "node[type='molecular_function']",
-          style: { "background-color": "#9a6c36", shape: "vee" },
-        },
+        { selector: "node[type='gene']", style: { shape: "ellipse" } },
+        { selector: "node[type='protein']", style: { shape: "rectangle" } },
+        { selector: "node[type='disease']", style: { shape: "diamond" } },
+        { selector: "node[type='variant']", style: { shape: "triangle" } },
+        { selector: "node[type='dataset']", style: { shape: "octagon" } },
+        { selector: "node[type='publication']", style: { shape: "rhomboid" } },
+        { selector: "node[type='pathway']", style: { shape: "hexagon" } },
+        { selector: "node[type='biological_process']", style: { shape: "pentagon" } },
+        { selector: "node[type='molecular_function']", style: { shape: "vee" } },
+        { selector: "node[type='cellular_component']", style: { shape: "star" } },
+        { selector: "node.root", style: { "background-color": ACCENT, width: 44, height: 44 } },
         {
           selector: "edge",
           style: {
             label: "data(label)",
             "font-size": 9,
+            color: "#4b4f4b",
             "text-rotation": "autorotate",
-            "text-background-color": "#fff",
+            "text-background-color": "#ffffff",
             "text-background-opacity": 0.9,
             "curve-style": "bezier",
-            "line-color": "#a4b6b1",
-            width: 2,
-            "target-arrow-color": "#77958c",
+            "line-color": "#8b8f8b",
+            width: 1,
+            "target-arrow-color": "#8b8f8b",
           },
         },
         { selector: "edge.directed", style: { "target-arrow-shape": "triangle" } },
         {
           selector: ":selected",
-          style: { "overlay-color": "#d49627", "overlay-opacity": 0.25, "overlay-padding": 6 },
+          style: { "overlay-color": ACCENT, "overlay-opacity": 0.25, "overlay-padding": 6 },
         },
+        { selector: "edge:selected", style: { "line-color": ACCENT, width: 2 } },
       ],
     });
     instance.current = cy;
@@ -160,6 +146,11 @@ export function GraphCanvas({
       spacingFactor: 1.4,
       animate: false,
     }).run();
+    // A fitted graph of only a few nodes would otherwise fill the canvas at maximum zoom.
+    if (!laidOut.current && cy.zoom() > 1.25) {
+      cy.zoom(1.25);
+      cy.center();
+    }
     laidOut.current = true;
   }, [graph]);
 

@@ -9,11 +9,17 @@ from app.core.database import Base
 from app.models import (
     Disease,
     Gene,
+    GeneAlias,
+    GeneExternalIdentifier,
+    GeneGenomicLocation,
     GenePathway,
     Organism,
     Protein,
+    PublicationVariant,
+    Transcript,
     Variant,
     VariantGeneLocation,
+    VariantPlacement,
 )
 from app.repositories.base import Repository
 from app.repositories.diseases import DiseaseRepository
@@ -85,7 +91,21 @@ class OrganismService(EntityService[Organism]):
         return self.persist(Organism(**model_values(data)))
 
     def update(self, entity_id: int, data: OrganismUpdate) -> Organism:
-        return self.update_fields(self.get(entity_id), model_values(data, exclude_unset=True))
+        entity = self.get(entity_id)
+        self.session.refresh(entity, with_for_update=True)
+        values = model_values(data, exclude_unset=True)
+        if "taxonomy_id" in values and values["taxonomy_id"] != entity.taxonomy_id:
+            placed = self.session.scalar(
+                select(VariantPlacement.id)
+                .join(Variant, VariantPlacement.variant_id == Variant.id)
+                .where(Variant.organism_id == entity_id)
+                .limit(1)
+            )
+            if placed is not None:
+                raise ConflictError(
+                    "Cannot change organism taxonomy while variant placements exist."
+                )
+        return self.update_fields(entity, values)
 
 
 class GeneService(EntityService[Gene]):
@@ -131,10 +151,57 @@ class GeneService(EntityService[Gene]):
                     linked_protein is not None
                     or linked_variant is not None
                     or linked_pathway is not None
+                    or self.session.scalar(
+                        select(GeneExternalIdentifier.id)
+                        .where(GeneExternalIdentifier.gene_id == entity_id)
+                        .limit(1)
+                    )
+                    is not None
+                    or self.session.scalar(
+                        select(Transcript.id).where(Transcript.gene_id == entity_id).limit(1)
+                    )
+                    is not None
+                    or self.session.scalar(
+                        select(GeneAlias.id).where(GeneAlias.gene_id == entity_id).limit(1)
+                    )
+                    is not None
+                    or self.session.scalar(
+                        select(GeneGenomicLocation.id)
+                        .where(GeneGenomicLocation.gene_id == entity_id)
+                        .limit(1)
+                    )
+                    is not None
                 ):
                     raise ConflictError(
                         "Cannot change a gene's organism while relationships exist."
                     )
+        if (
+            "ensembl_gene_id" in values
+            and values["ensembl_gene_id"] != entity.ensembl_gene_id
+            and self.session.scalar(
+                select(Transcript.id).where(Transcript.gene_id == entity_id).limit(1)
+            )
+            is not None
+        ):
+            raise ConflictError("Cannot change Ensembl gene identity while transcripts exist.")
+        for namespace, field in (
+            ("ncbi_gene", "ncbi_gene_id"),
+            ("ensembl_gene", "ensembl_gene_id"),
+        ):
+            if (
+                field in values
+                and values[field] != getattr(entity, field)
+                and self.session.scalar(
+                    select(GeneExternalIdentifier.id)
+                    .where(
+                        GeneExternalIdentifier.gene_id == entity_id,
+                        GeneExternalIdentifier.namespace == namespace,
+                    )
+                    .limit(1)
+                )
+                is not None
+            ):
+                raise ConflictError("Cannot change a source-backed gene identifier.")
         start = values.get("start_position", entity.start_position)
         end = values.get("end_position", entity.end_position)
         if start is not None and end is not None and end < start:
@@ -218,6 +285,7 @@ class VariantService(EntityService[Variant]):
 
     def update(self, entity_id: int, data: VariantUpdate) -> Variant:
         entity = self.get(entity_id)
+        self.session.refresh(entity, with_for_update=True)
         values = model_values(data, exclude_unset=True)
         if (
             "organism_id" in values
@@ -232,6 +300,24 @@ class VariantService(EntityService[Variant]):
             )
             if linked_gene is not None:
                 raise ConflictError("Cannot change a variant's organism while gene links exist.")
+        if any(
+            field in values and values[field] != getattr(entity, field)
+            for field in ("organism_id", "rsid", "hgvs")
+        ) and (
+            self.session.scalar(
+                select(VariantPlacement.id).where(VariantPlacement.variant_id == entity_id).limit(1)
+            )
+            is not None
+            or self.session.scalar(
+                select(PublicationVariant.id)
+                .where(PublicationVariant.variant_id == entity_id)
+                .limit(1)
+            )
+            is not None
+        ):
+            raise ConflictError(
+                "Cannot change variant identity while sourced observations or citations exist."
+            )
         if not values.get("rsid", entity.rsid) and not values.get("hgvs", entity.hgvs):
             raise InvalidInputError("A variant requires an rsID or HGVS expression.")
         return self.update_fields(entity, values)

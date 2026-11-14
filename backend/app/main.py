@@ -19,6 +19,7 @@ from app.api.v1.router import router as v1_router
 from app.api.v1.search import compatibility_router as search_compatibility_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
+from app.core.version import APP_VERSION
 from app.services.errors import ApplicationError
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
         title=settings.app_name,
-        version="0.7.0",
+        version=APP_VERSION,
         description="Biological entity API with ingestion, search, and sourced relationships.",
         lifespan=lifespan,
     )

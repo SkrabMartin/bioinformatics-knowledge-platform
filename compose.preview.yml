@@ -1,0 +1,89 @@
+# Standalone file: do not merge with docker-compose.yml.
+name: bkp-local-preview
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: bkp
+      POSTGRES_USER: bkp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/init-preview.py first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [database]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: &backend_environment
+      BKP_DATABASE_URL: postgresql+psycopg://bkp:${POSTGRES_PASSWORD:?Run scripts/init-preview.py first}@db:5432/bkp
+      BKP_ENSEMBL_BASE_URL: ${BKP_ENSEMBL_BASE_URL:-https://rest.ensembl.org}
+      BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
+      BKP_NCBI_API_KEY: ${BKP_NCBI_API_KEY:-}
+      BKP_ENVIRONMENT: staging
+      BKP_LOG_JSON: "true"
+      BKP_CORS_ORIGINS: '[]'
+      BKP_ADMIN_API_TOKEN: ""
+    command: ["alembic", "upgrade", "head"]
+    networks: [database]
+    depends_on:
+      db:
+        condition: service_healthy
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: *backend_environment
+    networks: [database, application]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  worker:
+    profiles: [imports]
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      <<: *backend_environment
+      BKP_NCBI_EMAIL: ${BKP_NCBI_EMAIL:-}
+      BKP_NCBI_API_KEY: ${BKP_NCBI_API_KEY:-}
+      BKP_IMPORT_REQUEST_INTERVAL_SECONDS: ${BKP_IMPORT_REQUEST_INTERVAL_SECONDS:-0.4}
+      BKP_IMPORT_RETRY_SECONDS: ${BKP_IMPORT_RETRY_SECONDS:-60}
+    command: ["python", "-m", "app.cli", "import-worker"]
+    networks: [database, application]
+    stop_grace_period: 60s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile.preview
+      args:
+        VITE_API_BASE_URL: /api/v1
+    ports:
+      - "127.0.0.1:${BKP_PREVIEW_PORT:-8088}:8080"
+    networks: [application]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+networks:
+  database:
+    internal: true
+  application:
+volumes:
+  postgres_data:

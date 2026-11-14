@@ -33,6 +33,7 @@ export interface GraphResponse {
 export type GraphSelection = { kind: "node" | "edge"; id: string };
 
 export const entityTypes: RelatedEntityType[] = [
+  "dataset",
   "gene",
   "protein",
   "disease",
@@ -41,8 +42,10 @@ export const entityTypes: RelatedEntityType[] = [
   "pathway",
   "biological_process",
   "molecular_function",
+  "cellular_component",
 ];
 export const relationshipLabels: Record<RelationshipType, string> = {
+  dataset_publication: "Dataset cites publication (GEO source record)",
   gene_protein: "Gene encodes protein",
   gene_disease: "Gene–disease association",
   variant_gene: "Variant in gene",
@@ -50,11 +53,14 @@ export const relationshipLabels: Record<RelationshipType, string> = {
   protein_interaction: "Protein interaction",
   publication_gene: "Publication mentions gene",
   publication_protein: "Publication discusses protein",
+  publication_variant: "Publication mentions variant (source assertion)",
   publication_disease: "Publication studies disease",
   gene_pathway: "Gene participates in pathway",
   gene_biological_process: "Gene involved in biological process",
   protein_molecular_function: "Protein has molecular function",
   biological_process_parent: "Biological process is a broader process",
+  protein_cellular_component: "Protein annotated to cellular component",
+  cellular_component_parent: "Cellular component is a broader component",
   molecular_function_parent: "Molecular function is a broader function",
 };
 export const truncationLabels: Record<TruncationReason, string> = {

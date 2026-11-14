@@ -1,9 +1,10 @@
 import { Link, useSearchParams } from "react-router-dom";
 
+import { SimilarNames } from "../components/SimilarNames";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
 import { SearchResultCard } from "../components/SearchResultCard";
-import { ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { useSearchResults } from "../hooks/useSearchResults";
 import type { SearchCounts, SearchEntityType } from "../types/entities";
 
@@ -16,20 +17,23 @@ const categories: {
   { value: "gene", label: "Genes", countKey: "gene" },
   { value: "protein", label: "Proteins", countKey: "protein" },
   { value: "organism", label: "Organisms", countKey: "organism" },
+  { value: "dataset", label: "Datasets", countKey: "dataset" },
   { value: "publication", label: "Publications", countKey: "publication" },
+  { value: "transcript", label: "Transcripts", countKey: "transcript" },
+  { value: "phenotype", label: "Phenotypes", countKey: "phenotype" },
+  { value: "disease", label: "Diseases", countKey: "disease" },
+  { value: "variant", label: "Variants", countKey: "variant" },
+  { value: "pathway", label: "Pathways", countKey: "pathway" },
+  { value: "biological_process", label: "Biological processes", countKey: "biological_process" },
+  { value: "cellular_component", label: "Cellular components", countKey: "cellular_component" },
+  { value: "molecular_function", label: "Molecular functions", countKey: "molecular_function" },
 ];
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
   const query = params.get("q")?.trim() ?? "";
   const requestedType = params.get("type");
-  const category: SearchEntityType | null =
-    requestedType === "gene" ||
-    requestedType === "protein" ||
-    requestedType === "organism" ||
-    requestedType === "publication"
-      ? requestedType
-      : null;
+  const category = categories.find((item) => item.value === requestedType)?.value ?? null;
   const requestedPage = Number(params.get("page") ?? 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const { data, error, loading, retry } = useSearchResults(query, page, category);
@@ -45,15 +49,16 @@ export function SearchPage() {
     <div className="page-container search-page">
       <PageHeader
         eyebrow="Search workspace"
-        title={query ? `Search: ${query}` : "Search biological knowledge"}
-        description="Find locally stored genes, proteins, organisms, and publications by name or identifier. Results retain their source context."
+        title={query ? `Search: ${query}` : "Search"}
+        description="Find locally stored genes, proteins, transcripts, diseases, phenotypes, variants, pathways, GO terms, organisms, publications and datasets. Results retain their source context."
         searchValue={query}
       />
 
+      {query && <SimilarNames key={`${query}:${category}`} query={query} category={category} />}
+
       {!query && (
         <section className="search-intro">
-          <span className="eyebrow">Start with a known identifier</span>
-          <h2>Follow the evidence from a single query.</h2>
+          <h2>Example queries</h2>
           <p>
             Try a gene symbol, UniProt accession, NCBI Gene ID, Ensembl ID, or organism name. Search
             only returns records currently stored in this platform.
@@ -61,7 +66,7 @@ export function SearchPage() {
           <div className="example-queries">
             {["TP53", "P04637", "Homo sapiens"].map((example) => (
               <Link key={example} to={`/search?q=${encodeURIComponent(example)}`}>
-                {example} <span aria-hidden="true">↗</span>
+                {example}
               </Link>
             ))}
           </div>
@@ -125,17 +130,12 @@ export function SearchPage() {
                       />
                     </>
                   ) : (
-                    <div className="search-empty">
-                      <span className="state-symbol" aria-hidden="true">
-                        ∅
-                      </span>
-                      <div>
-                        <h3>No matching {category ?? "biological"} records</h3>
-                        <p>
-                          Try a different symbol, accession, or name. Only records in the local
-                          database can appear here.
-                        </p>
-                        {category && (
+                    <EmptyState title={`No matching ${category ?? "biological"} records`}>
+                      Try a different symbol, accession, or name. Only records in the local database
+                      can appear here.
+                      {category && (
+                        <>
+                          <br />
                           <button
                             className="button button--small"
                             onClick={() => updateLocation(null, 1)}
@@ -143,9 +143,9 @@ export function SearchPage() {
                           >
                             View all categories
                           </button>
-                        )}
-                      </div>
-                    </div>
+                        </>
+                      )}
+                    </EmptyState>
                   )}
                 </div>
               </div>

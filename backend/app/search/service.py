@@ -1,4 +1,5 @@
 import re
+import time
 from collections.abc import Iterable, Sequence
 from math import ceil
 from typing import Any
@@ -17,12 +18,27 @@ from sqlalchemy import (
     select,
     union_all,
 )
-from sqlalchemy.engine import RowMapping
+from sqlalchemy.engine import Result, RowMapping
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql import ColumnElement, Select
 
-from app.models import Gene, Organism, Protein
+from app.models import (
+    BiologicalProcess,
+    CellularComponent,
+    Dataset,
+    Disease,
+    Gene,
+    GeneAlias,
+    MolecularFunction,
+    Organism,
+    Pathway,
+    Phenotype,
+    Protein,
+    Transcript,
+    Variant,
+)
 from app.schemas.search import (
     SearchCounts,
     SearchEntityType,
@@ -34,17 +50,31 @@ from app.schemas.search import (
     SearchSuggestionsResponse,
 )
 from app.search.publications import publication_statement
-from app.services.errors import InvalidInputError
+from app.services.errors import ApplicationError, InvalidInputError
 
 MAX_QUERY_LENGTH = 200
 MAX_DESCRIPTION_LENGTH = 320
 ENTITY_ORDER = (
+    SearchEntityType.DATASET,
     SearchEntityType.GENE,
     SearchEntityType.PROTEIN,
     SearchEntityType.ORGANISM,
     SearchEntityType.PUBLICATION,
+    SearchEntityType.PHENOTYPE,
+    SearchEntityType.TRANSCRIPT,
+    SearchEntityType.DISEASE,
+    SearchEntityType.VARIANT,
+    SearchEntityType.PATHWAY,
+    SearchEntityType.BIOLOGICAL_PROCESS,
+    SearchEntityType.MOLECULAR_FUNCTION,
+    SearchEntityType.CELLULAR_COMPONENT,
 )
 SearchField = ColumnElement[Any] | InstrumentedAttribute[Any]
+
+
+class SearchTimeout(ApplicationError):
+    status_code = 503
+    code = "search_timeout"
 
 
 class SearchService:
@@ -63,6 +93,7 @@ class SearchService:
         page_size: int,
         entity_types: Sequence[SearchEntityType] | None = None,
     ) -> SearchResponse:
+        self.deadline = time.monotonic() + 5
         normalized = _normalize_query(query)
         terms = _query_terms(normalized)
         statements = self._statements(normalized, terms)
@@ -77,10 +108,7 @@ class SearchService:
         total = sum(category_counts[entity_type] for entity_type in selected_types)
         rows = self._ranked_rows(statements, selected_types, page=page, page_size=page_size)
         counts = SearchCounts(
-            gene=category_counts[SearchEntityType.GENE],
-            protein=category_counts[SearchEntityType.PROTEIN],
-            organism=category_counts[SearchEntityType.ORGANISM],
-            publication=category_counts[SearchEntityType.PUBLICATION],
+            **{kind.value: category_counts[kind] for kind in ENTITY_ORDER},
             total=sum(category_counts.values()),
         )
         return SearchResponse(
@@ -94,6 +122,7 @@ class SearchService:
         )
 
     def suggestions(self, query: str, *, limit: int) -> SearchSuggestionsResponse:
+        self.deadline = time.monotonic() + 5
         normalized = _normalize_query(query)
         terms = _query_terms(normalized)
         rows = self._ranked_rows(
@@ -136,10 +165,11 @@ class SearchService:
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
-        return list(self.session.execute(statement).mappings().all())
+        return list(self._execute(statement).mappings().all())
 
     def _statements(self, query: str, terms: Sequence[str]) -> dict[SearchEntityType, Select[Any]]:
         return {
+            **self._additional_statements(query, terms),
             SearchEntityType.GENE: self._gene_statement(query, terms),
             SearchEntityType.PROTEIN: self._protein_statement(query, terms),
             SearchEntityType.ORGANISM: self._organism_statement(query, terms),
@@ -177,6 +207,52 @@ class SearchService:
             prefix_primary=(Gene.symbol,),
             prefix_name=(Gene.name,),
         )
+
+        def alias_condition(value: str) -> ColumnElement[bool]:
+            return (
+                select(GeneAlias.id)
+                .where(
+                    GeneAlias.gene_id == Gene.id,
+                    GeneAlias.alias.ilike(f"%{_escape_like(value)}%", escape="\\"),
+                )
+                .correlate(Gene)
+                .exists()
+            )
+
+        alias_match = alias_condition(query)
+        if terms:
+            match_condition = or_(
+                match_condition,
+                and_(
+                    *[
+                        or_(_partial_match(fields, term, []), alias_condition(term))
+                        for term in terms
+                    ]
+                ),
+            )
+        else:
+            match_condition = or_(match_condition, alias_match)
+        matching_alias = (
+            select(func.min(GeneAlias.alias))
+            .where(
+                GeneAlias.gene_id == Gene.id,
+                or_(
+                    *[
+                        GeneAlias.alias.ilike(f"%{_escape_like(value)}%", escape="\\")
+                        for value in [query, *terms]
+                    ]
+                ),
+            )
+            .correlate(Gene)
+            .scalar_subquery()
+        )
+        alias_exact = (
+            select(GeneAlias.id)
+            .where(GeneAlias.gene_id == Gene.id, func.lower(GeneAlias.alias) == query.casefold())
+            .correlate(Gene)
+            .exists()
+        )
+        base_score = case((base_score >= 1100, base_score), (alias_exact, 1100), else_=base_score)
         return (
             select(
                 literal(SearchEntityType.GENE.value).label("entity_type"),
@@ -195,8 +271,10 @@ class SearchService:
                 Gene.ncbi_gene_id.label("field_3_value"),
                 literal("ensembl_gene_id").label("field_4_name"),
                 Gene.ensembl_gene_id.label("field_4_value"),
-                literal("description").label("field_5_name"),
-                Gene.description.label("field_5_value"),
+                case((matching_alias.is_not(None), "alias"), else_="description").label(
+                    "field_5_name"
+                ),
+                func.coalesce(matching_alias, Gene.description).label("field_5_value"),
                 (base_score + full_text_rank).label("score"),
             )
             .join(Organism, Gene.organism_id == Organism.id)
@@ -291,6 +369,209 @@ class SearchService:
             (base_score + full_text_rank).label("score"),
         ).where(match_condition)
 
+    def _catalog_statement(
+        self,
+        entity_type: SearchEntityType,
+        query: str,
+        terms: Sequence[str],
+        *,
+        identity: SearchField,
+        primary: SearchField,
+        secondary: SearchField,
+        description: SearchField,
+        source: SearchField,
+        fields: Sequence[tuple[str, SearchField]],
+        identifiers: Sequence[SearchField],
+        organism_name: SearchField | None = None,
+        taxonomy_id: SearchField | None = None,
+        related: Sequence[SearchField] = (),
+    ) -> Select[Any]:
+        values = [value for _, value in fields]
+        condition, rank = self._match_and_rank(values, query, terms)
+        score = _score(
+            query,
+            exact_identifier=identifiers,
+            exact_primary=(primary,),
+            exact_name=(secondary,),
+            prefix_identifier=identifiers,
+            prefix_primary=(primary,),
+            prefix_name=(secondary,),
+            related=related,
+        )
+        columns = []
+        for index in range(5):
+            name, value = fields[index] if index < len(fields) else (None, _null_text())
+            columns.extend(
+                [
+                    literal(name, type_=String()).label(f"field_{index + 1}_name"),
+                    value.label(f"field_{index + 1}_value"),
+                ]
+            )
+        return select(
+            literal(entity_type.value).label("entity_type"),
+            identity.label("entity_id"),
+            primary.label("primary_label"),
+            secondary.label("secondary_label"),
+            description.label("description"),
+            (organism_name if organism_name is not None else _null_text()).label("organism_name"),
+            (taxonomy_id if taxonomy_id is not None else _null_text()).label(
+                "organism_taxonomy_id"
+            ),
+            source.label("source"),
+            *columns,
+            (score + rank).label("score"),
+        ).where(condition)
+
+    def _additional_statements(
+        self, query: str, terms: Sequence[str]
+    ) -> dict[SearchEntityType, Select[Any]]:
+        transcript_version = Transcript.ensembl_transcript_id + case(
+            (Transcript.version.is_not(None), literal(".") + cast(Transcript.version, String())),
+            else_="",
+        )
+        transcript = (
+            self._catalog_statement(
+                SearchEntityType.TRANSCRIPT,
+                query,
+                terms,
+                identity=Transcript.id,
+                primary=Transcript.ensembl_transcript_id,
+                secondary=Transcript.name,
+                description=Transcript.biotype,
+                source=Transcript.source,
+                fields=(
+                    ("transcript_identifier", transcript_version),
+                    ("name", Transcript.name),
+                    ("gene_symbol", Gene.symbol),
+                    ("biotype", Transcript.biotype),
+                    ("assembly", Transcript.assembly_name),
+                ),
+                identifiers=(Transcript.ensembl_transcript_id, transcript_version),
+                organism_name=Organism.scientific_name,
+                taxonomy_id=Organism.taxonomy_id,
+                related=(Gene.symbol,),
+            )
+            .join(Gene, Transcript.gene_id == Gene.id)
+            .join(Organism, Gene.organism_id == Organism.id)
+        )
+        if re.fullmatch(r"ENS[A-Z]*T[0-9]{6,20}\.[1-9][0-9]{0,8}", query, re.IGNORECASE):
+            transcript = transcript.where(func.lower(transcript_version) == query.casefold())
+        disease = self._catalog_statement(
+            SearchEntityType.DISEASE,
+            query,
+            terms,
+            identity=Disease.id,
+            primary=Disease.name,
+            secondary=func.coalesce(Disease.mondo_id, Disease.disease_ontology_id),
+            description=Disease.description,
+            source=Disease.source,
+            fields=(
+                ("name", Disease.name),
+                ("mondo_id", Disease.mondo_id),
+                ("disease_ontology_id", Disease.disease_ontology_id),
+                ("description", Disease.description),
+            ),
+            identifiers=(Disease.mondo_id, Disease.disease_ontology_id),
+        )
+        variant = self._catalog_statement(
+            SearchEntityType.VARIANT,
+            query,
+            terms,
+            identity=Variant.id,
+            primary=func.coalesce(Variant.rsid, Variant.hgvs),
+            secondary=Variant.hgvs,
+            description=Variant.description,
+            source=Variant.source,
+            fields=(
+                ("rsid", Variant.rsid),
+                ("hgvs", Variant.hgvs),
+                ("description", Variant.description),
+            ),
+            identifiers=(Variant.rsid, Variant.hgvs),
+            organism_name=Organism.scientific_name,
+            taxonomy_id=Organism.taxonomy_id,
+        ).join(Organism, Variant.organism_id == Organism.id)
+        pathway = self._catalog_statement(
+            SearchEntityType.PATHWAY,
+            query,
+            terms,
+            identity=Pathway.id,
+            primary=Pathway.name,
+            secondary=Pathway.source_identifier,
+            description=Pathway.description,
+            source=Pathway.source,
+            fields=(
+                ("name", Pathway.name),
+                ("source_identifier", Pathway.source_identifier),
+                ("description", Pathway.description),
+            ),
+            identifiers=(Pathway.source_identifier,),
+            organism_name=Organism.scientific_name,
+            taxonomy_id=Organism.taxonomy_id,
+        ).outerjoin(Organism, Pathway.organism_id == Organism.id)
+        phenotype = self._catalog_statement(
+            SearchEntityType.PHENOTYPE,
+            query,
+            terms,
+            identity=Phenotype.id,
+            primary=Phenotype.hpo_id,
+            secondary=Phenotype.name,
+            description=Phenotype.description,
+            source=Phenotype.source,
+            fields=(
+                ("hpo_id", Phenotype.hpo_id),
+                ("name", Phenotype.name),
+                ("description", Phenotype.description),
+            ),
+            identifiers=(Phenotype.hpo_id,),
+        )
+        dataset = self._catalog_statement(
+            SearchEntityType.DATASET,
+            query,
+            terms,
+            identity=Dataset.id,
+            primary=Dataset.accession,
+            secondary=Dataset.title,
+            description=Dataset.description,
+            source=Dataset.source,
+            fields=(
+                ("accession", Dataset.accession),
+                ("title", Dataset.title),
+                ("description", Dataset.description),
+            ),
+            identifiers=(Dataset.accession,),
+        )
+        result = {
+            SearchEntityType.DATASET: dataset,
+            SearchEntityType.PHENOTYPE: phenotype,
+            SearchEntityType.TRANSCRIPT: transcript,
+            SearchEntityType.DISEASE: disease,
+            SearchEntityType.VARIANT: variant,
+            SearchEntityType.PATHWAY: pathway,
+        }
+        for kind, model in [
+            (SearchEntityType.BIOLOGICAL_PROCESS, BiologicalProcess),
+            (SearchEntityType.MOLECULAR_FUNCTION, MolecularFunction),
+            (SearchEntityType.CELLULAR_COMPONENT, CellularComponent),
+        ]:
+            result[kind] = self._catalog_statement(
+                kind,
+                query,
+                terms,
+                identity=model.id,
+                primary=model.go_id,
+                secondary=model.name,
+                description=model.description,
+                source=model.source,
+                fields=(
+                    ("go_id", model.go_id),
+                    ("name", model.name),
+                    ("description", model.description),
+                ),
+                identifiers=(model.go_id,),
+            ).where(model.kind == kind.value)
+        return result
+
     def _match_and_rank(
         self,
         fields: Sequence[SearchField],
@@ -307,8 +588,26 @@ class SearchService:
         rank = cast(func.least(func.ts_rank_cd(document, ts_query) * 100, 99), Integer)
         return or_(partial_match, full_text_match), rank
 
+    def _execute(self, statement: Select[Any]) -> Result[Any]:
+        remaining = int((self.deadline - time.monotonic()) * 1000)
+        if remaining <= 0:
+            raise SearchTimeout("Search exceeded its time budget. Narrow the query and retry.")
+        connection = self.session.connection()
+        if connection.dialect.name == "postgresql":
+            connection.exec_driver_sql(
+                "SELECT set_config('statement_timeout', %s, true)", (f"{remaining}ms",)
+            )
+        try:
+            return self.session.execute(statement)
+        except DBAPIError as exc:
+            if getattr(exc.orig, "sqlstate", None) == "57014":
+                raise SearchTimeout("Search timed out. Narrow the query and retry.") from exc
+            raise
+
     def _count(self, statement: Select[Any]) -> int:
-        return self.session.scalar(select(func.count()).select_from(statement.subquery())) or 0
+        return int(
+            self._execute(select(func.count()).select_from(statement.subquery())).scalar_one()
+        )
 
 
 def _normalize_query(query: str) -> str:
@@ -434,8 +733,19 @@ def _result_from_row(row: RowMapping, query: str, terms: Sequence[str]) -> Searc
         organism=organism,
         source=str(row["source"]),
         href=(
-            f"/publication/{row['entity_id']}"
-            if entity_type is SearchEntityType.PUBLICATION
+            f"/{entity_type.value.replace('_', '-')}/{row['entity_id']}"
+            if entity_type
+            in (
+                SearchEntityType.DATASET,
+                SearchEntityType.PHENOTYPE,
+                SearchEntityType.PUBLICATION,
+                SearchEntityType.DISEASE,
+                SearchEntityType.VARIANT,
+                SearchEntityType.PATHWAY,
+                SearchEntityType.BIOLOGICAL_PROCESS,
+                SearchEntityType.MOLECULAR_FUNCTION,
+                SearchEntityType.CELLULAR_COMPONENT,
+            )
             else _entity_href(entity_type, primary_label, row["organism_taxonomy_id"])
         ),
         score=int(row["score"]),
@@ -452,6 +762,8 @@ def _entity_href(
             f"?taxonomy_id={quote(taxonomy_id, safe='')}" if isinstance(taxonomy_id, str) else ""
         )
         return f"/gene/{encoded}{suffix}"
+    if entity_type is SearchEntityType.TRANSCRIPT:
+        return f"/transcript/{encoded}"
     if entity_type is SearchEntityType.PROTEIN:
         return f"/protein/{encoded}"
     return None

@@ -6,10 +6,19 @@ from app.schemas.common import ApiModel
 
 
 class SearchEntityType(StrEnum):
+    DATASET = "dataset"
     GENE = "gene"
     PROTEIN = "protein"
     ORGANISM = "organism"
     PUBLICATION = "publication"
+    PHENOTYPE = "phenotype"
+    TRANSCRIPT = "transcript"
+    DISEASE = "disease"
+    VARIANT = "variant"
+    PATHWAY = "pathway"
+    BIOLOGICAL_PROCESS = "biological_process"
+    MOLECULAR_FUNCTION = "molecular_function"
+    CELLULAR_COMPONENT = "cellular_component"
 
 
 class SearchMatchedField(ApiModel):
@@ -36,10 +45,19 @@ class SearchResult(ApiModel):
 
 
 class SearchCounts(ApiModel):
+    dataset: int = Field(default=0, ge=0)
     gene: int = Field(ge=0)
     protein: int = Field(ge=0)
     organism: int = Field(ge=0)
     publication: int = Field(default=0, ge=0)
+    phenotype: int = Field(default=0, ge=0)
+    transcript: int = Field(default=0, ge=0)
+    disease: int = Field(default=0, ge=0)
+    variant: int = Field(default=0, ge=0)
+    pathway: int = Field(default=0, ge=0)
+    biological_process: int = Field(default=0, ge=0)
+    molecular_function: int = Field(default=0, ge=0)
+    cellular_component: int = Field(default=0, ge=0)
     total: int = Field(ge=0)
 
 

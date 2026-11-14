@@ -1,6 +1,16 @@
 import { Route, Routes } from "react-router-dom";
 
+import { GenomicIntervalsPage } from "./pages/GenomicIntervalsPage";
+import { GeneOverlapPage } from "./pages/GeneOverlapPage";
+import { ImportStatusPage } from "./pages/ImportStatusPage";
+import { DataQualityPage } from "./pages/DataQualityPage";
+import { PhenotypesPage } from "./pages/PhenotypesPage";
+import { PhenotypeDetailPage } from "./pages/PhenotypeDetailPage";
+import { DatasetsPage } from "./pages/DatasetsPage";
+import { DatasetDetailPage } from "./pages/DatasetDetailPage";
 import { AppLayout } from "./components/AppLayout";
+import { TranscriptsPage } from "./pages/TranscriptsPage";
+import { TranscriptDetailPage } from "./pages/TranscriptDetailPage";
 import { AboutPage } from "./pages/AboutPage";
 import { DiseaseDetailPage } from "./pages/DiseaseDetailPage";
 import { DiseasesPage } from "./pages/DiseasesPage";
@@ -30,13 +40,19 @@ export function App() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="search" element={<SearchPage />} />
+        <Route path="transcripts" element={<TranscriptsPage />} />
+        <Route path="transcript/:accession" element={<TranscriptDetailPage />} />
         <Route path="genes" element={<GenesPage />} />
         <Route path="gene/:symbol" element={<GeneDetailPage />} />
         <Route path="proteins" element={<ProteinsPage />} />
         <Route path="protein/:accession" element={<ProteinDetailPage />} />
+        <Route path="phenotypes" element={<PhenotypesPage />} />
+        <Route path="phenotype/:id" element={<PhenotypeDetailPage />} />
         <Route path="diseases" element={<DiseasesPage />} />
         <Route path="disease/:id" element={<DiseaseDetailPage />} />
         <Route path="variants" element={<VariantsPage />} />
+        <Route path="datasets" element={<DatasetsPage />} />
+        <Route path="dataset/:id" element={<DatasetDetailPage />} />
         <Route path="publications" element={<PublicationsPage />} />
         <Route path="pathways" element={<KnowledgeBrowserPage kind="pathway" />} />
         <Route path="pathway/:id" element={<KnowledgeDetailPage kind="pathway" />} />
@@ -56,6 +72,14 @@ export function App() {
           path="molecular-function/:id"
           element={<KnowledgeDetailPage kind="molecular_function" />}
         />
+        <Route
+          path="cellular-components"
+          element={<KnowledgeBrowserPage kind="cellular_component" />}
+        />
+        <Route
+          path="cellular-component/:id"
+          element={<KnowledgeDetailPage kind="cellular_component" />}
+        />
         <Route path="publication/:id" element={<PublicationDetailPage />} />
         <Route
           path="graph"
@@ -72,6 +96,10 @@ export function App() {
           }
         />
         <Route path="variant/:id" element={<VariantDetailPage />} />
+        <Route path="genomics/intervals" element={<GenomicIntervalsPage />} />
+        <Route path="analysis/gene-overlap" element={<GeneOverlapPage />} />
+        <Route path="import-status" element={<ImportStatusPage />} />
+        <Route path="data-quality" element={<DataQualityPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

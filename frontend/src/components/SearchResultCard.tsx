@@ -6,13 +6,23 @@ import type { SearchResult } from "../types/entities";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 
 const entityLabels = {
+  dataset: "Dataset",
+  phenotype: "Phenotype",
   gene: "Gene",
   protein: "Protein",
   organism: "Organism",
   publication: "Publication",
+  transcript: "Transcript",
+  disease: "Disease",
+  variant: "Variant",
+  pathway: "Pathway",
+  biological_process: "Biological process",
+  molecular_function: "Molecular function",
+  cellular_component: "Cellular component",
 };
 
 const fieldLabels: Record<string, string> = {
+  hpo_id: "HPO ID",
   accession: "Accession",
   common_name: "Common name",
   description: "Description",
@@ -29,7 +39,36 @@ const fieldLabels: Record<string, string> = {
   title: "Title",
   journal: "Journal",
   abstract: "Abstract",
+  keywords: "Source keywords",
+  transcript_identifier: "Transcript identifier",
+  biotype: "Biotype",
+  assembly: "Assembly",
+  mondo_id: "MONDO ID",
+  disease_ontology_id: "Disease Ontology ID",
+  rsid: "rsID",
+  hgvs: "HGVS",
+  source_identifier: "Source identifier",
+  go_id: "GO ID",
 };
+
+/** Matched fields and record types whose values are identifiers, shown in monospace. */
+const identifierFields = new Set([
+  "hpo_id",
+  "accession",
+  "ensembl_gene_id",
+  "ncbi_gene_id",
+  "taxonomy_id",
+  "pubmed_id",
+  "doi",
+  "transcript_identifier",
+  "mondo_id",
+  "disease_ontology_id",
+  "rsid",
+  "hgvs",
+  "source_identifier",
+  "go_id",
+]);
+const identifierTitled = new Set(["variant", "transcript", "protein"]);
 
 export function SearchResultCard({ result, query }: { result: SearchResult; query: string }) {
   const title = <HighlightedText text={result.primary_label} query={query} />;
@@ -41,7 +80,9 @@ export function SearchResultCard({ result, query }: { result: SearchResult; quer
         </span>
         <ProvenanceBadge source={result.source} />
       </div>
-      <h3>{result.href ? <Link to={result.href}>{title}</Link> : title}</h3>
+      <h3 className={identifierTitled.has(result.entity_type) ? "mono" : undefined}>
+        {result.href ? <Link to={result.href}>{title}</Link> : title}
+      </h3>
       {result.secondary_label && (
         <p className="result-secondary">
           <HighlightedText text={result.secondary_label} query={query} />
@@ -63,7 +104,7 @@ export function SearchResultCard({ result, query }: { result: SearchResult; quer
           {result.matched_fields.slice(0, 3).map((match) => (
             <div key={`${match.field}-${match.value}`}>
               <dt>{fieldLabels[match.field] ?? match.field}</dt>
-              <dd>
+              <dd className={identifierFields.has(match.field) ? "mono" : undefined}>
                 <HighlightedText text={match.value} query={query} />
               </dd>
             </div>
